@@ -2,17 +2,10 @@
 
 # Import modified 'os' module with LC_LANG set so click doesn't complain
 from .os_utils import os  # noqa: F401
-
-# Python standard library imports
 from functools import partial
-
-# 3rd party libraries
 import click
-
-# Within-module imports
 from cerebra.hello import hello
 from cerebra.germlineFilter import germlineFilter
-
 
 click.option = partial(click.option, show_default=True)
 
@@ -23,6 +16,9 @@ settings = dict(help_option_names=['-h', '--help'])
 def cli():
     """
     finds mutants in your scRNA-seq experiment
+    
+    not sure what this func does. must be an __init__
+    sort of thing? 
     """
     pass
 

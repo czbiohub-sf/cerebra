@@ -1,37 +1,21 @@
-#/////////////////////////////////////////////////////////////////////
-#/////////////////////////////////////////////////////////////////////
-# author: Lincoln
-# date: 4/10/19
-# script: germlineFilter.py
-# 
-# can we do the germline filter, for all the 'germline' variants for
-# a given patient? i think we're pretty close here
-# 		turning our jupyter notebook into a script
-#
-# trying to write this for ALL patients now
-#
-#/////////////////////////////////////////////////////////////////////
-#/////////////////////////////////////////////////////////////////////
+"""
+This program takes in two sets of vcfs, single-cell and bulk (peripheral
+blood, ie. germline) and filters out the common variants found in both sc 
+and bulk. Creates a new directory, filteredOut, that contans the filtered vcfs. 
+"""
+
 import os
 import sys
 import warnings
-
 import pandas as pd
 import click
 import VCF
-
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-#////////////////////////////////////////////////////////////////////
-# writeVCF
-#	wonder if we can write our own vcfs, instead of doing the csv
-#   conversion
-# 
-#   essentially just filling in dummy vals, so that we can trick our
-#     VCF reader into thinking these are properly formatted vcfs
-#////////////////////////////////////////////////////////////////////
-def writeVCF(df, outStr_):
 
+def writeVCF(df, outStr_):
+	""" routine for writing VCF files, from an existing dataframe. 
+		essentially just adding in this horrible vcf header. """
 	header = """##fileformat=VCFv4.2
 ##FILTER=<ID=LowQual,Description="Low quality">
 ##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
@@ -52,11 +36,10 @@ def writeVCF(df, outStr_):
 
 	df.to_csv(output_VCF, sep="\t", mode='a', index=False)
 
-#////////////////////////////////////////////////////////////////////
-# getCellsList
-#	get the list of cell names from a given patient
-#////////////////////////////////////////////////////////////////////
+
+
 def getPatientCellsList(scVCF_list_, patientID):
+	""" get the list of cell names from a given patient """
 	currPatient_cells_ = []
 
 	for item in scVCF_list_:
@@ -75,12 +58,11 @@ def getPatientCellsList(scVCF_list_, patientID):
 	print('numCells: %d' % len(currPatient_cells_))
 	return currPatient_cells_
 
-#////////////////////////////////////////////////////////////////////
-# getUniqueVCF_entries()
-#     do the germline filter, and return a dataframe with only the
-#     UNIQUE entries for a given cell 
-#////////////////////////////////////////////////////////////////////
+
+
 def getUniqueVCF_entries(patient, cell):
+	""" do the germline filter, and return a dataframe with only the 
+		UNIQUE entries for a given cell """
 	basePATH = os.getcwd()
 	patientPATH = basePATH + '/bulkVCF/' + patient
 	cellPATH = basePATH + '/scVCF/' + cell + '.vcf'
@@ -96,34 +78,30 @@ def getUniqueVCF_entries(patient, cell):
 	cell_df_trimmed = cell_df[['CHROM', 'POS', 'ID', 'REF', 'ALT']]
     
 	# get whats SHARED between patient and cell 
-	#    FIND GERMLINE MUTATIONS
 	patient_cell_concat = pd.concat([patient_df_trimmed, cell_df_trimmed])
 	rowsToKeep = patient_cell_concat.duplicated()
 	patient_cell_shared = patient_cell_concat[rowsToKeep]
 	patient_cell_shared = patient_cell_shared.reset_index(drop=True)
 
 	# now go back to the original cell df, pull out whats UNIQUE 
-	#     THIS IS THE GERMLINE FILTER!!
 	cell_cell_concat = pd.concat([cell_df_trimmed, patient_cell_shared])
 	cell_cell_concat_noDups = cell_cell_concat.drop_duplicates(keep=False)
 	cell_cell_concat_noDups = cell_cell_concat_noDups.reset_index(drop=True)
     
 	return(cell_cell_concat_noDups)
 
-#////////////////////////////////////////////////////////////////////
-# main()
-#	get the patient name from the cmdline, set up patientMetadata, 
-#   call subroutines to get list of per-patient cells, then call the 
-#   filtering func and write output to new csv
-#////////////////////////////////////////////////////////////////////
 
+
+""" get cmdline input """
 @click.command()
 @click.option('--metadata', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/metadata_all_cells_4.10.19.csv', prompt='s3 path to by-cell metadata', required=True, type=str)
 @click.option('--sc_vcf', default = 's3://lincoln.harris-work/scVCF/', prompt='s3 path to single-cell VCFs', required=True, type=str)
 @click.option('--bulk_vcf', default = 's3://lincoln.harris-work/bulkVCF/', prompt='s3 path to bulk VCFs', required=True, type=str)
 
-def germlineFilter(metadata, sc_vcf, bulk_vcf):
 
+
+def germlineFilter(metadata, sc_vcf, bulk_vcf):
+	""" driver function. """
 	print(metadata)
 	print(sc_vcf)
 	print(bulk_vcf)
@@ -152,7 +130,7 @@ def germlineFilter(metadata, sc_vcf, bulk_vcf):
 	bulkVCF_dir = cwd + '/bulkVCF/'
 	bulkVCF_list = os.listdir(bulkVCF_dir)
 
-	patientsRun = [] # need to keep track of which patients have been run
+	patientsRun = []
 
 	os.system('sudo mkdir filteredOut')
 	os.system('sudo chmod -R 777 filteredOut/')
@@ -178,7 +156,3 @@ def germlineFilter(metadata, sc_vcf, bulk_vcf):
 				writeVCF(currCell_unique, outStr)
 			
 			patientsRun.append(currPatient)
-
-#/////////////////////////////////////////////////////////////////////
-#/////////////////////////////////////////////////////////////////////
-#
