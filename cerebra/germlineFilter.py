@@ -120,8 +120,8 @@ def getUniqueVCF_entries(patient, cell):
 
 @click.command()
 @click.option('--metadata', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/metadata_all_cells_4.10.19.csv', prompt='s3 path to by-cell metadata', required=True, type=str)
-@click.option('--sc_vcf', default = 's3://darmanis-group/singlecell_lungadeno/non_immune/nonImmune_bams_9.27/vcf1/', prompt='s3 path to single-cell VCFs', required=True, type=str)
-@click.option('--bulk_vcf', default = 's3://darmanis-group/singlecell_lungadeno/non_immune/nonImmune_bams_9.27/bulk_vcf1/', prompt='s3 path to bulk VCFs', required=True, type=str)
+@click.option('--sc_vcf', default = 's3://lincoln.harris-work/scVCF/', prompt='s3 path to single-cell VCFs', required=True, type=str)
+@click.option('--bulk_vcf', default = 's3://lincoln.harris-work/bulkVCF/', prompt='s3 path to bulk VCFs', required=True, type=str)
 
 def germlineFilter(metadata, sc_vcf, bulk_vcf):
 
