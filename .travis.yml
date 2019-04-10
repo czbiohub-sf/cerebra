@@ -1,0 +1,28 @@
+language: python
+python:
+- '3.6'
+- '3.7'
+before_install:
+- wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+  -O miniconda.sh
+- chmod +x miniconda.sh
+- "./miniconda.sh -b"
+- export PATH=~/miniconda3/bin/:$PATH
+- conda update --yes conda
+install:
+- conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION pip
+- source activate testenv
+- conda install --yes --file conda_requirements.txt
+- pip install -r requirements.txt
+- pip install .
+script:
+- make coverage
+- make lint
+after_script:
+- pip install codecov
+- codecov
+deploy:
+  provider: pypi
+  on:
+    tags: true
+    repo: czbiohub/cerebra
