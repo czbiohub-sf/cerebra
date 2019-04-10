@@ -276,3 +276,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# my shit
+*.vcf
+metadata_all_cells_4.10.19.csv
