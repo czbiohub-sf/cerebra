@@ -11,6 +11,7 @@ import click
 
 # Within-module imports
 from cerebra.hello import hello
+#from cerebra.germlineFilter import germlineFilter
 
 
 click.option = partial(click.option, show_default=True)
@@ -25,9 +26,8 @@ def cli():
     """
     pass
 
-
 cli.add_command(hello, name='hello')
-
+#cli.add_command(hello, name='germlineFilter')
 
 if __name__ == "__main__":
     cli()
