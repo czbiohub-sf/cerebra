@@ -11,7 +11,7 @@ import click
 
 # Within-module imports
 from cerebra.hello import hello
-#from cerebra.germlineFilter import germlineFilter
+from cerebra.germlineFilter import germlineFilter
 
 
 click.option = partial(click.option, show_default=True)

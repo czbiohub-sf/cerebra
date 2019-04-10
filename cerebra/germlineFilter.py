@@ -17,6 +17,7 @@ import sys
 import warnings
 
 import pandas as pd
+import click
 import VCF
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
