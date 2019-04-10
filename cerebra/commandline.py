@@ -27,7 +27,7 @@ def cli():
     pass
 
 cli.add_command(hello, name='hello')
-#cli.add_command(hello, name='germlineFilter')
+cli.add_command(germlineFilter, name='germlineFilter')
 
 if __name__ == "__main__":
     cli()

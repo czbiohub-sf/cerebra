@@ -117,58 +117,49 @@ def getUniqueVCF_entries(patient, cell):
 #   call subroutines to get list of per-patient cells, then call the 
 #   filtering func and write output to new csv
 #////////////////////////////////////////////////////////////////////
-
-global patientMetadata
-
-# read in patient metadata
-patientMetadata = pd.read_csv('../metadata_all_cells_4.10.19.csv')
-
-# get a list of all the single-cell VCF files
-cwd = os.getcwd()
-vcfDir = cwd + '/scVCF/'
-scVCF_list = os.listdir(vcfDir)
-
-# get list of bulk VCF files
-bulkVCF_dir = cwd + '/bulkVCF/'
-bulkVCF_list = os.listdir(bulkVCF_dir)
-
-patientsRun = [] # need to keep track of which patients have been run
-
-# outer loop -- by PATIENT
-for item in bulkVCF_list:
-	currSample = item.strip('.vcf')
-	currPatient = currSample.split('_')[0]
-	suffix1 = currSample.split('_')[1]
-	try:
-		suffix2 = currSample.split('_')[2]
-	except IndexError:
-		suffix2 = ''
-	
-	if suffix2 != '' and currPatient not in patientsRun:
-		print('WHOLE BLOOD FOUND, for %s' % currPatient)
-		currPatient_cells = getPatientCellsList(scVCF_list, currPatient)
-
-		# inner loop -- by CELL 
-		for currCell in currPatient_cells:
-			currCell_unique = getUniqueVCF_entries(item, currCell)
-			outStr = './filteredOut/' + currCell + '_unique.vcf'
-			#currCell_unique.to_csv(outStr, index=False)
-			writeVCF(currCell_unique, outStr)
-			#continue
-			
-		patientsRun.append(currPatient)
-
-#/////////////////////////////////////////////////////////////////////
-#/////////////////////////////////////////////////////////////////////
-
 @click.command()
-@click.option('--count', default=5, help='Number of greetings.')
-@click.option('--name', prompt='Your name',
-              help='The person to greet.')
 
-def germlineFilter(count, name):
-    """Simple program that greets NAME for a total of COUNT times, in color."""
-    for x in tqdm(range(count)):
-        # note that colorama.init() doesn't need to be called for the colors
-        # to work
-        click.echo(click.style('Hello %s!' % name, fg=random.choice(COLORS)))
+def germlineFilter():
+
+	global patientMetadata
+
+	# read in patient metadata
+	patientMetadata = pd.read_csv('../metadata_all_cells_4.10.19.csv')
+
+	# get a list of all the single-cell VCF files
+	cwd = os.getcwd()
+	vcfDir = cwd + '/scVCF/'
+	scVCF_list = os.listdir(vcfDir)
+
+	# get list of bulk VCF files
+	bulkVCF_dir = cwd + '/bulkVCF/'
+	bulkVCF_list = os.listdir(bulkVCF_dir)
+
+	patientsRun = [] # need to keep track of which patients have been run
+
+	# outer loop -- by PATIENT
+	for item in bulkVCF_list:
+		currSample = item.strip('.vcf')
+		currPatient = currSample.split('_')[0]
+		suffix1 = currSample.split('_')[1]
+		try:
+			suffix2 = currSample.split('_')[2]
+		except IndexError:
+			suffix2 = ''
+	
+		if suffix2 != '' and currPatient not in patientsRun:
+			print('WHOLE BLOOD FOUND, for %s' % currPatient)
+			currPatient_cells = getPatientCellsList(scVCF_list, currPatient)
+
+			# inner loop -- by CELL 
+			for currCell in currPatient_cells:
+				currCell_unique = getUniqueVCF_entries(item, currCell)
+				outStr = './filteredOut/' + currCell + '_unique.vcf'
+				#currCell_unique.to_csv(outStr, index=False)
+				writeVCF(currCell_unique, outStr)
+				#continue
+			
+			patientsRun.append(currPatient)
+
+#/////////////////////////////////////////////////////////////////////
+#/////////////////////////////////////////////////////////////////////
