@@ -62,13 +62,12 @@ def getPatientCellsList(scVCF_list_, patientID):
 	for item in scVCF_list_:
 		currCell = item.strip('.vcf')
 		currPlate = currCell.split('_')[1]
-    
 		rowToKeep = patientMetadata['plate'] == currPlate
     
 		try:
 			currPatient = patientMetadata['patient_id'][rowToKeep]
-			currPatientVal = currPatient.item()
-
+			index = currPatient.index[0]
+			currPatientVal = currPatient[index]
 			if currPatientVal == patientID:
 				currPatient_cells_.append(currCell)
 		except:
@@ -132,28 +131,31 @@ def germlineFilter(metadata, sc_vcf, bulk_vcf):
 	global patientMetadata
 
 	# read in patient metadata
-	cmd = 'aws s3 cp ' + metadata + ' .'
-	os.system(cmd)
+	#cmd = 'aws s3 cp ' + metadata + ' .'
+	#os.system(cmd)
 	patientMetadata = pd.read_csv('metadata_all_cells_4.10.19.csv')
 
 	# get a list of all the single-cell VCF files
-	os.system('sudo mkdir scVCF')
-	os.system('sudo chmod -R 777 scVCF')
-	cmd = 'aws s3 cp ' + sc_vcf + ' ./scVCF/ --recursive'
-	os.system(cmd)
+	#os.system('sudo mkdir scVCF')
+	#os.system('sudo chmod -R 777 scVCF')
+	#cmd = 'aws s3 cp ' + sc_vcf + ' ./scVCF/ --recursive'
+	#os.system(cmd)
 	cwd = os.getcwd()
 	vcfDir = cwd + '/scVCF/'
 	scVCF_list = os.listdir(vcfDir)
 
 	# get list of bulk VCF files
-	os.system('sudo mkdir bulkVCF')
-	os.system('sudo chmod -R 777 bulkVCF/')
-	cmd = 'aws s3 cp ' + bulk_vcf + ' ./bulkVCF/ --recursive'
-	os.system(cmd)
+	#os.system('sudo mkdir bulkVCF')
+	#os.system('sudo chmod -R 777 bulkVCF/')
+	#cmd = 'aws s3 cp ' + bulk_vcf + ' ./bulkVCF/ --recursive'
+	#os.system(cmd)
 	bulkVCF_dir = cwd + '/bulkVCF/'
 	bulkVCF_list = os.listdir(bulkVCF_dir)
 
 	patientsRun = [] # need to keep track of which patients have been run
+
+	os.system('sudo mkdir filteredOut')
+	os.system('sudo chmod -R 777 filteredOut/')
 
 	# outer loop -- by PATIENT
 	for item in bulkVCF_list:
@@ -173,9 +175,7 @@ def germlineFilter(metadata, sc_vcf, bulk_vcf):
 			for currCell in currPatient_cells:
 				currCell_unique = getUniqueVCF_entries(item, currCell)
 				outStr = './filteredOut/' + currCell + '_unique.vcf'
-				#currCell_unique.to_csv(outStr, index=False)
 				writeVCF(currCell_unique, outStr)
-				#continue
 			
 			patientsRun.append(currPatient)
 
