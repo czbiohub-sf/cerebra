@@ -97,10 +97,11 @@ def getUniqueVCF_entries(patient, cell):
 @click.option('--metadata', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/metadata_all_cells_4.10.19.csv', prompt='s3 path to by-cell metadata', required=True, type=str)
 @click.option('--sc_vcf', default = 's3://lincoln.harris-work/scVCF/', prompt='s3 path to single-cell VCFs', required=True, type=str)
 @click.option('--bulk_vcf', default = 's3://lincoln.harris-work/bulkVCF/', prompt='s3 path to bulk VCFs', required=True, type=str)
+@click.option('--outpath', default = 's3://lincoln.harris-work/filteredOut/', prompt='s3 path to where filtered output files should be pushed', required=True, type=str)
 
 
 
-def germlineFilter(metadata, sc_vcf, bulk_vcf):
+def germlineFilter(metadata, sc_vcf, bulk_vcf, outpath):
 	""" driver function. """
 	print(metadata)
 	print(sc_vcf)
@@ -156,3 +157,10 @@ def germlineFilter(metadata, sc_vcf, bulk_vcf):
 				writeVCF(currCell_unique, outStr)
 			
 			patientsRun.append(currPatient)
+
+	# push outfiles, then clean up
+	cmd = 'aws s3 cp filteredOut/ ' + outpath + ' --recursive'
+	os.system(cmd)
+	os.system('rm -rf bulkVCF')
+	os.system('rm -rf scVCF')
+	os.system('rm -rf filteredOut')
