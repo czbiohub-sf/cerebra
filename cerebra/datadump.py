@@ -1,4 +1,4 @@
-""" what if we did all of our s3 imports here? """
+""" do s3 imports """
 
 import os
 import click
