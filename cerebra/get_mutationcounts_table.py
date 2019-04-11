@@ -14,26 +14,13 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-def get_germline_filtered_cells_list():
-	""" returns a list of cells that have already been germline filterd """
-	filterDir = '/home/ubuntu/code/SNP_calling_pipeline/bulkAnalysis/filteredOut/'
-	filterDir_list = os.listdir(filterDir)
-
-	filteredCells = []
-	for f in filterDir_list:
-		cell = f.strip('_unique.vcf')
-		filteredCells.append(cell)
-
-	return filteredCells
-
-
-
 def get_file_names():
 	""" get file names based on specified path """
+	cwd = os.getcwd()
 	files = []
-	for file in os.listdir("vcf_test/"):
+	for file in os.listdir(cwd + "wrkdir/vcf//"):
 		if file.endswith(".vcf"):
-			fullPath = (os.path.join("vcf_test/", file))
+			fullPath = (os.path.join("wrkdir/vcf/", file))
 			files.append(fullPath)
     
 	return files
@@ -113,12 +100,12 @@ def get_genecell_mut_counts(f):
 	is a list of the genes we found mutations for in that cell """
 	tup = [] 
 
-	cell = f.replace("vcf_test/", "")
+	cell = f.replace("wrkdir/vcf/", "")
 	cell = cell.replace(".vcf", "")
 	print(cell) # to see where we are
 	
 	df = VCF.dataframe(f)
-	genomePos_query = df.apply(getGenomePos, axis=1) # apply function for every row in df
+	genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
 
 	items = set(genomePos_query) # genomePos_query (potentially) has dups
 
@@ -126,7 +113,7 @@ def get_genecell_mut_counts(f):
 	shared = [i for i in genomePos_laud_db if i in items] # retains dups
 
 	shared_series = pd.Series(shared)
-	sharedGeneNames = shared_series.apply(getGeneName)
+	sharedGeneNames = shared_series.apply(get_gene_name)
 	tup = [cell, sharedGeneNames]
 
 	return(tup)
@@ -165,13 +152,14 @@ def format_dataframe(raw_df):
 
 """ get cmdline input """
 @click.command()
-@click.option('--COSMIC_db', default = '', prompt='s3 path to COSMIC database', required=True, type=str)
-@click.option('--vcf_path', default = '', prompt='s3 path to scVCFs', required=True, type=str)
-@click.option('--outpath', default = 's3://lincoln.harris-work/filteredOut/', prompt='s3 path to where output table should be pushed', required=True, type=str)
+@click.option('--COSMIC_db', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/CosmicGenomeScreensMutantExport.tsv', prompt='s3 path to COSMIC database', required=True, type=str)
+@click.option('--hg38', default = '', prompt='s3 path to hg38.gtf', required=True, type=str)
+@click.option('--vcf_path', default = 's3://lincoln.harris-work/scVCF/', prompt='s3 path to scVCFs', required=True, type=str)
+@click.option('--outpath', default = 's3://lincoln.harris-work/', prompt='s3 path to where output table should be pushed', required=True, type=str)
 
 
 
-def get_mutationcounts_table(database, vcf_path, outpath):
+def get_mutationcounts_table(database, hg38, vcf_path, outpath):
 	""" driver function """
 	global database
 	global database_laud
@@ -179,20 +167,24 @@ def get_mutationcounts_table(database, vcf_path, outpath):
 	global genomePos_laud_db
 	global germlineFilterCells
 
-	database = pd.read_csv("CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
+	os.system('sudo mkdir wrkdir/')
+	os.system('sudo chmod -R 777 wrkdir/')
+	os.system('aws s3 cp ' + database + ' wrkdir/')
+	os.system('aws s3 cp ' + hg38 + ' wrkdir/')
+	os.system('aws s3 cp ' + vcf_path + ' wrkdir/vcf/ --recursive')
+
+	database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = getLAUD_db()
 	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
-	hg38_gtf = pd.read_csv('hg38-plus.gtf', delimiter = '\t', header = None)
-	fNames = getFileNames()
-
-	germlineFilterCells = getGermlineFilteredCellsList()
+	hg38_gtf = pd.read_csv('wrkdir/hg38-plus.gtf', delimiter = '\t', header = None)
+	fNames = get_file_names()
 
 	print('creating pool')
 
 	p = mp.Pool(processes=14)
 
 	try:
-		cells_list = p.map(getGeneCellMutCounts, fNames, chunksize=1) # default chunksize=1
+		cells_list = p.map(get_genecell_mut_counts, fNames, chunksize=1) # default chunksize=1
 	finally:
 		p.close()
 		p.join()
@@ -206,5 +198,8 @@ def get_mutationcounts_table(database, vcf_path, outpath):
 	print('writing file')
 
 	filterDict_pd = pd.DataFrame.from_dict(cells_dict, orient="index") # orient refers to row/col orientation 
-	filterDict_format = formatDataFrame(filterDict_pd)
-	filterDict_format.to_csv("geneCellMutationCounts.csv")
+	filterDict_format = format_dataframe(filterDict_pd)
+	filterDict_format.to_csv("wrkdir/geneCellMutationCounts.csv")
+
+	os.system('aws s3 cp wrkdir/geneCellMutationCounts.csv ' + outpath)
+	os.system('rm -rf wrkdir')
