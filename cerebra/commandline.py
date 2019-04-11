@@ -9,6 +9,7 @@ import click
 from cerebra.hello import hello
 from cerebra.germline_filter import germline_filter
 from cerebra.get_mutationcounts_table import get_mutationcounts_table
+from cerebra.get_specific_mutations import get_specific_mutations
 
 click.option = partial(click.option, show_default=True)
 
@@ -28,6 +29,7 @@ def cli():
 cli.add_command(hello, name='hello')
 cli.add_command(germline_filter, name='germline_filter')
 cli.add_command(get_mutationcounts_table, name='get_mutationcounts_table')
+cli.add_command(get_specific_mutations, name='get_specific_mutations')
 
 if __name__ == "__main__":
     cli()

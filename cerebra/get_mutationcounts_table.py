@@ -158,7 +158,7 @@ def format_dataframe(raw_df):
 @click.option('--hg38', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/hg38-plus.gtf', prompt='s3 path to hg38.gtf', required=True, type=str)
 @click.option('--vcf_path', default = 's3://lincoln.harris-work/scVCF/', prompt='s3 path to scVCFs', required=True, type=str)
 @click.option('--outpath', default = 's3://lincoln.harris-work/', prompt='s3 path to where output table should be pushed', required=True, type=str)
-@click.option('--nthread', default = 4, prompt='number of threads', required=True, type=str)
+@click.option('--nthread', default = 4, prompt='number of threads', required=True, type=int)
 
 
 
