@@ -18,9 +18,8 @@ def get_filenames():
 	""" gets file names given path """
 	files = []
 	for file in os.listdir("wrkdir/scVCF_filtered_all/"):
-		if file.endswith(".vcf"):
-			fullPath = (os.path.join("wrkdir/scVCF_filtered_all/", file))
-			files.append(fullPath)
+		fullPath = (os.path.join("wrkdir/scVCF_filtered_all/", file))
+		files.append(fullPath)
     
 	return files
 
@@ -81,7 +80,6 @@ def get_filter_counts_basic(fileNames):
 	for f in fileNames:
 		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")
-		print(cell)
 		df = VCF.dataframe(f)
 
 		genomePos_query = df.apply(get_genome_pos, axis=1)
@@ -148,7 +146,7 @@ def get_mutationalburden(mode):
 	global database_laud
 
 	# raw counts
-	if mode == '1':
+	if mode == 1:
 		fNames = get_filenames()
 		rawDict = get_raw_counts(fNames)
 		print("raw counts done!")
@@ -156,7 +154,7 @@ def get_mutationalburden(mode):
 		write_csv(rawDict, "wrkdir/nonImmune_GATK_hits_raw.csv")
 
 	# filter counts (basic)
-	if mode == '2':
+	if mode == 2:
 		print('setting up COSMIC database...')
 		database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 		fNames = get_filenames()
@@ -166,7 +164,7 @@ def get_mutationalburden(mode):
 		write_csv(filterDict, "wrkdir/nonImmune_GATK_hits_COSMIC_filter.csv")
 
 	# filter counts LAUD
-	if mode == '3':
+	if mode == 3:
 		print('setting up COSMIC database...')
 		database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 		database_laud = get_laud_db()
