@@ -135,40 +135,22 @@ def get_unique_vcf_entries(patient, cell):
 
 
 
-""" get cmdline input """
+""" launch """
 @click.command()
-@click.option('--metadata', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/metadata_all_cells_4.10.19.csv', prompt='s3 path to by-cell metadata', required=True, type=str)
-@click.option('--sc_vcf', default = 's3://lincoln.harris-work/scVCF/', prompt='s3 path to single-cell VCFs', required=True, type=str)
-@click.option('--bulk_vcf', default = 's3://lincoln.harris-work/bulkVCF/', prompt='s3 path to bulk VCFs', required=True, type=str)
-@click.option('--outpath', default = 's3://lincoln.harris-work/filteredOut/', prompt='s3 path to where filtered output files should be pushed', required=True, type=str)
 
-
-
-def germline_filter(metadata, sc_vcf, bulk_vcf, outpath):
+def germline_filter():
 	""" driver function. """
 	global patientMetadata
 
 	# read in patient metadata
-	#os.system('sudo mkdir -p wrkdir')
-	#os.system('sudo chmod -R 777 wrkdir')
-	#cmd = 'aws s3 cp ' + metadata + ' wrkdir/ --quiet'
-	#os.system(cmd)
 	patientMetadata = pd.read_csv('wrkdir/metadata_all_cells_4.10.19.csv')
 
 	# get a list of all the single-cell VCF files
-	#os.system('sudo mkdir -p wrkdir/scVCF')
-	#os.system('sudo chmod -R 777 wrkdir/scVCF')
-	#cmd = 'aws s3 cp ' + sc_vcf + ' wrkdir/scVCF/ --recursive --quiet'
-	#os.system(cmd)
 	cwd = os.getcwd()
 	vcfDir = cwd + '/wrkdir/scVCF/'
 	scVCF_list = os.listdir(vcfDir)
 
 	# get list of bulk VCF files
-	#os.system('sudo mkdir -p wrkdir/bulkVCF')
-	#os.system('sudo chmod -R 777 wrkdir/bulkVCF/')
-	#cmd = 'aws s3 cp ' + bulk_vcf + ' wrkdir/bulkVCF/ --recursive --quiet'
-	#os.system(cmd)
 	bulkVCF_dir = cwd + '/wrkdir/bulkVCF/'
 	bulkVCF_list = os.listdir(bulkVCF_dir)
 
@@ -200,8 +182,3 @@ def germline_filter(metadata, sc_vcf, bulk_vcf, outpath):
 			patientsRun.append(currPatient)
 
 	create_final_outdir()
-
-	# push outfiles, then clean up
-	#cmd = 'aws s3 cp wrkdir/filteredOut/ ' + outpath + ' --recursive --quiet'
-	#os.system(cmd)
-	#os.system('rm -rf wrkdir')

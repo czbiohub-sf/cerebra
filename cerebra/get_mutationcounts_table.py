@@ -154,24 +154,17 @@ def format_dataframe(raw_df):
 
 """ get cmdline input """
 @click.command()
-@click.option('--cosmic_db', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/CosmicGenomeScreensMutantExport.tsv', prompt='s3 path to COSMIC database', required=True, type=str)
-@click.option('--hg38', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/hg38-plus.gtf', prompt='s3 path to hg38.gtf', required=True, type=str)
-@click.option('--vcf_path', default = 's3://lincoln.harris-work/scVCF/', prompt='s3 path to scVCFs', required=True, type=str)
-@click.option('--outpath', default = 's3://lincoln.harris-work/', prompt='s3 path to where output table should be pushed', required=True, type=str)
 @click.option('--nthread', default = 4, prompt='number of threads', required=True, type=int)
 
 
 
-def get_mutationcounts_table(cosmic_db, hg38, vcf_path, outpath, nthread):
+def get_mutationcounts_table(nthread):
 	""" driver function """
 	global database
 	global database_laud
 	global hg38_gtf
 	global genomePos_laud_db
 	global germlineFilterCells
-
-	os.system('aws s3 cp ' + cosmic_db + ' wrkdir/ --quiet')
-	os.system('aws s3 cp ' + hg38 + ' wrkdir/ --quiet')
 
 	database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
@@ -201,4 +194,3 @@ def get_mutationcounts_table(cosmic_db, hg38, vcf_path, outpath, nthread):
 	filterDict_format.to_csv("wrkdir/geneCellMutationCounts.csv")
 
 	os.system('aws s3 cp wrkdir/geneCellMutationCounts.csv ' + outpath + ' --quiet')
-	#os.system('rm -rf wrkdir')
