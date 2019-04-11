@@ -6,11 +6,61 @@ and bulk. Creates a new directory, filteredOut, that contans the filtered vcfs.
 
 import os
 import sys
+import shutil
 import warnings
 import pandas as pd
 import click
 import VCF
 warnings.simplefilter(action='ignore', category=FutureWarning)
+
+
+def create_final_outdir():
+	""" creates a finalized out dir that has all of the filtered vcfs as
+		well as the ones we didnt have germline for """
+
+	cwd = os.getcwd()
+	filterDir = cwd + '/wrkdir/filteredOut/'
+	filterDir_list = os.listdir(filterDir)
+
+	filteredCells = []
+	for f in filterDir_list:
+		cell = f.strip('_unique.vcf')
+		filteredCells.append(cell)
+
+	epiDir = cwd + '/wrkdir/scVCF/'
+	epiDir_list = os.listdir(epiDir)
+
+	epiCells = []
+	for f in epiDir_list:
+		cell = f.strip('.vcf')
+		epiCells.append(cell)
+
+	# get cells in epiCells but NOT filteredCells
+	nonFilteredCells = set(epiCells) - set(filteredCells)
+
+	nonFilteredCells_list = []
+	for cell in nonFilteredCells:
+		f = cell + '.vcf' 
+		nonFilteredCells_list.append(f)
+
+	os.system('sudo mkdir -p wrkdir/scVCF_filtered_all/')
+	os.system('sudo chmod -R 777 wrkdir/scVCF_filtered_all/')
+
+	# copy over the non-filtered cells
+	outPATH = cwd + '/wrkdir/scVCF_filtered_all/'
+	for file in nonFilteredCells_list:
+		src = epiDir + file
+		dst = outPATH + file
+		shutil.copyfile(src, dst)
+
+	# copy over all the filtered cells
+	for file in filterDir_list:
+		f = file.strip('_unique.vcf')
+		f = f + '.vcf'
+		src = filterDir + file
+		dst = outPATH + f
+		shutil.copyfile(src, dst)
+
 
 
 def write_vcf(df, outStr_):
@@ -100,6 +150,7 @@ def germline_filter(metadata, sc_vcf, bulk_vcf, outpath):
 
 	# read in patient metadata
 	#os.system('sudo mkdir -p wrkdir')
+	#os.system('sudo chmod -R 777 wrkdir')
 	#cmd = 'aws s3 cp ' + metadata + ' wrkdir/ --quiet'
 	#os.system(cmd)
 	patientMetadata = pd.read_csv('wrkdir/metadata_all_cells_4.10.19.csv')
@@ -147,6 +198,8 @@ def germline_filter(metadata, sc_vcf, bulk_vcf, outpath):
 				write_vcf(currCell_unique, outStr)
 			
 			patientsRun.append(currPatient)
+
+	create_final_outdir()
 
 	# push outfiles, then clean up
 	#cmd = 'aws s3 cp wrkdir/filteredOut/ ' + outpath + ' --recursive --quiet'

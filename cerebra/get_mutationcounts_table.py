@@ -19,8 +19,8 @@ def get_file_names():
 	""" get file names based on specified path """
 	cwd = os.getcwd()
 	files = []
-	for file in os.listdir(cwd + "/wrkdir/scVCF/"):
-		PATH = cwd + '/wrkdir/scVCF/' + file
+	for file in os.listdir(cwd + "/wrkdir/scVCF_filtered_all/"):
+		PATH = cwd + '/wrkdir/scVCF_filtered_all/' + file
 		files.append(PATH)
 
 	return files
@@ -102,7 +102,7 @@ def get_genecell_mut_counts(f):
 
 	cwd = os.getcwd()
 	cell = f.replace(cwd, "")
-	cell = cell.replace('/wrkdir/vcf/', "")
+	cell = cell.replace('/wrkdir/scVCF_filtered_all/', "")
 	cell = cell.replace(".vcf", "")
 	print(cell) # to see where we are
 	
@@ -170,12 +170,8 @@ def get_mutationcounts_table(cosmic_db, hg38, vcf_path, outpath, nthread):
 	global genomePos_laud_db
 	global germlineFilterCells
 
-	#os.system('sudo mkdir -p wrkdir/')
-	#os.system('sudo chmod -R 777 wrkdir/')
-	#os.system('aws s3 cp ' + cosmic_db + ' wrkdir/ --quiet')
-	#os.system('aws s3 cp ' + hg38 + ' wrkdir/ --quiet')
-	#os.system('sudo mkdir -p wrkdir/scVCF')
-	#os.system('aws s3 cp ' + vcf_path + ' wrkdir/scVCF/ --recursive --quiet')
+	os.system('aws s3 cp ' + cosmic_db + ' wrkdir/ --quiet')
+	os.system('aws s3 cp ' + hg38 + ' wrkdir/ --quiet')
 
 	database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
