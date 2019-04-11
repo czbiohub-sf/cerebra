@@ -134,7 +134,7 @@ def get_goi_hits(fileNames, chrom, pos1, pos2):
 		numMatches = 0
 		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")	
-		print(cell)
+
 		df = VCF.dataframe(f)
 		genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
 		
@@ -164,7 +164,7 @@ def get_goi_hits_coords(fileNames, chrom, pos1, pos2):
 		numMatches = 0
 		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")	
-		print(cell)
+
 		df = VCF.dataframe(f)
 		genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
 		# get the entries shared between curr cells VCF and the LAUD filter set
@@ -313,9 +313,9 @@ def get_specific_mutations(chrom, start, end, outprefix):
 	goiDict = get_goi_hits_coords(fNames, chrom, start, end) # get genome coords
 	print("GOI search done!")
 
-	write_csv(goiDict, outprefix + '.csv')
+	write_csv(goiDict, 'wrkdir/' + outprefix + '.csv')
 
 	goiDict_AA = get_mutation_aa(goiDict, chrom)
 	print('AA search done')
-	write_csv(goiDict_AA, outprefix + '_AA.csv')
+	write_csv(goiDict_AA, 'wrkdir/' + outprefix + '_AA.csv')
 
