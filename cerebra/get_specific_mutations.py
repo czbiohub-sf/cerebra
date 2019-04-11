@@ -132,9 +132,9 @@ def get_goi_hits(fileNames, chrom, pos1, pos2):
 
 	for f in fileNames:
 		numMatches = 0
-		cell = f.replace("vcf_germline_filter/", "")
+		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")	
-
+		print(cell)
 		df = VCF.dataframe(f)
 		genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
 		
@@ -162,14 +162,14 @@ def get_goi_hits_coords(fileNames, chrom, pos1, pos2):
 
 	for f in fileNames:
 		numMatches = 0
-		cell = f.replace("vcf_germline_filter/", "")
+		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")	
-
+		print(cell)
 		df = VCF.dataframe(f)
 		genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
 		# get the entries shared between curr cells VCF and the LAUD filter set
 		#	remember, these are general, and NOT gene specific
-		genomePos_query_expand = expandSet(set(genomePos_query))
+		genomePos_query_expand = expand_set(set(genomePos_query))
 
 		shared = list(set(genomePos_query_expand) & set(genomePos_laud_db))
 		shared1 = pd.Series(shared) # convert to pandas obj
@@ -281,7 +281,7 @@ def expand_set(mySet):
 
 
 
-def writeCSV(dictObj, outFile):
+def write_csv(dictObj, outFile):
 	""" writes dict to csv"""
 	print('writing csv')
 	with open(outFile, 'w') as csv_file:
@@ -296,33 +296,26 @@ def writeCSV(dictObj, outFile):
 @click.option('--chrom', default = 7, prompt='chromosome', required=True, type=int)
 @click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
 @click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
-@click.option('--outfile', default = 'sampleOut.csv', prompt='name of output file', required=True, type=str)
+@click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
  
 
 
-def get_specific_mutations(chrom, start, end, outfile):
+def get_specific_mutations(chrom, start, end, outprefix):
 	""" driver func """
 	global database
 	global database_laud
 
 	print('setting up COSMIC database...')
-	database = pd.read_csv("CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
+	database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
-	#database_laud.to_csv('database_laud.csv') # test write
 	fNames = get_filenames()
 
-	chromo = sys.argv[2]
-	position1 = sys.argv[3]
-	position2 = sys.argv[4]	
-
-	#goiDict = getGOIHits(fNames, chromo, position1, position2) # standard call - get raw counts
-	goiDict = get_goi_hits_coords(fNames, chromo, position1, position2) # get genome coords
+	goiDict = get_goi_hits_coords(fNames, chrom, start, end) # get genome coords
 	print("GOI search done!")
 
-	outFilePref = sys.argv[5]
-	write_csv(goiDict, outFilePref + '.csv')
+	write_csv(goiDict, outprefix + '.csv')
 
-	goiDict_AA = get_mutation_aa(goiDict, chromo)
+	goiDict_AA = get_mutation_aa(goiDict, chrom)
 	print('AA search done')
-	write_csv(goiDict_AA, outFilePref + '_AA.csv')
+	write_csv(goiDict_AA, outprefix + '_AA.csv')
 

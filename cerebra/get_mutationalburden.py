@@ -9,6 +9,7 @@ import pandas as pd
 import sys
 import itertools
 import warnings
+import click 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
@@ -43,8 +44,8 @@ def get_raw_counts(fileNames):
 
 
 
-def getGenomePos(sample):
-	""" returns genome position string that will match againts the one in COSMIC"""
+def get_genome_pos(sample):
+	""" returns genome position string that will match against the one in COSMIC"""
 	try:
 		chr = sample[0]
 		chr = chr.replace("chr", "")
