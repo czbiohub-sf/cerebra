@@ -57,8 +57,8 @@ def get_unique_vcf_entries(patient, cell):
 	""" do the germline filter, and return a dataframe with only the 
 		UNIQUE entries for a given cell """
 	basePATH = os.getcwd()
-	patientPATH = basePATH + '/bulkVCF/' + patient
-	cellPATH = basePATH + '/scVCF/' + cell + '.vcf'
+	patientPATH = basePATH + '/wrkdir/bulkVCF/' + patient
+	cellPATH = basePATH + '/wrkdir/scVCF/' + cell + '.vcf'
 	
 	try:
 		patient_df = VCF.dataframe(patientPATH)
@@ -99,31 +99,31 @@ def germline_filter(metadata, sc_vcf, bulk_vcf, outpath):
 	global patientMetadata
 
 	# read in patient metadata
-	os.system('sudo mkdir wrkdir')
-	cmd = 'aws s3 cp ' + metadata + ' wrkdir/'
-	os.system(cmd)
+	#os.system('sudo mkdir -p wrkdir')
+	#cmd = 'aws s3 cp ' + metadata + ' wrkdir/ --quiet'
+	#os.system(cmd)
 	patientMetadata = pd.read_csv('wrkdir/metadata_all_cells_4.10.19.csv')
 
 	# get a list of all the single-cell VCF files
-	os.system('sudo mkdir wrkdir/scVCF')
-	os.system('sudo chmod -R 777 wrkdir/scVCF')
-	cmd = 'aws s3 cp ' + sc_vcf + ' wrkdir/scVCF/ --recursive'
-	os.system(cmd)
+	#os.system('sudo mkdir -p wrkdir/scVCF')
+	#os.system('sudo chmod -R 777 wrkdir/scVCF')
+	#cmd = 'aws s3 cp ' + sc_vcf + ' wrkdir/scVCF/ --recursive --quiet'
+	#os.system(cmd)
 	cwd = os.getcwd()
-	vcfDir = cwd + 'wrkdir/scVCF/'
+	vcfDir = cwd + '/wrkdir/scVCF/'
 	scVCF_list = os.listdir(vcfDir)
 
 	# get list of bulk VCF files
-	os.system('sudo mkdir wrkdir/bulkVCF')
-	os.system('sudo chmod -R 777 wrkdir/bulkVCF/')
-	cmd = 'aws s3 cp ' + bulk_vcf + ' wrkdir/bulkVCF/ --recursive'
-	os.system(cmd)
-	bulkVCF_dir = cwd + 'wrkdir/bulkVCF/'
+	#os.system('sudo mkdir -p wrkdir/bulkVCF')
+	#os.system('sudo chmod -R 777 wrkdir/bulkVCF/')
+	#cmd = 'aws s3 cp ' + bulk_vcf + ' wrkdir/bulkVCF/ --recursive --quiet'
+	#os.system(cmd)
+	bulkVCF_dir = cwd + '/wrkdir/bulkVCF/'
 	bulkVCF_list = os.listdir(bulkVCF_dir)
 
 	patientsRun = []
 
-	os.system('sudo mkdir wrkdir/filteredOut')
+	os.system('sudo mkdir -p wrkdir/filteredOut')
 	os.system('sudo chmod -R 777 wrkdir/filteredOut/')
 
 	# outer loop -- by PATIENT
@@ -143,12 +143,12 @@ def germline_filter(metadata, sc_vcf, bulk_vcf, outpath):
 			# inner loop -- by CELL 
 			for currCell in currPatient_cells:
 				currCell_unique = get_unique_vcf_entries(item, currCell)
-				outStr = './wrkdir/filteredOut/' + currCell + '_unique.vcf'
+				outStr = 'wrkdir/filteredOut/' + currCell + '_unique.vcf'
 				write_vcf(currCell_unique, outStr)
 			
 			patientsRun.append(currPatient)
 
 	# push outfiles, then clean up
-	cmd = 'aws s3 cp wrkdir/filteredOut/ ' + outpath + ' --recursive'
-	os.system(cmd)
-	os.system('rm -rf wrkdir')
+	#cmd = 'aws s3 cp wrkdir/filteredOut/ ' + outpath + ' --recursive --quiet'
+	#os.system(cmd)
+	#os.system('rm -rf wrkdir')

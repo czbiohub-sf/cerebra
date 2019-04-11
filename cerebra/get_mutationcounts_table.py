@@ -11,6 +11,7 @@ import pandas as pd
 import sys
 import multiprocessing as mp
 import warnings
+import click
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
@@ -18,11 +19,10 @@ def get_file_names():
 	""" get file names based on specified path """
 	cwd = os.getcwd()
 	files = []
-	for file in os.listdir(cwd + "wrkdir/vcf//"):
-		if file.endswith(".vcf"):
-			fullPath = (os.path.join("wrkdir/vcf/", file))
-			files.append(fullPath)
-    
+	for file in os.listdir(cwd + "/wrkdir/scVCF/"):
+		PATH = cwd + '/wrkdir/scVCF/' + file
+		files.append(PATH)
+
 	return files
 
 
@@ -100,7 +100,9 @@ def get_genecell_mut_counts(f):
 	is a list of the genes we found mutations for in that cell """
 	tup = [] 
 
-	cell = f.replace("wrkdir/vcf/", "")
+	cwd = os.getcwd()
+	cell = f.replace(cwd, "")
+	cell = cell.replace('/wrkdir/vcf/', "")
 	cell = cell.replace(".vcf", "")
 	print(cell) # to see where we are
 	
@@ -152,14 +154,15 @@ def format_dataframe(raw_df):
 
 """ get cmdline input """
 @click.command()
-@click.option('--COSMIC_db', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/CosmicGenomeScreensMutantExport.tsv', prompt='s3 path to COSMIC database', required=True, type=str)
-@click.option('--hg38', default = '', prompt='s3 path to hg38.gtf', required=True, type=str)
+@click.option('--cosmic_db', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/CosmicGenomeScreensMutantExport.tsv', prompt='s3 path to COSMIC database', required=True, type=str)
+@click.option('--hg38', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/hg38-plus.gtf', prompt='s3 path to hg38.gtf', required=True, type=str)
 @click.option('--vcf_path', default = 's3://lincoln.harris-work/scVCF/', prompt='s3 path to scVCFs', required=True, type=str)
 @click.option('--outpath', default = 's3://lincoln.harris-work/', prompt='s3 path to where output table should be pushed', required=True, type=str)
+@click.option('--nthread', default = 4, prompt='number of threads', required=True, type=str)
 
 
 
-def get_mutationcounts_table(database, hg38, vcf_path, outpath):
+def get_mutationcounts_table(cosmic_db, hg38, vcf_path, outpath, nthread):
 	""" driver function """
 	global database
 	global database_laud
@@ -167,21 +170,21 @@ def get_mutationcounts_table(database, hg38, vcf_path, outpath):
 	global genomePos_laud_db
 	global germlineFilterCells
 
-	os.system('sudo mkdir wrkdir/')
-	os.system('sudo chmod -R 777 wrkdir/')
-	os.system('aws s3 cp ' + database + ' wrkdir/')
-	os.system('aws s3 cp ' + hg38 + ' wrkdir/')
-	os.system('aws s3 cp ' + vcf_path + ' wrkdir/vcf/ --recursive')
+	#os.system('sudo mkdir -p wrkdir/')
+	#os.system('sudo chmod -R 777 wrkdir/')
+	#os.system('aws s3 cp ' + cosmic_db + ' wrkdir/ --quiet')
+	#os.system('aws s3 cp ' + hg38 + ' wrkdir/ --quiet')
+	#os.system('sudo mkdir -p wrkdir/scVCF')
+	#os.system('aws s3 cp ' + vcf_path + ' wrkdir/scVCF/ --recursive --quiet')
 
 	database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
-	database_laud = getLAUD_db()
+	database_laud = get_laud_db()
 	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 	hg38_gtf = pd.read_csv('wrkdir/hg38-plus.gtf', delimiter = '\t', header = None)
 	fNames = get_file_names()
-
+	
 	print('creating pool')
-
-	p = mp.Pool(processes=14)
+	p = mp.Pool(processes=nthread)
 
 	try:
 		cells_list = p.map(get_genecell_mut_counts, fNames, chunksize=1) # default chunksize=1
@@ -193,7 +196,7 @@ def get_mutationcounts_table(database, hg38, vcf_path, outpath):
 	cells_dict = {}
 
 	for item in cells_list:
-    	cells_dict.update({item[0]:item[1]})
+		cells_dict.update({item[0]:item[1]})
 
 	print('writing file')
 
@@ -201,5 +204,5 @@ def get_mutationcounts_table(database, hg38, vcf_path, outpath):
 	filterDict_format = format_dataframe(filterDict_pd)
 	filterDict_format.to_csv("wrkdir/geneCellMutationCounts.csv")
 
-	os.system('aws s3 cp wrkdir/geneCellMutationCounts.csv ' + outpath)
-	os.system('rm -rf wrkdir')
+	os.system('aws s3 cp wrkdir/geneCellMutationCounts.csv ' + outpath + ' --quiet')
+	#os.system('rm -rf wrkdir')
