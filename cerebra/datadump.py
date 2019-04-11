@@ -3,6 +3,7 @@
 import os
 import click
 
+
 """ get cmdline input """
 @click.command()
 @click.option('--metadata', default = 's3://darmanis-group/singlecell_lungadeno/rawdata/metadata_all_cells_4.10.19.csv', prompt='s3 path to by-cell metadata', required=True, type=str)
@@ -14,8 +15,7 @@ import click
 
 
 def s3_import(metadata, cosmic_db, hg38, sc_vcf, bulk_vcf):
-	""" do the imports """
-
+	""" import necessary files from s3 """
 	os.system('sudo mkdir -p wrkdir')
 	os.system('sudo chmod -R 777 wrkdir')
 	cmd = 'aws s3 cp ' + metadata + ' wrkdir/ --quiet'
@@ -35,4 +35,7 @@ def s3_import(metadata, cosmic_db, hg38, sc_vcf, bulk_vcf):
 	os.system('sudo mkdir -p wrkdir/bulkVCF')
 	os.system('sudo chmod -R 777 wrkdir/bulkVCF/')
 	cmd = 'aws s3 cp ' + bulk_vcf + ' wrkdir/bulkVCF/ --recursive --quiet'
+	os.system(cmd)
+
+	cmd = 'cp vcfheader.txt wrkdir/'
 	os.system(cmd)

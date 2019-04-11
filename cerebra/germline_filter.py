@@ -18,8 +18,7 @@ def create_final_outdir():
 	""" creates a finalized out dir that has all of the filtered vcfs as
 		well as the ones we didnt have germline for """
 
-	cwd = os.getcwd()
-	filterDir = cwd + '/wrkdir/filteredOut/'
+	filterDir = cwd + 'filteredOut/'
 	filterDir_list = os.listdir(filterDir)
 
 	filteredCells = []
@@ -27,7 +26,7 @@ def create_final_outdir():
 		cell = f.strip('_unique.vcf')
 		filteredCells.append(cell)
 
-	epiDir = cwd + '/wrkdir/scVCF/'
+	epiDir = cwd + 'scVCF/'
 	epiDir_list = os.listdir(epiDir)
 
 	epiCells = []
@@ -43,11 +42,13 @@ def create_final_outdir():
 		f = cell + '.vcf' 
 		nonFilteredCells_list.append(f)
 
-	os.system('sudo mkdir -p wrkdir/scVCF_filtered_all/')
-	os.system('sudo chmod -R 777 wrkdir/scVCF_filtered_all/')
+	cmd1 = 'sudo mkdir -p ' + cwd + 'scVCF_filtered_all/'
+	cmd2 = 'sudo chmod -R 777 ' + cwd + 'scVCF_filtered_all/'
+	os.system(cmd1)
+	os.system(cmd2)
 
 	# copy over the non-filtered cells
-	outPATH = cwd + '/wrkdir/scVCF_filtered_all/'
+	outPATH = cwd + 'scVCF_filtered_all/'
 	for file in nonFilteredCells_list:
 		src = epiDir + file
 		dst = outPATH + file
@@ -66,7 +67,7 @@ def create_final_outdir():
 def write_vcf(df, outStr_):
 	""" routine for writing VCF files, from an existing dataframe. 
 		essentially just adding in this horrible vcf header. """
-	with open('vcfheader.txt', 'r') as f:
+	with open(cwd + 'vcfheader.txt', 'r') as f:
 		header = f.read()
 	
 		df['QUAL'] = 60.28
@@ -106,9 +107,8 @@ def get_patient_cells_list(scVCF_list_, patientID):
 def get_unique_vcf_entries(patient, cell):
 	""" do the germline filter, and return a dataframe with only the 
 		UNIQUE entries for a given cell """
-	basePATH = os.getcwd()
-	patientPATH = basePATH + '/wrkdir/bulkVCF/' + patient
-	cellPATH = basePATH + '/wrkdir/scVCF/' + cell + '.vcf'
+	patientPATH = cwd + 'bulkVCF/' + patient
+	cellPATH = cwd + 'scVCF/' + cell + '.vcf'
 	
 	try:
 		patient_df = VCF.dataframe(patientPATH)
@@ -137,27 +137,36 @@ def get_unique_vcf_entries(patient, cell):
 
 """ launch """
 @click.command()
+@click.option('--test', default = False)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
 
-def germline_filter():
-	""" driver function. """
+
+
+def germline_filter(test, wrkdir):
+	""" given a set of single-cell vcfs and bulk-seq vcfs (peripheral blood), this
+		program subtracts out the mutations common to sc- and bulkVCF. """
 	global patientMetadata
+	global cwd
+
+	cwd = wrkdir
 
 	# read in patient metadata
-	patientMetadata = pd.read_csv('wrkdir/metadata_all_cells_4.10.19.csv')
+	patientMetadata = pd.read_csv(cwd + 'metadata_all_cells_4.10.19.csv')
 
 	# get a list of all the single-cell VCF files
-	cwd = os.getcwd()
-	vcfDir = cwd + '/wrkdir/scVCF/'
+	vcfDir = cwd + 'scVCF/'
 	scVCF_list = os.listdir(vcfDir)
 
 	# get list of bulk VCF files
-	bulkVCF_dir = cwd + '/wrkdir/bulkVCF/'
+	bulkVCF_dir = cwd + 'bulkVCF/'
 	bulkVCF_list = os.listdir(bulkVCF_dir)
 
 	patientsRun = []
 
-	os.system('sudo mkdir -p wrkdir/filteredOut')
-	os.system('sudo chmod -R 777 wrkdir/filteredOut/')
+	cmd1 = 'sudo mkdir -p ' + cwd + 'filteredOut'
+	cmd2 = 'sudo chmod -R 777 ' + cwd + 'filteredOut/' 
+	os.system(cmd1)
+	os.system(cmd2)
 
 	# outer loop -- by PATIENT
 	for item in bulkVCF_list:
@@ -176,9 +185,18 @@ def germline_filter():
 			# inner loop -- by CELL 
 			for currCell in currPatient_cells:
 				currCell_unique = get_unique_vcf_entries(item, currCell)
-				outStr = 'wrkdir/filteredOut/' + currCell + '_unique.vcf'
+				outStr = cwd + 'filteredOut/' + currCell + '_unique.vcf'
 				write_vcf(currCell_unique, outStr)
 			
 			patientsRun.append(currPatient)
 
-	create_final_outdir()
+	if test:
+		# do something
+		cmd1 = 'sudo mkdir ' + cwd + 'test_germline_filter'
+		cmd2 = 'sudo chmod -R 777 ' + cwd + 'test_germline_filter'
+		cmd3 = 'cp -r ' + cwd + 'filteredOut/ ' + cwd + 'test_germline_filter/' 
+		os.system(cmd1)
+		os.system(cmd2)
+		os.system(cmd3)
+	else:
+		create_final_outdir()

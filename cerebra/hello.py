@@ -23,7 +23,7 @@ COLORS = 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan'
               help='The person to greet.')
 
 def hello(count, name):
-    """Simple program that greets NAME for a total of COUNT times, in color."""
+    """ helloWorld """
     for x in tqdm(range(count)):
         # note that colorama.init() doesn't need to be called for the colors
         # to work

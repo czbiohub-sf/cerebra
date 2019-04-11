@@ -301,7 +301,8 @@ def write_csv(dictObj, outFile):
 
 
 def get_specific_mutations(chrom, start, end, outprefix):
-	""" driver func """
+	""" for a specific gene of interest, get the complete set of amino acid level mutations
+		for each cell in dataset """
 	global database
 	global database_laud
 

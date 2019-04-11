@@ -22,9 +22,6 @@ settings = dict(help_option_names=['-h', '--help'])
 def cli():
     """
     finds mutants in your scRNA-seq experiment
-
-    not sure what this func does. must be an __init__
-    sort of thing? 
     """
     pass
 

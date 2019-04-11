@@ -159,7 +159,7 @@ def format_dataframe(raw_df):
 
 
 def get_mutationcounts_table(nthread):
-	""" driver function """
+	""" generate a cell x gene mutation counts table from a set of germline filtered vcfs """
 	global database
 	global database_laud
 	global hg38_gtf

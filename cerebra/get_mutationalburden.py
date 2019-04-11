@@ -141,7 +141,9 @@ def write_csv(dictObj, outFile):
 
 
 def get_mutationalburden(mode):
-	""" driver """
+	""" returns the total number of mutations (mutational burden) for each cell in dataset.
+		three run modes: 1) raw counts, 2) COSMIC filter counts, 3) COSMIC lung adenocarcinoma
+		filter  """
 	global database
 	global database_laud
 
