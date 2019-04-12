@@ -72,6 +72,8 @@ def get_laud_db():
 	pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
 	shared = list(set(pHistList) & set(pSiteList))
 	database_filter = database.iloc[shared]
+
+	#write_csv(database_filter, 'database_laud.csv')
 	return database_filter
 
 
@@ -179,10 +181,11 @@ def get_goi_hits_coords(fileNames, chrom, pos1, pos2):
 
 		df = VCF.dataframe(f)
 		genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
-		# get the entries shared between curr cells VCF and the LAUD filter set
-		#	remember, these are general, and NOT gene specific
+		print(genomePos_query)
 		genomePos_query_expand = expand_set(set(genomePos_query))
 
+		# get the entries shared between curr cells VCF and the LAUD filter set
+		#	remember, these are general, and NOT gene specific
 		shared = list(set(genomePos_query_expand) & set(genomePos_laud_db))
 		shared1 = pd.Series(shared) # convert to pandas obj
 		matches = shared1.apply(hit_search_coords, args=(cell,)) # another apply call 
@@ -337,12 +340,13 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	goiDict = get_goi_hits_coords(fNames, chrom, start, end) # get genome coords
 	print("GOI search done!")
 
-	write_csv(goiDict, cwd + outprefix + '.csv')
-
 	goiDict_AA = get_mutation_aa(goiDict, chrom)
-	print('AA search done')
-	write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
+	print('AA search done')	
 
 	if test_bool:
 		write_csv(goiDict, cwd + 'TEST.csv')
 		write_csv(goiDict_AA, cwd + 'TEST_AA.csv')
+
+	else:
+		write_csv(goiDict, cwd + outprefix + '.csv')
+		write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
