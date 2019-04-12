@@ -1,0 +1,16 @@
+,BRAF,EGFR,KRAS
+artificalVCF/B1_1000,1,0,0
+artificalVCF/B1_1001,1,0,0
+artificalVCF/B1_1002,1,0,0
+artificalVCF/B1_1003,1,0,0
+artificalVCF/B1_1004,1,0,0
+artificalVCF/E1_1000,0,1,0
+artificalVCF/E1_1001,0,1,0
+artificalVCF/E1_1002,0,1,0
+artificalVCF/E1_1003,0,1,0
+artificalVCF/E1_1004,0,1,0
+artificalVCF/K1_1000,0,0,1
+artificalVCF/K1_1001,0,0,1
+artificalVCF/K1_1002,0,0,1
+artificalVCF/K1_1003,0,0,1
+artificalVCF/K1_1004,0,0,1

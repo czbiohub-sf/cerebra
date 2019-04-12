@@ -15,12 +15,22 @@ import click
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-def get_file_names():
-	""" get file names based on specified path """
-	cwd = os.getcwd()
+def get_filenames_test():
+	""" get file names, for the test condition"""
 	files = []
-	for file in os.listdir(cwd + "/wrkdir/scVCF_filtered_all/"):
-		PATH = cwd + '/wrkdir/scVCF_filtered_all/' + file
+	for file in os.listdir(cwd + "artificalVCF/"):
+		PATH = cwd + 'artificalVCF/' + file
+		files.append(PATH)
+
+	return files
+
+
+
+def get_filenames():
+	""" get file names based on specified path """
+	files = []
+	for file in os.listdir(cwd + "scVCF_filtered_all/"):
+		PATH = cwd + 'scVCF_filtered_all/' + file
 		files.append(PATH)
 
 	return files
@@ -83,14 +93,14 @@ def get_gene_name(posString):
 	hg38_gtf_filt = hg38_gtf_filt.where(hg38_gtf_filt[4] >= int(rPosition)).dropna() # rPos good
 	
 	try:
-		returnStr = str(hg38_gtf_filt.iloc[0][8])	# keep just the gene name / meta data col
+		returnStr = str(hg38_gtf_filt.iloc[0][8])	# keep just the gene name / metadata col
 		returnStr = returnStr.split(';')[1]
 		returnStr = returnStr.strip(' gene_name')
 		returnStr = returnStr.strip(' ')
 		returnStr = returnStr.strip('"')
 	except IndexError:
 		returnStr = ''
-	
+
 	return returnStr
 
 
@@ -100,21 +110,22 @@ def get_genecell_mut_counts(f):
 	is a list of the genes we found mutations for in that cell """
 	tup = [] 
 
-	cwd = os.getcwd()
 	cell = f.replace(cwd, "")
-	cell = cell.replace('/wrkdir/scVCF_filtered_all/', "")
+	cell = cell.replace('scVCF_filtered_all/', "")
 	cell = cell.replace(".vcf", "")
-	print(cell) # to see where we are
 	
 	df = VCF.dataframe(f)
-	genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
 
+	genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
 	items = set(genomePos_query) # genomePos_query (potentially) has dups
 
-	# COSMIC filter
-	shared = [i for i in genomePos_laud_db if i in items] # retains dups
-
+	if test:
+		shared = list(items) # no COSMIC filter
+	else:
+		shared = [i for i in genomePos_laud_db if i in items] # COSMIC filter,
+																# retains dups
 	shared_series = pd.Series(shared)
+
 	sharedGeneNames = shared_series.apply(get_gene_name)
 	tup = [cell, sharedGeneNames]
 
@@ -155,22 +166,32 @@ def format_dataframe(raw_df):
 """ get cmdline input """
 @click.command()
 @click.option('--nthread', default = 4, prompt='number of threads', required=True, type=int)
+@click.option('--test', default = False)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
 
 
 
-def get_mutationcounts_table(nthread):
+def get_mutationcounts_table(nthread, test, wrkdir):
 	""" generate a cell x gene mutation counts table from a set of germline filtered vcfs """
 	global database
 	global database_laud
 	global hg38_gtf
 	global genomePos_laud_db
 	global germlineFilterCells
+	global cwd
+	global test
 
-	database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
+	cwd = wrkdir
+
+	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
 	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
-	hg38_gtf = pd.read_csv('wrkdir/hg38-plus.gtf', delimiter = '\t', header = None)
-	fNames = get_file_names()
+	hg38_gtf = pd.read_csv(cwd + 'hg38-plus.gtf', delimiter = '\t', header = None)
+
+	if test:
+		fNames = get_filenames_test()
+	else:
+		fNames = get_filenames()
 	
 	print('creating pool')
 	p = mp.Pool(processes=nthread)
@@ -191,6 +212,8 @@ def get_mutationcounts_table(nthread):
 
 	filterDict_pd = pd.DataFrame.from_dict(cells_dict, orient="index") # orient refers to row/col orientation 
 	filterDict_format = format_dataframe(filterDict_pd)
-	filterDict_format.to_csv("wrkdir/geneCellMutationCounts.csv")
 
-	os.system('aws s3 cp wrkdir/geneCellMutationCounts.csv ' + outpath + ' --quiet')
+	if test:
+		filterDict_format.to_csv(cwd + "geneCellMutationCounts_artifical_TEST.csv")	
+	else:
+		filterDict_format.to_csv(cwd + "geneCellMutationCounts.csv")
