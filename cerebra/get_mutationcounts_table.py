@@ -119,7 +119,7 @@ def get_genecell_mut_counts(f):
 	genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
 	items = set(genomePos_query) # genomePos_query (potentially) has dups
 
-	if test:
+	if test_bool:
 		shared = list(items) # no COSMIC filter
 	else:
 		shared = [i for i in genomePos_laud_db if i in items] # COSMIC filter,
@@ -179,9 +179,10 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	global genomePos_laud_db
 	global germlineFilterCells
 	global cwd
-	global test
+	global test_bool
 
 	cwd = wrkdir
+	test_bool = test
 
 	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
@@ -213,7 +214,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	filterDict_pd = pd.DataFrame.from_dict(cells_dict, orient="index") # orient refers to row/col orientation 
 	filterDict_format = format_dataframe(filterDict_pd)
 
-	if test:
+	if test_bool:
 		filterDict_format.to_csv(cwd + "geneCellMutationCounts_artifical_TEST.csv")	
 	else:
 		filterDict_format.to_csv(cwd + "geneCellMutationCounts.csv")
