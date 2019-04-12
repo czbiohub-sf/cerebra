@@ -145,7 +145,7 @@ def format_dataframe(raw_df):
 		for elm in currList:	
 			if elm not in genesList:
 				genesList.append(elm)
-
+	
 	genesList1 = pd.Series(genesList)
 
 	df = pd.DataFrame(columns=genesList1, index=cellNames) # initialize blank dataframe
@@ -214,7 +214,26 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	filterDict_pd = pd.DataFrame.from_dict(cells_dict, orient="index") # orient refers to row/col orientation 
 	filterDict_format = format_dataframe(filterDict_pd)
 
+	filterDict_format.to_csv(cwd + "intermediate.csv")
+	intermediate = pd.read_csv(cwd + 'intermediate.csv')
+
+	# rename 0th col
+	intermediate.rename(columns={'Unnamed: 0' :'cellName'}, inplace=True)
+
+	cols = intermediate.columns
+	dropList = []
+
+	for col in cols:
+		if 'Unnamed' in col:
+			dropList.append(col)
+
+	# want to drop the cols that contain 'Unnamed'
+	intermediate = intermediate.drop(columns=dropList)
+
 	if test_bool:
-		filterDict_format.to_csv(cwd + "geneCellMutationCounts_artifical_TEST.csv")	
+		intermediate.to_csv(cwd + "geneCellMutationCounts_artifical_TEST.csv", index=False)	
 	else:
-		filterDict_format.to_csv(cwd + "geneCellMutationCounts.csv")
+		intermediate.to_csv(cwd + "geneCellMutationCounts.csv", index=False)
+
+	cmd = 'rm ' + cwd + 'intermediate.csv'
+	os.system(cmd)

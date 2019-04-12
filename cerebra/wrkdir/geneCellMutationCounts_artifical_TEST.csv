@@ -1,4 +1,4 @@
-,BRAF,EGFR,KRAS
+cellName,BRAF,EGFR,KRAS
 artificalVCF/B1_1000,1,0,0
 artificalVCF/B1_1001,1,0,0
 artificalVCF/B1_1002,1,0,0
@@ -14,3 +14,8 @@ artificalVCF/K1_1001,0,0,1
 artificalVCF/K1_1002,0,0,1
 artificalVCF/K1_1003,0,0,1
 artificalVCF/K1_1004,0,0,1
+artificalVCF/Z0_1000,0,0,0
+artificalVCF/Z0_1001,0,0,0
+artificalVCF/Z0_1002,0,0,0
+artificalVCF/Z0_1003,0,0,0
+artificalVCF/Z0_1004,0,0,0
