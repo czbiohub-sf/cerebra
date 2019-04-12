@@ -47,11 +47,11 @@ def test_get_mutationcounts_table():
 
 
 
-def tearDown(self):
-	wd = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/'
-	os.remove(wd + 'TEST.csv')
-	os.remove(wd + 'TEST_AA.csv')
-	os.remove(wd + 'testOut.csv')
-	os.remove(wd + 'testOut_AA.csv')
-	os.remove(wd + 'geneCellMutationCounts_artifical_TEST.csv')
-	shutil.rmtree(wd + 'test_germline_filter/')
+# tear down 
+wd = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/'
+os.remove(wd + 'TEST.csv')
+os.remove(wd + 'TEST_AA.csv')
+os.remove(wd + 'testOut.csv')
+os.remove(wd + 'testOut_AA.csv')
+os.remove(wd + 'geneCellMutationCounts_artifical_TEST.csv')
+shutil.rmtree(wd + 'test_germline_filter/')
