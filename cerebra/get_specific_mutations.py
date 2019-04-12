@@ -13,6 +13,18 @@ import click
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
+def get_filenames_test():
+	""" get file names given path """
+	files = []
+	for file in os.listdir(cwd + "artificalVCF/"):
+		if file.endswith(".vcf"):
+			fullPath = cwd + 'artificalVCF/' + file 
+			files.append(fullPath)
+    
+	return files
+
+
+
 def get_filenames():
 	""" get file names given path """
 	files = []
@@ -308,13 +320,19 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	global database
 	global database_laud
 	global cwd
+	global test_bool
 
 	cwd = wrkdir
+	test_bool = test
 
 	print('setting up COSMIC database...')
 	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
-	fNames = get_filenames()
+
+	if test_bool:
+		fNames = get_filenames_test()
+	else:
+		fNames = get_filenames()
 
 	goiDict = get_goi_hits_coords(fNames, chrom, start, end) # get genome coords
 	print("GOI search done!")
@@ -325,6 +343,6 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	print('AA search done')
 	write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
 
-	if test:
+	if test_bool:
 		write_csv(goiDict, cwd + 'TEST.csv')
 		write_csv(goiDict_AA, cwd + 'TEST_AA.csv')

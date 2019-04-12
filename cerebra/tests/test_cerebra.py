@@ -43,7 +43,7 @@ def test_get_mutationcounts_table():
 
 	assert result.exit_code == 0
 	assert os.path.isfile(wd + 'geneCellMutationCounts_artifical_TEST.csv')
-	# how can i evaluate the contents of this file? 
+	# how can i evaluate the contents of this file ^? 
 
 
 
