@@ -16,9 +16,9 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 def get_filenames():
 	""" get file names given path """
 	files = []
-	for file in os.listdir("wrkdir/scVCF_filtered_all/"):
+	for file in os.listdir(cwd + "scVCF_filtered_all/"):
 		if file.endswith(".vcf"):
-			fullPath = (os.path.join("wrkdir/scVCF_filtered_all/", file))
+			fullPath = cwd + 'scVCF_filtered_all/' + file 
 			files.append(fullPath)
     
 	return files
@@ -293,30 +293,38 @@ def write_csv(dictObj, outFile):
 
 """ get cmdline input """
 @click.command()
+@click.option('--test', default = False)
 @click.option('--chrom', default = 7, prompt='chromosome', required=True, type=int)
 @click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
 @click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
-def get_specific_mutations(chrom, start, end, outprefix):
+def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	""" for a specific gene of interest, get the complete set of amino acid level mutations
 		for each cell in dataset """
 	global database
 	global database_laud
+	global cwd
+
+	cwd = wrkdir
 
 	print('setting up COSMIC database...')
-	database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
+	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
 	fNames = get_filenames()
 
 	goiDict = get_goi_hits_coords(fNames, chrom, start, end) # get genome coords
 	print("GOI search done!")
 
-	write_csv(goiDict, 'wrkdir/' + outprefix + '.csv')
+	write_csv(goiDict, cwd + outprefix + '.csv')
 
 	goiDict_AA = get_mutation_aa(goiDict, chrom)
 	print('AA search done')
-	write_csv(goiDict_AA, 'wrkdir/' + outprefix + '_AA.csv')
+	write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
 
+	if test:
+		write_csv(goiDict, cwd + 'TEST.csv')
+		write_csv(goiDict_AA, cwd + 'TEST_AA.csv')
