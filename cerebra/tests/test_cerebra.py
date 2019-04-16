@@ -67,7 +67,7 @@ def test_get_specific_mutations_braf():
 	assert result.exit_code == 0
 	assert os.path.isfile(wd + 'braf_test.csv')
 	assert os.path.isfile(wd + 'braf_test_AA.csv')
-	assert "" in open('wrkdir/braf_test_AA.csv').read()
+	assert "" in open(wd + 'braf_test_AA.csv').read()
 	assert "braf_V600E,['V600E']" in open(wd + 'braf_test_AA.csv').read()
 
 	
