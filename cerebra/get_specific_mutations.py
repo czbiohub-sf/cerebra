@@ -315,10 +315,5 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	goiDict_AA = get_mutation_aa(goiDict, chrom)
 	print('AA search done')	
 
-	if test_bool:
-		write_csv(goiDict, cwd + 'TEST.csv')
-		write_csv(goiDict_AA, cwd + 'TEST_AA.csv')
-
-	else:
-		write_csv(goiDict, cwd + outprefix + '.csv')
-		write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
+	write_csv(goiDict, cwd + outprefix + '.csv')
+	write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
