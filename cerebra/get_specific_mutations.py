@@ -45,7 +45,7 @@ def get_genome_pos(sample):
 		pos = int(sample[1])
 		ref = str(sample[3])
 		alt = str(sample[4])
-	
+
 		if (len(ref) == 1) & (len(alt) == 1): # most basic case
 			secondPos = pos
 			genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
@@ -59,7 +59,7 @@ def get_genome_pos(sample):
 			secondPos = 'dummy'
 			genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
 	except:
-		genomePos = 'chr0:0-0'
+			genomePos = 'chr0:0-0'
 
 	return(genomePos)
 
@@ -132,37 +132,6 @@ def hit_search_coords(sample, *args):
 
 
 
-def get_goi_hits(fileNames, chrom, pos1, pos2):
-	""" creates dict with hits to a specific GOI """
-	print('getting hits to GOI')
-
-	global queryChrom, lPosQuery, rPosQuery # dont like this
-	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
-
-	cells_dict_GOI = {}
-	queryChrom = chrom
-	lPosQuery = pos1
-	rPosQuery = pos2
-
-	for f in fileNames:
-		numMatches = 0
-		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
-		cell = cell.replace(".vcf", "")	
-
-		df = VCF.dataframe(f)
-		genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
-		
-		shared = list(set(genomePos_query) & set(genomePos_laud_db)) # get the LAUD filter set
-		shared1 = pd.Series(shared) # what if i convert this guy to a pandas object? 
-
-		numMatches = shared1.apply(hit_search_func) # another apply call 
-
-		cells_dict_GOI.update({cell : sum(numMatches)})
-	
-	return cells_dict_GOI
-
-
-
 def get_goi_hits_coords(fileNames, chrom, pos1, pos2):
 	""" creates dict with genome coords for hits to specific GOI """
 	print('getting coords to GOI hits')
@@ -181,13 +150,13 @@ def get_goi_hits_coords(fileNames, chrom, pos1, pos2):
 
 		df = VCF.dataframe(f)
 		genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
-		print(genomePos_query)
 		genomePos_query_expand = expand_set(set(genomePos_query))
 
 		# get the entries shared between curr cells VCF and the LAUD filter set
 		#	remember, these are general, and NOT gene specific
 		shared = list(set(genomePos_query_expand) & set(genomePos_laud_db))
 		shared1 = pd.Series(shared) # convert to pandas obj
+
 		matches = shared1.apply(hit_search_coords, args=(cell,)) # another apply call 
 
 		# delete empty dict keys
@@ -327,6 +296,9 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 
 	cwd = wrkdir
 	test_bool = test
+	chrom = str(chrom)
+	start = str(start)
+	end = str(end)
 
 	print('setting up COSMIC database...')
 	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
