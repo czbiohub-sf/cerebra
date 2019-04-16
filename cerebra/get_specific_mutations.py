@@ -147,7 +147,7 @@ def get_goi_hits_coords(fileNames, chrom, pos1, pos2):
 		numMatches = 0
 		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")	
-
+	
 		df = VCF.dataframe(f)
 		genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
 		genomePos_query_expand = expand_set(set(genomePos_query))
