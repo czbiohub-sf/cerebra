@@ -68,13 +68,11 @@ def search_func(row, FOI):
 """ get cmdline input """
 @click.command()
 @click.option('--test', default = False)
-@click.option('--mode', default = 0, prompt='run mode', required=True, type=int)
-@click.option('--query_gene', default = 'ALK--EML4', prompt='fusion to search for', required=True, type=str)
 @click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
-def fusion_search(test, mode, query_gene, wrkdir):
+def fusion_search(test, wrkdir):
 	""" searches STAR-fusion output files for a particular fusion of interest """
 	global colNames
 	global cwd 
@@ -83,15 +81,13 @@ def fusion_search(test, mode, query_gene, wrkdir):
 	cwd = wrkdir
 
 	print(' ')
-	print('query: %s' % query_gene)
 	print(' ')
 
 	cmd = 'sudo mkdir -p ' + cwd + 'fusionOut'
 	cmd1 = 'sudo chmod -R 777 ' + cwd + 'fusionOut'
 	os.system(cmd)
 	os.system(cmd1)
-	
-	outFileStr = cwd + 'fusionOut/' + query_gene + '.query.out.csv'
+
 	colNames = ['cellName', 'fusionPresent_bool']
 
 	cellFiles = os.listdir(cwd + 'fusions')
@@ -99,30 +95,30 @@ def fusion_search(test, mode, query_gene, wrkdir):
 
 	print('running...')
 
-	if mode == 0: # standard two-gene mode
-		queryStrSplit = query_gene.split('--')
-		queryStrRev = queryStrSplit[1] + '--' + queryStrSplit[0]
+	with open(cwd + '../fusionsList.csv', 'r') as f:
+		fusionsList = f.readlines()
+		fusionsList = [x.strip() for x in fusionsList]
 
-		outputRows = cellFiles_df.apply(search_func, axis=1, args=(query_gene,))
-		outputRows_list = list(outputRows) # for some reason need to convert to a list before concatting
-		outputDF = pd.concat(outputRows_list, ignore_index=True)
+		for currFus in fusionsList:
+			outFileStr = cwd + 'fusionOut/' + currFus + '.query.out.csv'
 
-		outputRows_rev = cellFiles_df.apply(search_func, axis=1, args=(queryStrRev,))
-		outputRows_rev_list = list(outputRows_rev) # for some reason need to convert to a list before concatting
-		outputDF_rev = pd.concat(outputRows_rev_list, ignore_index=True)
+			queryStrSplit = currFus.split('--')
+			queryStrRev = queryStrSplit[1] + '--' + queryStrSplit[0]
 
-		outputDF.columns = colNames
-		outputDF_rev.columns = colNames
+			outputRows = cellFiles_df.apply(search_func, axis=1, args=(currFus,))
+			outputRows_list = list(outputRows) # for some reason need to convert to a list before concatting
+			outputDF = pd.concat(outputRows_list, ignore_index=True)
 
-		outputDF_comb = pd.DataFrame(columns=colNames)
-		outputDF_comb['cellName'] = outputDF['cellName']
-		outputDF_comb['fusionPresent_bool'] = outputDF['fusionPresent_bool'] + outputDF_rev['fusionPresent_bool']
-		outputDF_comb.to_csv(outFileStr, index=False)
+			outputRows_rev = cellFiles_df.apply(search_func, axis=1, args=(queryStrRev,))
+			outputRows_rev_list = list(outputRows_rev) # for some reason need to convert to a list before concatting
+			outputDF_rev = pd.concat(outputRows_rev_list, ignore_index=True)
 
-	else: # single gene mode 
-		outputRows = cellFiles_df.apply(search_func_any, axis=1, args=(query_gene,))
-		outputRows_list = list(outputRows) # for some reason need to convert to a list before concatting
-		outputDF = pd.concat(outputRows_list, ignore_index=True)
-		outputDF.to_csv(outFileStr, index=False)
+			outputDF.columns = colNames
+			outputDF_rev.columns = colNames
+
+			outputDF_comb = pd.DataFrame(columns=colNames)
+			outputDF_comb['cellName'] = outputDF['cellName']
+			outputDF_comb['fusionPresent_bool'] = outputDF['fusionPresent_bool'] + outputDF_rev['fusionPresent_bool']
+			outputDF_comb.to_csv(outFileStr, index=False)
 
 	print('done!')
