@@ -72,7 +72,6 @@ def test_get_specific_mutations_braf():
 
 	
 	
-
 def test_get_mutationcounts_table():
 	from cerebra.get_mutationcounts_table import get_mutationcounts_table
 
