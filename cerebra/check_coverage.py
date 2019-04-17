@@ -91,18 +91,18 @@ def get_GOI_record(record, *args):
 
 
 
-def run_batch(cell):
+def run_batch(file):
 	""" implements BATCH MODE. for every cell, call subroutines to search
 		for ROI, get depth, and output """
 	try:
-		cellName = cell.rstrip()
+		cellName = file.strip(cwd + 'scVCF_filtered_all/')
+		cellName = cellName.strip('.vcf')
 		
-		vcf_path = cwd + 'scVCF_filtered_all/' + cell
-		vcf_path_strip = vcf_path.rstrip() + '.vcf'
-		gvcf_path = cwd + '/gVCF/' + cell
+		vcf_path = file
+		gvcf_path = cwd + 'gVCF/' + cellName
 		gvcf_path_strip = gvcf_path.rstrip() + '.g.vcf'
 
-		vcf = VCF.dataframe(vcf_path_strip)
+		vcf = VCF.dataframe(vcf_path)
 		gvcf = VCF.dataframe(gvcf_path_strip)
 
 		# get a list of the records we actually care about
@@ -134,16 +134,17 @@ def run_batch(cell):
 
 """ get cmdline input """
 @click.command()
-@click.option('--chrom', default = 7, prompt='chromosome', required=True, type=int)
-@click.option('--start_pos', default = 55152337, prompt='start position', required=True, type=int)
-@click.option('--end_pos', default = 55207337, prompt='end position', required=True, type=int)
-@click.option('--nthreads', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
+@click.option('--chrom', default = 7, prompt='chromosome', required=True, type=str)
+@click.option('--start_pos', default = 55191820, prompt='start position', required=True, type=str)
+@click.option('--end_pos', default = 55191822, prompt='end position', required=True, type=str)
+@click.option('--nthreads', default = 4, prompt='number of threads', required=True, type=int)
 @click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--outfile', default = 'egfr_L858R_cov.csv', prompt='name of output file', required=True)
 @click.option('--test', default = False)
 
 
 
-def check_coverage(chrom, start_pos, end_pos, nthreads, wrkdir, test):
+def check_coverage(chrom, start_pos, end_pos, nthreads, wrkdir, outfile, test):
 	""" check coverage to a given ROI """
 	global cellName
 	global vcf_s3_path
@@ -182,6 +183,11 @@ def check_coverage(chrom, start_pos, end_pos, nthreads, wrkdir, test):
 	print(' ')
 
 	# join all of the rows into single df
+	cmd = 'sudo mkdir -p ' + cwd + 'coverage/'
+	cmd1 = 'sudo chmod -R 777 ' + cwd + 'coverage/'
+	os.system(cmd)
+	os.system(cmd1)
+
 	outputDF = outputDF_init.append(outputRows)
-	outputDF.to_csv(outFileName, index=False)
+	outputDF.to_csv(cwd + 'coverage/' + outfile, index=False)
 
