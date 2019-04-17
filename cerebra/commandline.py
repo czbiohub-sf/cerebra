@@ -15,6 +15,7 @@ from cerebra.get_mutationalburden import get_mutationalburden
 from cerebra.generate_summary_tables import generate_summary_tables
 from cerebra.fusion_search import fusion_search
 from cerebra.fusions_x_cell import fusions_x_cell
+from cerebra.check_coverage import check_coverage
 
 click.option = partial(click.option, show_default=True)
 
@@ -37,6 +38,7 @@ cli.add_command(get_mutationalburden, name='get_mutationalburden')
 cli.add_command(generate_summary_tables, name='generate_summary_tables')
 cli.add_command(fusion_search, name='fusion_search')
 cli.add_command(fusions_x_cell, name='fusions_x_cell')
+cli.add_command(check_coverage, name='check_coverage')
 
 if __name__ == "__main__":
     cli()
