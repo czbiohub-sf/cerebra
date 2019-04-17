@@ -196,11 +196,11 @@ def clin_mut_found_fill_in_fus(summaryTable_):
 
 
 
-def tumor_cell_bool_fill_in(summaryTable_):
+def tumor_cell_bool_fill_in(summaryTable_, cwd_):
 	""" 1 if were calling the cell TUMOR in our seurat obj, 
 		0 if else """
 	# read in Seurat metadata
-	metaPATH = '/Users/lincoln.harris/Desktop/LAUD_important_shit/metadataSeurat.csv'
+	metaPATH = cwd_ + 'metadataSeurat.csv'
 	metadataSeurat = pd.read_csv(metaPATH)
 
 	myCols = list(metadataSeurat.columns)
@@ -222,9 +222,9 @@ def tumor_cell_bool_fill_in(summaryTable_):
 
 
 
-def get_non_zero_cov_ROI(gene, mut): 
+def get_non_zero_cov_ROI(gene, mut, cwd_): 
 	""" removes non-zero vals from given coverageByCell dataframe """
-	fPATH = '/Users/lincoln.harris/code/SNP_calling_pipeline/coverage/out/' + gene + '_' + mut + '_' + 'coverageByCell.csv'
+	fPATH = cwd_ + 'coverage/' + gene + '_' + mut + '_' + 'coverageByCell.csv'
 	cov = pd.read_csv(fPATH)
 	indices = cov['depth_gvcf'] != 0
 	cov_nonZero = cov[indices]
