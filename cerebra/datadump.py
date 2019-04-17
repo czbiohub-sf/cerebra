@@ -51,3 +51,7 @@ def s3_import(metadata, cosmic_db, hg38, sc_vcf, bulk_vcf):
 	os.system('sudo chmod -R 777 wrkdir/fusions')
 	cmd = 'aws s3 cp s3://lincoln.harris-work/fusions wrkdir/fusions --recursive --quiet'
 	os.system(cmd)
+
+	# dwld seurat metadata
+	cmd = 'aws s3 cp s3://lincoln.harris-work/metadataSeurat.csv wrkdir/ --quiet'
+	os.system(cmd)

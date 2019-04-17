@@ -55,39 +55,11 @@ def generic_summary_table_fill_in(metaField, summaryField, summaryTable_, patien
 
 def fusions_fill_in(fusionsDF_, summaryTable_):
 	""" takes the existing fusionsDF and populates summaryTable_ with this shit """
-	for i in range(0, len(summaryTable_.index)):
-		currCell = summaryTable_['cell'][i]
-		fusionsListCurr = []
-    
-		colList0 = list(fusionsDF_['ALK--EML4'])
-		colList1 = list(fusionsDF_['ALK_any'])
-		colList2 = list(fusionsDF_['EML4_any'])
-		colList3 = list(fusionsDF_['NTRK_any'])
-		colList4 = list(fusionsDF_['RET_any'])
-		colList5 = list(fusionsDF_['ROS1_any'])
+	for cell in summaryTable_['cell']:
+		for col in fusionsDF_.columns:
+			if cell in list(fusionsDF_[col]):
+				summaryTable_['fusions_found'][i] = col
 
-		if currCell in colList0:
-			fusionsListCurr.append('ALK-EML4')
-		elif currCell in colList1:
-			fusionsListCurr.append('ALK_any')
-		elif currCell in colList2:
-			fusionsListCurr.append('EML4_any')
-		elif currCell in colList3:
-			fusionsListCurr.append('NTRK_any')
-		elif currCell in colList4:
-			fusionsListCurr.append('RET_any')
-		elif currCell in colList5:
-			fusionsListCurr.append('ROS1_any')
-		else:
-			fusionsListCurr = ""
-        
-		fusionsListCurr = str(fusionsListCurr)
-		fusionsListCurr = fusionsListCurr.strip(']')
-		fusionsListCurr = fusionsListCurr.strip('[')
-		fusionsListCurr = fusionsListCurr.strip("'")
-		fusionsListCurr = fusionsListCurr.strip(" ")
- 
-		summaryTable_['fusions_found'][i] = fusionsListCurr
 
 
 def translated_muts_fill_in(GOI, summaryTable_):
@@ -135,20 +107,16 @@ def translated_muts_fill_in_fusions(summaryTable_):
 	""" converts 'raw' mutation calls to something that more resembles
 		those reported in our clinical cols. for fusions """
 	for i in range(0,len(summaryTable_.index)):
-		translatedList = []
 		currCell = summaryTable_['cell'].iloc[i]
 		currFus = summaryTable_['fusions_found'].iloc[i]
-		currFus_split = currFus.split(',')
-		for item in currFus_split:
-			if item == 'ALK-EML4':
-				translatedList.append('ALK fusion')
-				translatedList.append('EML4 fusion')
-				translatedList.append('ALK-EML4 fusion')
-			elif item != '' and '?' not in item:
-				item = item.split('_')[0]
-				translatedList.append(item + ' fusion')
 
-		summaryTable_['mutations_found_translated'][i] = summaryTable_['mutations_found_translated'][i] + translatedList
+		if not math.isnan(currFus):
+			if currFus == 'ALK-EML4':
+				toAdd = currFus
+			elif currFus != '' and '?' not in currFus:
+				toAdd = currFus
+
+			summaryTable_['mutations_found_translated'][i] = summaryTable_['mutations_found_translated'][i] + toAdd
 
 
 
@@ -185,14 +153,14 @@ def clin_mut_found_fill_in_fus(summaryTable_):
 	for i in range(0,len(summaryTable_.index)):
 		currCell = summaryTable_['cell'][i]
 		currFus = summaryTable_['fusions_found'][i]
-		currFus = currFus.strip('_any')
-		currFus = currFus.split('-')[0]
 
-		summaryTable_['clin_mut_found_bool'][i] = 0
-		currClinGene = summaryTable_['clinical_driver_gene'][i]
+		if not math.isnan(currFus):
+			currFus = currFus.split('--')[0]
+			summaryTable_['clin_mut_found_bool'][i] = 0
+			currClinGene = summaryTable_['clinical_driver_gene'][i]
 
-		if currClinGene == currFus:
-			summaryTable_['clin_mut_found_bool'][i] = 1
+			if currClinGene == currFus:
+				summaryTable_['clin_mut_found_bool'][i] = 1
 
 
 
@@ -224,7 +192,7 @@ def tumor_cell_bool_fill_in(summaryTable_, cwd_):
 
 def get_non_zero_cov_ROI(gene, mut, cwd_): 
 	""" removes non-zero vals from given coverageByCell dataframe """
-	fPATH = cwd_ + 'coverage/' + gene + '_' + mut + '_' + 'coverageByCell.csv'
+	fPATH = cwd_ + 'coverage/' + gene + '_' + mut + '_coverageByCell.csv'
 	cov = pd.read_csv(fPATH)
 	indices = cov['depth_gvcf'] != 0
 	cov_nonZero = cov[indices]
