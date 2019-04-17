@@ -14,6 +14,7 @@ from cerebra.get_specific_mutations import get_specific_mutations
 from cerebra.get_mutationalburden import get_mutationalburden
 from cerebra.generate_summary_tables import generate_summary_tables
 from cerebra.fusion_search import fusion_search
+from cerebra.fusions_x_cell import fusions_x_cell
 
 click.option = partial(click.option, show_default=True)
 
@@ -35,6 +36,7 @@ cli.add_command(get_specific_mutations, name='get_specific_mutations')
 cli.add_command(get_mutationalburden, name='get_mutationalburden')
 cli.add_command(generate_summary_tables, name='generate_summary_tables')
 cli.add_command(fusion_search, name='fusion_search')
+cli.add_command(fusions_x_cell, name='fusions_x_cell')
 
 if __name__ == "__main__":
     cli()

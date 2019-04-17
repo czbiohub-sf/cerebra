@@ -3,6 +3,7 @@
 
 import numpy as np
 import pandas as pd
+import click
 
 
 def readFunc(fus):
@@ -32,15 +33,15 @@ def fusions_x_cell(test, wrkdir):
 
 	cwd = wrkdir 
 
-	with open(cwd + 'fusionsList.csv', 'r') as f:
+	with open(cwd + '../fusionsList.csv', 'r') as f:
 		fusionsList = f.readlines()
 		fusionsList = [x.strip() for x in fusionsList]
 
 		fusionsDF = pd.DataFrame('Nan', index=np.arange(50), columns=fusionsList)
 
 		for currFus in fusionsList:
-    		currName = currFus.split('--')[0] + '_' + currFus.split('--')[1]
-    		df = readFunc(currFus)
-    		fusionsDF[currFus] = pd.Series(df['cellName'])
+			currName = currFus.split('--')[0] + '_' + currFus.split('--')[1]
+			df = readFunc(currFus)
+			fusionsDF[currFus] = pd.Series(df['cellName'])
 
 		fusionsDF.to_csv(cwd + 'fusion_dataframe.csv', index=False)
