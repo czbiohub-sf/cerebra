@@ -4,6 +4,7 @@
 import summarize_module
 import pandas as pd
 import numpy as np
+import click
 
 
 """ get cmdline input """

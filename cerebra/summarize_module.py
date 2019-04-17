@@ -235,20 +235,20 @@ def get_non_zero_cov_ROI(gene, mut, cwd_):
 
 def ROI_coverage_fill_in(coverage_df, queryGene, queryMutation, summaryTable_):
 	""" fills in coverage for a given ROI, for summaryTable_ """
-    for i in range(0, len(summaryTable_.index)):
-        currCell = summaryTable_['cell'][i]
-        currDriver = summaryTable_['clinical_driver_gene'][i]
-        currMut = summaryTable_['clinical_mutation'][i]
+	for i in range(0, len(summaryTable_.index)):
+		currCell = summaryTable_['cell'][i]
+		currDriver = summaryTable_['clinical_driver_gene'][i]
+		currMut = summaryTable_['clinical_mutation'][i]
     
-        if currDriver == queryGene and currMut == queryMutation:
-            if currCell in list(coverage_df['cellName']):
-                index_cov_nonZero = coverage_df['cellName'] == currCell
-                currRow_cov_nonZero = coverage_df[index_cov_nonZero]
-                currDepth_gvcf = int(currRow_cov_nonZero['depth_gvcf'])
+		if currDriver == queryGene and currMut == queryMutation:
+			if currCell in list(coverage_df['cellName']):
+				index_cov_nonZero = coverage_df['cellName'] == currCell
+				currRow_cov_nonZero = coverage_df[index_cov_nonZero]
+				currDepth_gvcf = int(currRow_cov_nonZero['depth_gvcf'])
         
-                summaryTable_['coverage_to_ROI'][i] = currDepth_gvcf
-            else:
-                summaryTable_['coverage_to_ROI'][i] = 0
+				summaryTable_['coverage_to_ROI'][i] = currDepth_gvcf
+			else:
+				summaryTable_['coverage_to_ROI'][i] = 0
 
 
    
