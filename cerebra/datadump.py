@@ -39,3 +39,15 @@ def s3_import(metadata, cosmic_db, hg38, sc_vcf, bulk_vcf):
 
 	cmd = 'cp vcfheader.txt wrkdir/'
 	os.system(cmd)
+
+	# only until we have coverage module written
+	os.system('sudo mkdir -p wrkdir/coverage')
+	os.system('sudo chmod -R 777 wrkdir/coverage')
+	#cmd = 'cp /Users/lincoln.harris/code/SNP_calling_pipeline/coverage/out/*_coverageByCell.csv wrkdir/coverage'
+	#os.system(cmd)
+
+	# dwld STAR-fusion files
+	os.system('sudo mkdir -p wrkdir/fusions')
+	os.system('sudo chmod -R 777 wrkdir/fusions')
+	cmd = 'aws s3 cp s3://lincoln.harris-work/fusions wrkdir/fusions --recursive --quiet'
+	os.system(cmd)
