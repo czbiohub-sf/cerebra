@@ -132,51 +132,18 @@ def run_batch(file):
 
 
 
-""" get cmdline input """
-@click.command()
-@click.option('--chrom', default = 7, prompt='chromosome', required=True, type=str)
-@click.option('--start_pos', default = 55191820, prompt='start position', required=True, type=str)
-@click.option('--end_pos', default = 55191822, prompt='end position', required=True, type=str)
-@click.option('--nthreads', default = 4, prompt='number of threads', required=True, type=int)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
-@click.option('--outfile', default = 'egfr_L858R_cov.csv', prompt='name of output file', required=True)
-@click.option('--test', default = False)
-
-
-
-def check_coverage(chrom, start_pos, end_pos, nthreads, wrkdir, outfile, test):
-	""" check coverage to a given ROI """
-	global cellName
-	global vcf_s3_path
-	global gvcf_s3_path
-	global chrom_
-	global start_
-	global end_
-	global colNames
-	global cwd
-
-	print(' ')
-	print('this tool should be used for loci specific coverage queries.')
-	print('it is NOT intended for calculating coverage at the exon/transcript level.')
-
-	cwd = wrkdir
-	chrom_ = chrom
-	start_ = start_pos
-	end_ = end_pos
-	nThreads = nthreads
-
-	fNames = get_filenames()
+def init_pool(filenames, outfile_name):
+	""" function to set up the thread pool """
 
 	# init outFile
-	colNames = ['cellName', 'coverage_bool_vcf', 'depth_vcf', 'coverage_bool_gvcf', 'depth_gvcf']
 	outputDF_init = pd.DataFrame(columns=colNames) 	
-		
+			
 	print('creating pool')
 
 	p = mp.Pool(processes=nThreads)
 
 	print('running...')
-	outputRows = p.map(run_batch, fNames)
+	outputRows = p.map(run_batch, filenames)
 	p.close()
 	p.join()
 	print('done!')
@@ -189,5 +156,62 @@ def check_coverage(chrom, start_pos, end_pos, nthreads, wrkdir, outfile, test):
 	os.system(cmd1)
 
 	outputDF = outputDF_init.append(outputRows)
-	outputDF.to_csv(cwd + 'coverage/' + outfile, index=False)
+	outputDF.to_csv(cwd + 'coverage/' + outfile_name, index=False)
 
+
+
+""" get cmdline input """
+@click.command()
+@click.option('--chrom', default = 7, prompt='chromosome', required=True, type=str)
+@click.option('--start_pos', default = 55191820, prompt='start position', required=True, type=str)
+@click.option('--end_pos', default = 55191822, prompt='end position', required=True, type=str)
+@click.option('--nthreads', default = 4, prompt='number of threads', required=True, type=int)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', 
+	prompt='s3 import directory', required=True)
+@click.option('--batch_mode', default = 0, prompt='batch mode', required=True, type=int)
+@click.option('--outfile', default = 'egfr_L858R_coverageByCell.csv', 
+	prompt='name of output file (leave blank for batch mode)', required=True)
+@click.option('--test', default = False)
+
+
+
+def check_coverage(chrom, start_pos, end_pos, nthreads, wrkdir, batch_mode, outfile, test):
+	""" check coverage to a given ROI """
+	global cellName
+	global vcf_s3_path
+	global gvcf_s3_path
+	global chrom_
+	global start_
+	global end_
+	global colNames
+	global cwd
+	global nThreads
+
+	cwd = wrkdir
+	nThreads = nthreads
+	
+	print(' ')
+	print('this tool should be used for loci specific coverage queries.')
+	print('it is NOT intended for calculating coverage at the exon/transcript level.')
+
+	fNames = get_filenames()
+	colNames = ['cellName', 'coverage_bool_vcf', 'depth_vcf', 'coverage_bool_gvcf', 'depth_gvcf']
+
+	if batch_mode:
+		cov_df = pd.read_csv(cwd + '../coverageBatch.csv')
+
+		for i in range(0, len(cov_df.index)):
+			currRow = cov_df.iloc[i]
+			chrom_ = currRow['chrom']
+			start_ = currRow['start_pos']
+			end_ = currRow['end_pos']
+			outfile_ = currRow['outfile']
+
+			init_pool(fNames, outfile_)
+	else:
+		chrom_ = chrom
+		start_ = start_pos
+		end_ = end_pos
+		outfile_ = outfile
+
+		init_pool(fNames, outfile_)
