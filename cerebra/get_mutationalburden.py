@@ -17,8 +17,8 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 def get_filenames():
 	""" gets file names given path """
 	files = []
-	for file in os.listdir("wrkdir/scVCF_filtered_all/"):
-		fullPath = (os.path.join("wrkdir/scVCF_filtered_all/", file))
+	for file in os.listdir(cwd + "scVCF_filtered_all/"):
+		fullPath = (os.path.join(cwd + "scVCF_filtered_all/", file))
 		files.append(fullPath)
     
 	return files
@@ -31,7 +31,7 @@ def get_raw_counts(fileNames):
 	cells_dict = {}
 
 	for f in fileNames:
-		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
+		cell = f.replace(cwd + "scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")
     
 		df = VCF.dataframe(f)
@@ -78,7 +78,7 @@ def get_filter_counts_basic(fileNames):
 	genomePos_db = pd.Series(database['Mutation genome position'])
 
 	for f in fileNames:
-		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
+		cell = f.replace(cwd + "scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")
 		df = VCF.dataframe(f)
 
@@ -95,10 +95,8 @@ def get_filter_counts_basic(fileNames):
 def get_laud_db():
 	""" returns the COSMIC database after LAUD filter """
 	print('setting up LAUD filtered database...')
-	pHistList = database.index[database['Primary histology'] == 'carcinoma'].tolist()
 	pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
-	shared = list(set(pHistList) & set(pSiteList))
-	database_filter = database.iloc[shared]
+	database_filter = database.iloc[pSiteList]
 	return database_filter
 
 
@@ -110,7 +108,7 @@ def get_filter_counts_laud(fileNames):
 	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 
 	for f in fileNames:
-		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
+		cell = f.replace(cwd + "scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")
 
 		df = VCF.dataframe(f)
@@ -137,15 +135,18 @@ def write_csv(dictObj, outFile):
 """ get cmdline input """
 @click.command()
 @click.option('--mode', default = 1, prompt='run mode', required=True, type=int)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
 
 
 
-def get_mutationalburden(mode):
+def get_mutationalburden(mode, wrkdir):
 	""" returns the total number of mutations (mutational burden) for each cell in dataset.
-		three run modes: 1) raw counts, 2) COSMIC filter counts, 3) COSMIC lung adenocarcinoma
-		filter  """
+		three run modes: 1) raw counts, 2) COSMIC filter counts, 3) COSMIC lung filter """
 	global database
 	global database_laud
+	global cwd
+
+	cwd = wrkdir
 
 	# raw counts
 	if mode == 1:
@@ -153,25 +154,25 @@ def get_mutationalburden(mode):
 		rawDict = get_raw_counts(fNames)
 		print("raw counts done!")
 		print('writing csv')
-		write_csv(rawDict, "wrkdir/nonImmune_GATK_hits_raw.csv")
+		write_csv(rawDict, cwd + "nonImmune_GATK_hits_raw.csv")
 
 	# filter counts (basic)
 	if mode == 2:
 		print('setting up COSMIC database...')
-		database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
+		database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 		fNames = get_filenames()
 		filterDict = get_filter_counts_basic(fNames)
 		print("filter counts (basic) done!")
 		print('writing csv')
-		write_csv(filterDict, "wrkdir/nonImmune_GATK_hits_COSMIC_filter.csv")
+		write_csv(filterDict, cwd + "nonImmune_GATK_hits_COSMIC_filter.csv")
 
-	# filter counts LAUD
+	# filter counts Lung
 	if mode == 3:
 		print('setting up COSMIC database...')
-		database = pd.read_csv("wrkdir/CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
+		database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 		database_laud = get_laud_db()
 		fNames = get_filenames()
 		filterDict1 = get_filter_counts_laud(fNames) 
 		print("filter counts (LAUD) done!")
 		print('writing csv')
-		write_csv(filterDict1, "wrkdir/nonImmune_GATK_hits_LAUD_filter.csv")
+		write_csv(filterDict1, cwd + "nonImmune_GATK_hits_lung_filter.csv")
