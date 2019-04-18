@@ -284,5 +284,5 @@ dmypy.json
 metadata_all_cells_4.10.19.csv
 hg38-plus.gtf
 CosmicGenomeScreensMutantExport.tsv
-*fusions_predictions.abridged.tsv
+*_fusions_predictions.abridged.tsv
 wrkdir/

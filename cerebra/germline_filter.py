@@ -191,11 +191,7 @@ def germline_filter(test, wrkdir):
 			patientsRun.append(currPatient)
 
 	if test:
-		cmd1 = 'sudo mkdir ' + cwd + 'test_germline_filter'
-		cmd2 = 'sudo chmod -R 777 ' + cwd + 'test_germline_filter'
-		cmd3 = 'cp -r ' + cwd + 'filteredOut/ ' + cwd + 'test_germline_filter/' 
-		os.system(cmd1)
-		os.system(cmd2)
-		os.system(cmd3)
+		cmd = 'cp -r ' + cwd + 'filteredOut/ ' + cwd + 'test/germline_filter/' 
+		os.system(cmd)
 	else:
 		create_final_outdir()

@@ -68,12 +68,11 @@ def get_genome_pos(sample):
 def get_laud_db():
 	""" returns the COSMIC database after lung adeno filter """
 	print('setting up LAUD filtered database...')
-	pHistList = database.index[database['Primary histology'] == 'carcinoma'].tolist()
+	#pHistList = database.index[database['Primary histology'] == 'carcinoma'].tolist()
 	pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
-	shared = list(set(pHistList) & set(pSiteList))
-	database_filter = database.iloc[shared]
+	#shared = list(set(pHistList) & set(pSiteList))
+	database_filter = database.iloc[pSiteList]
 
-	#write_csv(database_filter, 'database_laud.csv')
 	return database_filter
 
 
@@ -267,7 +266,6 @@ def expand_set(mySet):
 
 def write_csv(dictObj, outFile):
 	""" writes dict to csv"""
-	print('writing csv')
 	with open(outFile, 'w') as csv_file:
 		writer = csv.writer(csv_file)
 		for key, value in dictObj.items():
@@ -315,5 +313,9 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	goiDict_AA = get_mutation_aa(goiDict, chrom)
 	print('AA search done')	
 
-	write_csv(goiDict, cwd + outprefix + '.csv')
-	write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
+	if test_bool:
+		write_csv(goiDict, cwd + 'test/specific_mutations/' + outprefix + '.csv')
+		write_csv(goiDict_AA, cwd + 'test/specific_mutations/' + outprefix + '_AA.csv')
+	else:
+		write_csv(goiDict, cwd + outprefix + '.csv')
+		write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')

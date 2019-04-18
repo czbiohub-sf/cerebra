@@ -38,12 +38,13 @@ def get_filenames():
 
 
 def get_laud_db():
-	""" returns the COSMIC database after the lung adeno filter """
+	""" returns the COSMIC database after lung adeno filter """
 	print('setting up LAUD filtered database...')
-	pHistList = database.index[database['Primary histology'] == 'carcinoma'].tolist()
+	#pHistList = database.index[database['Primary histology'] == 'carcinoma'].tolist()
 	pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
-	shared = list(set(pHistList) & set(pSiteList))
-	database_filter = database.iloc[shared]
+	#shared = list(set(pHistList) & set(pSiteList))
+	database_filter = database.iloc[pSiteList]
+
 	return database_filter
 
 
@@ -231,7 +232,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	intermediate = intermediate.drop(columns=dropList)
 
 	if test_bool:
-		intermediate.to_csv(cwd + "geneCellMutationCounts_artifical_TEST.csv", index=False)	
+		intermediate.to_csv(cwd + "test/mutationcounts_table/geneCellMutationCounts_artifical.csv", index=False)	
 	else:
 		intermediate.to_csv(cwd + "geneCellMutationCounts.csv", index=False)
 
