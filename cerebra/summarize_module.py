@@ -55,9 +55,11 @@ def generic_summary_table_fill_in(metaField, summaryField, summaryTable_, patien
 
 def fusions_fill_in(fusionsDF_, summaryTable_):
 	""" takes the existing fusionsDF and populates summaryTable_ with this shit """
-	for cell in summaryTable_['cell']:
+	for i in range(0, len(summaryTable_.index)):
+		currCell = summaryTable_['cell'].iloc[i]
+
 		for col in fusionsDF_.columns:
-			if cell in list(fusionsDF_[col]):
+			if currCell in list(fusionsDF_[col]):
 				summaryTable_['fusions_found'][i] = col
 
 
@@ -104,21 +106,18 @@ def translated_muts_fill_in_egfr(summaryTable_):
 
 
 def translated_muts_fill_in_fusions(summaryTable_):
-	""" converts 'raw' mutation calls to something that more resembles
-		those reported in our clinical cols. for fusions """
-	for i in range(0,len(summaryTable_.index)):
-		currCell = summaryTable_['cell'].iloc[i]
-		currFus = summaryTable_['fusions_found'].iloc[i]
-
-		if not math.isnan(currFus):
-			if currFus == 'ALK-EML4':
-				toAdd = currFus
-			elif currFus != '' and '?' not in currFus:
-				toAdd = currFus
-
-			summaryTable_['mutations_found_translated'][i] = summaryTable_['mutations_found_translated'][i] + toAdd
-
-
+    """ converts 'raw' mutation calls to something that more resembles
+        those reported in our clinical cols. for fusions """
+    for i in range(0,len(summaryTable_.index)):
+        currCell = summaryTable_['cell'].iloc[i]
+        currFus = summaryTable_['fusions_found'].iloc[i]
+        
+        if not pd.isnull(currFus):
+            if '?' not in currFus and currFus != '':
+                currMuts = summaryTable_['mutations_found_translated'][i]
+                currMuts = currMuts + ', ' + currFus + ' fusion'
+                
+                summaryTable_['mutations_found_translated'][i] = currMuts
 
 def convert_to_string(summaryTable_):
 	""" converting mutations_found_translated col from list to str. """
@@ -154,7 +153,7 @@ def clin_mut_found_fill_in_fus(summaryTable_):
 		currCell = summaryTable_['cell'][i]
 		currFus = summaryTable_['fusions_found'][i]
 
-		if not math.isnan(currFus):
+		if not pd.isnull(currFus):
 			currFus = currFus.split('--')[0]
 			summaryTable_['clin_mut_found_bool'][i] = 0
 			currClinGene = summaryTable_['clinical_driver_gene'][i]
