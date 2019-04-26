@@ -78,6 +78,8 @@ def write_vcf(df, outStr_):
 		with open(output_VCF, 'w') as vcf:
 			vcf.write(header)
 
+		output_VCF.replace('CHROM', '#CHROM')
+
 		df.to_csv(output_VCF, sep="\t", mode='a', index=False)
 
 
