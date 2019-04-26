@@ -80,6 +80,13 @@ def write_vcf(df, outStr_):
 
 		df.to_csv(output_VCF, sep="\t", mode='a', index=False)
 
+	# replace this damn CHROM field
+	with open(output_VCF) as f:
+		newText = f.read().replace('CHROM', '#CHROM')
+
+	with open(output_VCF, "w") as f:
+		f.write(newText)
+
 
 
 def get_patient_cells_list(scVCF_list_, patientID):
