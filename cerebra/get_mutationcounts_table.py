@@ -229,12 +229,12 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 			dropList.append(col)
 
 	# want to drop the cols that contain 'Unnamed'
-	intermediate = intermediate.drop(columns=dropList)
+	intermediate = intermediate.drop(dropList, axis=1)
 
 	if test_bool:
 		intermediate.to_csv(cwd + "test/mutationcounts_table/geneCellMutationCounts_artifical.csv", index=False)	
 	else:
-		intermediate.to_csv(cwd + "geneCellMutationCounts_subset.csv", index=False)
+		intermediate.to_csv(cwd + "geneCellMutationCounts.csv", index=False)
 
 	cmd = 'rm ' + cwd + 'intermediate.csv'
 	os.system(cmd)
