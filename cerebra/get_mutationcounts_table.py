@@ -29,8 +29,8 @@ def get_filenames_test():
 def get_filenames():
 	""" get file names based on specified path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_all/"):
-		PATH = cwd + 'scVCF_filtered_all/' + file
+	for file in os.listdir(cwd + "scVCF_filtered_smaller/"):
+		PATH = cwd + 'scVCF_filtered_smaller/' + file
 		files.append(PATH)
 
 	return files
@@ -108,11 +108,11 @@ def get_gene_name(posString):
 
 def get_genecell_mut_counts(f):
 	""" creates a dictionary obj where each key is a cell and each value
-	is a list of the genes we found mutations for in that cell """
+		is a list of the genes we found mutations for in that cell """
 	tup = [] 
 
 	cell = f.replace(cwd, "")
-	cell = cell.replace('scVCF_filtered_all/', "")
+	cell = cell.replace('scVCF_filtered_smaller/', "")
 	cell = cell.replace(".vcf", "")
 	
 	df = VCF.dataframe(f)
@@ -166,9 +166,9 @@ def format_dataframe(raw_df):
 
 """ get cmdline input """
 @click.command()
-@click.option('--nthread', default = 4, prompt='number of threads', required=True, type=int)
+@click.option('--nthread', default = 64, prompt='number of threads', required=True, type=int)
 @click.option('--test', default = False)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
 
 
 
@@ -197,6 +197,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	
 	print('creating pool')
 	p = mp.Pool(processes=nthread)
+	print('running...')
 
 	try:
 		cells_list = p.map(get_genecell_mut_counts, fNames, chunksize=1) # default chunksize=1
@@ -206,13 +207,23 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 
 	# convert to dictionary
 	cells_dict = {}
+	naSeries = pd.Series([np.nan])
 
-	for item in cells_list:
-		cells_dict.update({item[0]:item[1]})
+	for item in cells_list: # PROBLEM IN HERE!! (ignoring cells with empty value lists)
+		cell = item[0]
+		muts = item[1]
+		
+		if len(muts.index) == 0:
+			print(cell)
+			toAdd = {cell:naSeries}
+		else:
+			toAdd = {cell:muts}
+		cells_dict.update({cell:toAdd})
 
 	print('writing file')
 
 	filterDict_pd = pd.DataFrame.from_dict(cells_dict, orient="index") # orient refers to row/col orientation 
+	filterDict_pd.to_csv(cwd + 'filterDict.csv')
 	filterDict_format = format_dataframe(filterDict_pd)
 
 	filterDict_format.to_csv(cwd + "intermediate.csv")
@@ -234,7 +245,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	if test_bool:
 		intermediate.to_csv(cwd + "test/mutationcounts_table/geneCellMutationCounts_artifical.csv", index=False)	
 	else:
-		intermediate.to_csv(cwd + "geneCellMutationCounts.csv", index=False)
+		intermediate.to_csv(cwd + "geneCellMutationCounts_TEST.csv", index=False)
 
 	cmd = 'rm ' + cwd + 'intermediate.csv'
 	os.system(cmd)
