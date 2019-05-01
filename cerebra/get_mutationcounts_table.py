@@ -209,7 +209,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	cells_dict = {}
 	naSeries = pd.Series([np.nan])
 
-	for item in cells_list: # PROBLEM IN HERE!! (ignoring cells with empty value lists)
+	for item in cells_list:
 		cell = item[0]
 		muts = item[1]
 		
@@ -218,7 +218,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 			toAdd = {cell:naSeries}
 		else:
 			toAdd = {cell:muts}
-		cells_dict.update({cell:toAdd})
+		cells_dict.update(toAdd)
 
 	print('writing file')
 
