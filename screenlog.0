@@ -1,0 +1,105 @@
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ ls
+AUTHORS.md        conda_requirements.txt  HISTORY.md  MANIFEST.in   requirements.txt  [0m[01;32msetup.py[0m
+[01;34mcerebra[0m           CONTRIBUTING.md         LICENSE     [01;34mpy_notebooks[0m  screenlog.0
+[01;34mcerebra.egg-info[0m  [01;34mdocs[0m                    Makefile    README.md     setup.cfg
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ cd cere[K[K[K[K[K[K[Krm screenlog.0 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra[00m$ cd cerebra
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ ls
+check_coverage.py  fusionsList.csv              get_specific_mutations.py  summarize_module.py
+commandline.py     fusions_x_cell.py            hello.py                   [0m[01;34mtests[0m
+coverageBatch.csv  generate_summary_tables.py   [01;32m__init__.py[0m                vcfheader.txt
+database_laud.csv  germline_filter.py           os_utils.py                VCF.py
+datadump.py        get_mutationalburden.py      [01;34m__pycache__[0m                [34;42mwrkdir[0m
+fusion_search.py   get_mutationcounts_table.py  screenlog.0
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ source activate cerebra
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ cerebra --help
+Usage: cerebra  <command>
+
+  finds mutants in your scRNA-seq experiment
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  check_coverage            check coverage to a given ROI
+  fusion_search             searches STAR-fusion output files for a...
+  fusions_x_cell            create a cell-wise fusion counts table.
+  generate_summary_tables   generate by cell and by sample summary tables...
+  germline_filter           given a set of single-cell vcfs and bulk-seq...
+  get_mutationalburden      returns the total number of mutations...
+  get_mutationcounts_table  generate a cell x gene mutation counts table...
+  get_specific_mutations    for a specific gene of interest, get the...
+  hello                     helloWorld
+  s3_import                 import necessary files from s3
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ clear[K[K[K[K[Krsub get_nu[K[Kmutationcounts_table.py 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ clear
+[H[2J(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ ls
+check_coverage.py  fusionsList.csv              get_specific_mutations.py  summarize_module.py
+commandline.py     fusions_x_cell.py            hello.py                   [0m[01;34mtests[0m
+coverageBatch.csv  generate_summary_tables.py   [01;32m__init__.py[0m                vcfheader.txt
+database_laud.csv  germline_filter.py           os_utils.py                VCF.py
+datadump.py        get_mutationalburden.py      [01;34m__pycache__[0m                [34;42mwrkdir[0m
+fusion_search.py   get_mutationcounts_table.py  screenlog.0
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ c wr[K[K[Kd wrkdir/
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra/wrkdir[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra/wrkdir[00m$ ls
+[0m[34;42mbulkVCF[0m                              geneCellMutationCounts_subset.csv  [34;42mscVCF_filtered_all[0m
+CosmicGenomeScreensMutantExport.tsv  [34;42mgVCF[0m                               [01;34mscVCF_filtered_subset[0m
+[34;42mcoverage[0m                             hg38-plus.gtf                      [34;42mtest[0m
+[34;42mfilteredOut[0m                          metadata_all_cells_4.10.19.csv     vcfheader.txt
+[34;42mfusions[0m                              metadataSeurat.csv
+[34;42mfusionsOut[0m                           [34;42mscVCF[0m
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra/wrkdir[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra/wrkdir[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra/wrkdir[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra/wrkdir[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra/wrkdir[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra/wrkdir[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra/wrkdir[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra/wrkdir[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra/wrkdir[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra/wrkdir[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra/wrkdir[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra/wrkdir[00m$ cd ..
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ ls
+check_coverage.py  fusionsList.csv              get_specific_mutations.py  summarize_module.py
+commandline.py     fusions_x_cell.py            hello.py                   [0m[01;34mtests[0m
+coverageBatch.csv  generate_summary_tables.py   [01;32m__init__.py[0m                vcfheader.txt
+database_laud.csv  germline_filter.py           os_utils.py                VCF.py
+datadump.py        get_mutationalburden.py      [01;34m__pycache__[0m                [34;42mwrkdir[0m
+fusion_search.py   get_mutationcounts_table.py  screenlog.0
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ cerebra [K[K[K[K[K[K[K[Kpwd
+/home/ubuntu/cerebra/cerebra
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ cerebra get_mutationcounts_table.py [K[K[K[K
+number of threads [4]: 64
+s3 import directory [/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/]: /home/ubuntu/cerebra/cerebra/wrkdir/
+setting up LAUD filtered database...
+creating pool
+writing file
+(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 

@@ -29,8 +29,8 @@ def get_filenames_test():
 def get_filenames():
 	""" get file names based on specified path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_subset/"):
-		PATH = cwd + 'scVCF_filtered_subset/' + file
+	for file in os.listdir(cwd + "scVCF_filtered_all/"):
+		PATH = cwd + 'scVCF_filtered_all/' + file
 		files.append(PATH)
 
 	return files
@@ -112,7 +112,7 @@ def get_genecell_mut_counts(f):
 	tup = [] 
 
 	cell = f.replace(cwd, "")
-	cell = cell.replace('scVCF_filtered_subset/', "")
+	cell = cell.replace('scVCF_filtered_all/', "")
 	cell = cell.replace(".vcf", "")
 	
 	df = VCF.dataframe(f)
