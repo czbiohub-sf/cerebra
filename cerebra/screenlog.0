@@ -1,19 +1,9 @@
-[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
-[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
-[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
-[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
-[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ c[Ksiur[K[K[Kource activate cerebra
-(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
-(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
-(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
-(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
-(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
-(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ cerebra get_specific_mutations.py  [A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K
-[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K
+[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ source activate cerebra
+(cerebra) [01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ cerebra get_specific_mutations.py [K[K[K[K[Ks
 chromosome [7]: 17
-start position [55152337]: 39687914
-end position [55207337]: 39728662
-prefix to use for outfile [sampleOut]: HER2
+start position [55152337]: 43044295
+end position [55207337]: 43125483
+prefix to use for outfile [sampleOut]: BRCA1
 s3 import directory [/home/ubuntu/cerebra/cerebra/wrkdir/]: 
 setting up COSMIC database...
 setting up LAUD filtered database...
@@ -21,4 +11,4 @@ getting coords to GOI hits
 GOI search done!
 AA searching...
 AA search done
-(cerebra) ]0;ubuntu@ip-172-31-23-31: ~/cerebra/cerebra[01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
+(cerebra) [01;32mubuntu@ip-172-31-23-31[00m:[01;34m~/cerebra/cerebra[00m$ 
