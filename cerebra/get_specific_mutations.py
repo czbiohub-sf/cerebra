@@ -144,7 +144,7 @@ def get_goi_hits_coords(fileNames, chrom, pos1, pos2):
 
 	for f in fileNames:
 		numMatches = 0
-		cell = f.replace("wrkdir/scVCF_filtered_all/", "")
+		cell = f.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")	
 	
 		df = VCF.dataframe(f)
@@ -280,7 +280,7 @@ def write_csv(dictObj, outFile):
 @click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
 @click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
