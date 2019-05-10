@@ -276,7 +276,7 @@ def write_csv(dictObj, outFile):
 """ get cmdline input """
 @click.command()
 @click.option('--test', default = False)
-@click.option('--chrom', default = 7, prompt='chromosome', required=True, type=int)
+@click.option('--chrom', default = 7, prompt='chromosome', required=True, type=str)
 @click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
 @click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
