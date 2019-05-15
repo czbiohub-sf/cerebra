@@ -14,25 +14,16 @@ import click
 
 
 
-def generate_summary_tables(test, wrkdir):
+def generate_summary_tables_test(test, wrkdir):
 	""" generate by cell and by sample summary tables for your experiment """
 	test_bool = test
 	cwd = wrkdir
 	muts_path = cwd + 'geneSearch_out/'
 
-	genesList = ['BRIP', 'AKT1', 'ALK', 'BAP1', 'BRAF', 'DDR2', 'DROSHA', 'EGFR', 'ERBB2', 'ERBB4', 'FGFR2', 'GRIN2A',
-		'HIF1a', 'KDR', 'KEAP1', 'KRAS', 'MAP2K1', 'MAP2K2', 'MYCL', 'NFE2L2', 'NKX21', 'NOTCH1', 'PIK3CB', 'PTPN13', 
-		'PTPRT', 'RAD21', 'RB1', 'RBM10', 'SMARCA4', 'SOX2', 'STK11', 'TP53', 'TP63','NF1', 'BRCA2', 'VHL', 'BTK', 
-		'RARA', 'SPTA1', 'FGFR1', 'SETD2', 'JAK1', 'SMAD4', 'CTNNB1', 'TET2', 'PIK3CA']
+	genesList = ['BRIP', 'ALK', 'BAP1', 'BRAF', 'EGFR']
 
 	# first step is to generate the mutationsDF
-	mutationsDF = pd.DataFrame(columns=['cell', 'AKT1_mut', 'ALK_mut', 'BAP1_mut', 'BRAF_mut', 'DDR2_mut', 
-		'DROSHA_mut', 'EGFR_mut', 'ERBB2_mut', 'ERBB4_mut', 'FGFR2_mut', 'GRIN2A_mut', 'HIF1a_mut', 'KDR_mut', 
-		'KEAP1_mut', 'KRAS_mut', 'MAP2K1_mut', 'MAP2K2_mut', 'MYCL_mut', 'NFE2L2_mut', 'NKX21_mut', 'NOTCH1_mut',
-		'PIK3CB_mut', 'PTPN13_mut', 'PTPRT_mut', 'RAD21_mut', 'RB1_mut', 'RBM10_mut', 'SMARCA4_mut', 
-		'SOX2_mut', 'STK11_mut', 'TP53_mut', 'TP63_mut', 'BRIP_mut', 'NF1_mut', 'BRCA2_mut', 'VHL_mut', 'BTK_mut', 
-		'RARA_mut', 'SPTA1_mut', 'FGFR1_mut', 'SETD2_mut', 'JAK1_mut', 'SMAD4_mut', 'CTNNB1_mut', 'TET2_mut', 
-		'PIK3CA_mut'])
+	mutationsDF = pd.DataFrame(columns=['cell', 'BRIP_mut', 'ALK_mut', 'BAP1_mut', 'BRAF_mut', 'EGFR_mut'])
 
 	# fill in EGFR first
 	EGFR_path = muts_path + 'EGFR_AA.csv'
@@ -58,18 +49,8 @@ def generate_summary_tables(test, wrkdir):
 
 	# init the summary table
 	cols = ['cell', 'patient', 'clinical_driver_gene', 'clinical_mutation', 'coverage_to_ROI', 'clin_mut_found_bool', 
-        'mutations_found_AKT1', 'mutations_found_ALK', 'mutations_found_BAP1', 'mutations_found_BRAF', 
-        'mutations_found_DDR2', 'mutations_found_DROSHA', 'mutations_found_EGFR', 'mutations_found_ERBB2',
-        'mutations_found_ERBB4', 'mutations_found_FGFR2', 'mutations_found_GRIN2A','mutations_found_HIF1a', 
-        'mutations_found_KDR', 'mutations_found_KEAP1', 'mutations_found_KRAS', 'mutations_found_MAP2K1', 
-        'mutations_found_MAP2K2', 'mutations_found_MYCL', 'mutations_found_NFE2L2', 'mutations_found_NKX21',
-        'mutations_found_NOTCH1','mutations_found_PIK3CB', 'mutations_found_PTPN13', 'mutations_found_PTPRT',
-        'mutations_found_RAD21', 'mutations_found_RB1', 'mutations_found_RBM10',
-        'mutations_found_SMARCA4', 'mutations_found_SOX2', 'mutations_found_STK11', 'mutations_found_TP53',
-        'mutations_found_TP63', 'mutations_found_BRIP', 'mutations_found_NF1', 'mutations_found_BRCA2', 
-        'mutations_found_VHL', 'mutations_found_BTK', 'mutations_found_RARA', 'mutations_found_SPTA1', 
-        'mutations_found_FGFR1', 'mutations_found_SETD2', 'mutations_found_JAK1', 'mutations_found_SMAD4',
-        'mutations_found_CTNNB1', 'mutations_found_TET2', 'mutations_found_PIK3CA', 'fusions_found', 'tumorCell_bool']
+        'mutations_found_BRIP', 'mutations_found_ALK', 'mutations_found_BAP1', 'mutations_found_BRAF', 
+        'mutations_found_EGFR', 'mutations_found_translated', 'fusions_found', 'tumorCell_bool']
 
 	summaryTable = pd.DataFrame(columns=cols)
 	summaryTable['cell'] = mutationsDF['cell']
@@ -85,20 +66,23 @@ def generate_summary_tables(test, wrkdir):
 		mutsdf_col = gene + '_mut'
 		summaryTable[summary_col] = mutationsDF[mutsdf_col]
 
+	# check
+	summaryTable.to_csv('summaryTable_intermed.csv', index=False)
+
 	# read in fusions dataframe, then fill in summaryTable
 	fusionsDF = pd.read_csv(cwd + 'fusion_dataframe_4.19.csv')
-	summarize_module.fusions_fill_in(fusionsDF, summaryTable)
+	summarize_module.fusions_fill_in(fusionsDF, summaryTable) # NOT WORKING
 
 	# set up a col to translate 'raw' mutation calls to 'clinical'
 	summaryTable['mutations_found_translated'] = ""
-	summarize_module.translated_muts_fill_in_egfr(summaryTable)
+	summarize_module.translated_muts_fill_in_egfr(summaryTable) # NOT WORKING
 
 	# translate the rest of 'em
 	for gene in genesList:
-		summarize_module.translated_muts_fill_in(gene, summaryTable)
+		summarize_module.translated_muts_fill_in(gene, summaryTable) # NOT WORKING
 
     # and the fusions
-	summarize_module.translated_muts_fill_in_fusions(summaryTable)
+	summarize_module.translated_muts_fill_in_fusions(summaryTable) # NOT WORKING
 
 	# convert lists to strs, so i can get set -- probably not necessary
 	summarize_module.convert_to_string(summaryTable)

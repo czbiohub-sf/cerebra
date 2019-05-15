@@ -107,18 +107,22 @@ def translated_muts_fill_in_egfr(summaryTable_):
 
 
 def translated_muts_fill_in_fusions(summaryTable_):
-    """ converts 'raw' mutation calls to something that more resembles
-        those reported in our clinical cols. for fusions """
-    for i in range(0,len(summaryTable_.index)):
-        currCell = summaryTable_['cell'].iloc[i]
-        currFus = summaryTable_['fusions_found'].iloc[i]
+	""" converts 'raw' mutation calls to something that more resembles
+		those reported in our clinical cols. for fusions """
+	for i in range(0,len(summaryTable_.index)):
+		currCell = summaryTable_['cell'].iloc[i]
+		currFus = summaryTable_['fusions_found'].iloc[i]
         
-        if not pd.isnull(currFus):
-            if '?' not in currFus and currFus != '':
-                currMuts = summaryTable_['mutations_found_translated'][i]
-                currMuts = currMuts + ', ' + currFus + ' fusion'
+		if not pd.isnull(currFus):
+			if '?' not in currFus and currFus != '':
+				print(currFus)
+				currMuts = summaryTable_['mutations_found_translated'][i]
+				currMuts = currMuts + ', ' + currFus + ' fusion'
+				print(currMuts)
                 
-                summaryTable_['mutations_found_translated'][i] = currMuts
+				summaryTable_['mutations_found_translated'][i] = currMuts
+
+
 
 def convert_to_string(summaryTable_):
 	""" converting mutations_found_translated col from list to str. """
