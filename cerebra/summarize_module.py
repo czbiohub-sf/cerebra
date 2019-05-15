@@ -7,7 +7,8 @@ import pandas as pd
 
 def mutations_df_fill_in(GOI, GOI_df, mutationsDF_):
 	""" creates a cell-wise dataframe with mutations to each GOI """
-	mutName = GOI + 'Mut'
+	mutName = GOI + '_mut'
+
 	for i in range(0,len(mutationsDF_.index)):
 		currCell = mutationsDF_['cell'][i]
 
@@ -26,7 +27,7 @@ def mutations_df_fill_in(GOI, GOI_df, mutationsDF_):
 
 def remove_extra_characters_mutations_df(GOI, mutationsDF_):
 	""" converting df cols from lists to strings """
-	mutName = GOI + 'Mut'
+	mutName = GOI + '_mut'
 
 	mutationsDF_[mutName] = mutationsDF_[mutName].str.replace("'", "") # remove quotes
 	mutationsDF_[mutName] = mutationsDF_[mutName].str.replace("[", "") # remove brackets
