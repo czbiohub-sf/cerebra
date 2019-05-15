@@ -20,19 +20,18 @@ def generate_summary_tables(test, wrkdir):
 	cwd = wrkdir
 	muts_path = cwd + 'geneSearch_out/'
 
-	genesList = ['BRIP', 'AKT1', 'ALK', 'BAP1', 'BRAF', 'DDR2', 'DROSHA', 'EGFR', 'ERBB2', 'ERBB4', 'FGFR2', 'GRIN2A',
-		'HIF1a', 'KDR', 'KEAP1', 'KRAS', 'MAP2K1', 'MAP2K2', 'MYCL', 'NFE2L2', 'NKX21', 'NOTCH1', 'PIK3CB', 'PTPN13', 
-		'PTPRT', 'RAD21', 'RB1', 'RBM10', 'SMARCA4', 'SOX2', 'STK11', 'TP53', 'TP63','NF1', 'BRCA2', 'VHL', 'BTK', 
-		'RARA', 'SPTA1', 'FGFR1', 'SETD2', 'JAK1', 'SMAD4', 'CTNNB1', 'TET2', 'PIK3CA']
-
-	# first step is to generate the mutationsDF
 	mutationsDF = pd.DataFrame(columns=['cell', 'AKT1_mut', 'ALK_mut', 'BAP1_mut', 'BRAF_mut', 'DDR2_mut', 
 		'DROSHA_mut', 'EGFR_mut', 'ERBB2_mut', 'ERBB4_mut', 'FGFR2_mut', 'GRIN2A_mut', 'HIF1a_mut', 'KDR_mut', 
-		'KEAP1_mut', 'KRAS_mut', 'MAP2K1_mut', 'MAP2K2_mut', 'MYCL_mut', 'NFE2L2_mut', 'NKX21_mut', 'NOTCH1_mut',
-		'PIK3CB_mut', 'PTPN13_mut', 'PTPRT_mut', 'RAD21_mut', 'RB1_mut', 'RBM10_mut', 'SMARCA4_mut', 
-		'SOX2_mut', 'STK11_mut', 'TP53_mut', 'TP63_mut', 'BRIP_mut', 'NF1_mut', 'BRCA2_mut', 'VHL_mut', 'BTK_mut', 
-		'RARA_mut', 'SPTA1_mut', 'FGFR1_mut', 'SETD2_mut', 'JAK1_mut', 'SMAD4_mut', 'CTNNB1_mut', 'TET2_mut', 
-		'PIK3CA_mut'])
+        'KEAP1_mut', 'KRAS_mut', 'MAP2K1_mut', 'MAP2K2_mut', 'MYCL_mut', 'NFE2L2_mut', 'NKX21_mut', 'NOTCH1_mut',
+        'PIK3CB_mut', 'PTPN13_mut', 'PTPRT_mut', 'RAD21_mut', 'RB1_mut', 'RBM10_mut', 'SMARCA4_mut', 
+        'SOX2_mut', 'STK11_mut', 'TP53_mut', 'TP63_mut', 'BRIP_mut', 'NF1_mut', 'BRCA2_mut', 'VHL_mut', 'BTK_mut', 
+        'RARA_mut', 'SPTA1_mut', 'FGFR1_mut', 'SETD2_mut', 'JAK1_mut', 'SMAD4_mut', 'CTNNB1_mut', 'TET2_mut', 
+        'PIK3CA_mut'])
+
+	genesList = ['BRIP', 'AKT1', 'ALK', 'BAP1', 'BRAF', 'DDR2', 'DROSHA', 'EGFR', 'ERBB2', 'ERBB4', 'FGFR2', 'GRIN2A',
+				'HIF1a', 'KDR', 'KEAP1', 'KRAS', 'MAP2K1', 'MAP2K2', 'MYCL', 'NFE2L2', 'NKX21', 'NOTCH1', 'PIK3CB',
+				'PTPN13', 'PTPRT', 'RAD21', 'RB1', 'RBM10', 'SMARCA4', 'SOX2', 'STK11', 'TP53', 'TP63','NF1', 
+				'BRCA2', 'VHL', 'BTK', 'RARA', 'SPTA1', 'FGFR1', 'SETD2', 'JAK1', 'SMAD4', 'CTNNB1', 'TET2', 'PIK3CA']
 
 	# fill in EGFR first
 	EGFR_path = muts_path + 'EGFR_AA.csv'
@@ -42,14 +41,10 @@ def generate_summary_tables(test, wrkdir):
 
 	# now fill in everything else
 	for gene in genesList:
-		print(gene)
 		gene_path = muts_path + gene + '_AA.csv'
 		gene_df = pd.read_csv(gene_path, header=None, names=['cell', 'mutations'])
 		summarize_module.mutations_df_fill_in(gene, gene_df, mutationsDF)
 		summarize_module.remove_extra_characters_mutations_df(gene, mutationsDF)
-
-	# test write
-	mutationsDF.to_csv('mutationsDF.csv', index=False)
 
 	# read in patientMetadata
 	metaPATH = cwd + 'metadata_all_cells_4.10.19.csv'
