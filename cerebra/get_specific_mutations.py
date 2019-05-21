@@ -66,14 +66,14 @@ def get_genome_pos(sample):
 
 
 def get_laud_db():
-	""" returns the COSMIC database after lung adeno filter """
-	print('setting up LAUD filtered database...')
-	#pHistList = database.index[database['Primary histology'] == 'carcinoma'].tolist()
-	pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
-	#shared = list(set(pHistList) & set(pSiteList))
-	database_filter = database.iloc[pSiteList]
+    """ returns the COSMIC database after lung and fathmm filter """
+    pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
+    database_filter = database.iloc[pSiteList]
+    keepRows = database_filter['FATHMM score'] >= 0.7
+    db_fathmm_filter = database_filter[keepRows]
+    db_fathmm_filter = db_fathmm_filter.reset_index(drop=True)
 
-	return database_filter
+    return db_fathmm_filter
 
 
 
