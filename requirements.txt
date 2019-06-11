@@ -5,3 +5,6 @@ click
 setuptools>=38.6.0
 tqdm
 colorama
+numpy
+pandas
+pyvcf
