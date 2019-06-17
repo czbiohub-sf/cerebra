@@ -37,31 +37,9 @@ def get_filenames():
 
 
 
-def get_genome_pos(sample):
-	""" returns a genome position string to match against the ones found in COSMIC """
-	try:
-		chr = sample[0]
-		chr = chr.replace("chr", "")
-		pos = int(sample[1])
-		ref = str(sample[3])
-		alt = str(sample[4])
-
-		if (len(ref) == 1) & (len(alt) == 1): # most basic case
-			secondPos = pos
-			genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
-		elif (len(ref) > 1) & (len(alt) == 1):
-			secondPos = pos + len(ref)
-			genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
-		elif (len(alt) > 1) & (len(ref) == 1):
-			secondPos = pos + len(alt)
-			genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
-		else: # BOTH > 1 .... not sure what to do here. does this actually happen? 
-			secondPos = 'dummy'
-			genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
-	except:
-			genomePos = 'chr0:0-0'
-
-	return(genomePos)
+def get_overlap(a, b):
+	""" return the len of overlap between two regions """
+	return max(0, min(int(a[1]), int(b[1])) - max(int(a[0]), int(b[0])))
 
 
 
@@ -77,103 +55,70 @@ def get_laud_db():
 
 
 
-def hit_search(sample):
-	""" performs the actual search """
-	match = 0
-	currChrom = sample.split(':')[0]
-	if currChrom == queryChrom:
-		sub0 = sample.split('-')[0] # split on `-`
-		sub1 = sample.split('-')[1] # this guy is good
-		sub00 = sub0.split(':')[1] # split on :, need to get rid of chrom
-
-		try:
-			lPosCurr = sub00
-			rPosCurr = sub1
-			# rPosQuery and lPosQuery are GLOBALs
-			if (lPosCurr >= lPosQuery) & (lPosCurr <= rPosQuery): # left position good
-				if (rPosCurr >= lPosQuery) & (rPosCurr <= rPosQuery): # right position good
-					match = 1
-		except IndexError:
-			print('index error')
-
-	return match
+def write_csv(dictObj, outFile):
+	""" writes dict to csv"""
+	with open(outFile, 'w') as csv_file:
+		writer = csv.writer(csv_file)
+		for key, value in dictObj.items():
+			writer.writerow([key, value])
 
 
 
-def hit_search_coords(sample, *args):
-	""" given a list of shared entries between an individual cell's VCF 
-		and the COSMIC LAUD db, searches for hits to the GOI """
-	cell_ = args[0]
-	match = ""
+def get_genome_pos_str(sample):
+	""" returns a genome position string to match against the ones found in COSMIC """
+	#try:
+	chr = sample[0]
+	chr = chr.replace("chr", "")
+	pos = int(sample[1])
+	ref = str(sample[3])
+	alt = str(sample[4])
 
-	currChrom = sample.split(':')[0]
-	if currChrom == queryChrom:
-		sub0 = sample.split('-')[0] # split on `-`
-		sub1 = sample.split('-')[1] # this guy is good
-		sub00 = sub0.split(':')[1] # split on :, need to get rid of chrom
+	genomePos = chr + ":" + str(pos) + '-'
+	altSplt = alt.split(',')
+	add = len(max(altSplt , key = len))
 
-		try:
-			lPosCurr = sub00
-			rPosCurr = sub1
-			# keep in mind rPosQuery and lPosQuery are GLOBALs
-			if (lPosCurr >= lPosQuery) & (lPosCurr <= rPosQuery): # left pos GOI match
-				if (rPosCurr >= lPosQuery) & (rPosCurr <= rPosQuery): # right pos GOI match
-					if lPosCurr == rPosCurr: # SNP
-						match = lPosCurr
-					else: 		# found an indel!!
-						match = lPosCurr + '-' + rPosCurr
-						#print(cell_)
+	if add == 1: # for SNPs, start actually == end
+		add = 0
 
-		except IndexError:
-			print('index error')
+	end = pos + add
+	genomePos = genomePos + str(end)
 
-	return match
+	#except:
+	#	genomePos = 'chr0:0-0'
+
+	ret = [genomePos, ref, alt]
+	return(ret)
 
 
 
-def get_goi_hits_coords(fileNames, chrom, pos1, pos2):
-	""" creates dict with genome coords for hits to specific GOI """
-	print('getting coords to GOI hits')
+def breakdown_by_mutation_type(currSet):
+	""" breaks down the mutations set into two categories: SNP and indel
+		returns seperate lists for each """
 
-	global queryChrom, lPosQuery, rPosQuery # dont like this
-	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
-	cells_dict_GOI_coords = {}
-	queryChrom = chrom
-	lPosQuery = pos1
-	rPosQuery = pos2
+	SNP_list = []
+	indel_list = []
 
-	for f in fileNames:
-		numMatches = 0
-		cell = f.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_all/", "")
-		cell = cell.replace(".vcf", "")	
-	
-		df = VCF.dataframe(f)
-		genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
-		genomePos_query_expand = expand_set(set(genomePos_query))
+	for elm in currSet:
+		if len(elm[1]) > 1 or len(elm[2]) > 1: # indel
+			#print(elm)
+			indel_list.append(elm)
+		else: # SNP
+			SNP_list.append(elm)
 
-		# get the entries shared between curr cells VCF and the LAUD filter set
-		#	remember, these are general, and NOT gene specific
-		shared = list(set(genomePos_query_expand) & set(genomePos_laud_db))
-		shared1 = pd.Series(shared) # convert to pandas obj
+	retSet = []
+	retSet.append(SNP_list)
+	retSet.append(indel_list)
 
-		matches = shared1.apply(hit_search_coords, args=(cell,)) # another apply call 
-
-		# delete empty dict keys
-		for k in matches.keys():
-			try:
-				if len(matches[k])<1:
-					del matches[k]
-			except: pass
-
-		cells_dict_GOI_coords.update({cell : list(matches.values)})
-
-	return cells_dict_GOI_coords
+	return retSet
 
 
 
 def get_mutation_aa(d, chr):
 	""" given a dict of {cell, list(genomePos)}, returns a dict of 
-		{cell, list(mutation.AA)} """
+		{cell, list(mutation.AA)} 
+
+		THIS NEEDS WORK!! """
+
 	print('AA searching...')
 	newDict = {}
 
@@ -212,64 +157,93 @@ def get_mutation_aa(d, chr):
 
 
 
-def expand_set(mySet):
-	""" pass in a set of genome coords, and it will 'expand' the indels
-		within the set by adding +/- 3 bp copies for each one """
-	returnSet = []
+def hit_search_genome_coords(sample, *args):
+	""" given a list of shared entries between an individual cell's VCF 
+		and the COSMIC LAUD db, searches for hits to the GOI """
+	cell_ = args[0]
+	queryChrom_ = args[1]
+	lPosQuery_ = args[2]
+	rPosQuery_ = args[3]
+	match = ""
 
-	for entry in mySet:
-		l0 = []
-		l1 = []
-		try:
-			sub0 = entry.split('-')[0] # split on `-`
-			sub1 = entry.split('-')[1] # this guy is good
-			sub00 = sub0.split(':')[1] # split on :, need to get rid of chrom
-			chrom = sub0.split(':')[0]
+	posStr = sample[0]
+	chrom = posStr.split(':')[0]
+	start = posStr.split(':')[1].split('-')[0]
+	end = posStr.split(':')[1].split('-')[1]
+	ref = posStr[1]
+	alt = posStr[2]
+
+	if chrom == queryChrom_:
+		overlap = get_overlap([start, end], [lPosQuery_, rPosQuery_])
+	
+		if overlap != 0: # curr sample is in the gene of interest!
+			match = posStr
+	
+	return match
+
+
+
+def get_shared_ROIs(currSet, genomePos_laud_db_, SNP_bool):
+	""" given a set of genome position strings, searches for the ones
+		that are in the COSMIC database """
+	if SNP_bool: # exact string match
+		curr_df = pd.DataFrame(currSet, columns=['posStr', 'ref', 'alt'])
+		overlap = set(curr_df['posStr']).intersection(set(genomePos_laud_db_))
+		keep = curr_df.where(curr_df['posStr'].isin(overlap))
+		keep = keep.dropna()
+
+		ret = keep.values.tolist() # convert entire df to list
+
+	else: # set intersect -- NOT SURE HOW TO DO THIS YET
+		ret = [['12:121823437-121823440', 'A', 'ATT']] # dummy
+
+	return(ret)
+
+
+
+def driver(fileNames, chrom, pos1, pos2):
+	""" creates dict with genome coords for hits to specific GOI """
+	print('getting coords to GOI hits')
+
+	#global queryChrom, lPosQuery, rPosQuery # dont like this
+
+	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
+	cells_dict_GOI_coords = {}
+	queryChrom = chrom
+	lPosQuery = pos1
+	rPosQuery = pos2
+
+	for f in fileNames:
+		cell = f.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_all/", "")
+		cell = cell.replace(".vcf", "")	
+	
+		df = VCF.dataframe(f)
+		genomePos_query = df.apply(get_genome_pos_str, axis=1) # apply function for every row in df
+		genomePos_query_breakdown = breakdown_by_mutation_type(genomePos_query)
 		
-			if sub00 != sub1: # got an indel 
-				sub00_1 = int(sub00) + 1
-				sub00_2 = int(sub00) + 2
-				sub00_3 = int(sub00) + 3
-				sub00_4 = int(sub00) - 1
-				sub00_5 = int(sub00) - 2
-				sub00_6 = int(sub00) - 3
+		SNPs = genomePos_query_breakdown[0]
+		indels = genomePos_query_breakdown[1]
 
-				l0.extend((sub00_1, sub00_2, sub00_3, sub00_4, sub00_5, sub00_6))
-				
-				try:
-					sub1_1 = int(sub1) + 1
-					sub1_2 = int(sub1) + 2
-					sub1_3 = int(sub1) + 3
-					sub1_4 = int(sub1) - 1
-					sub1_5 = int(sub1) - 2
-					sub1_6 = int(sub1) - 3
-
-					l1.extend((sub1_1, sub1_2, sub1_3, sub1_4, sub1_5, sub1_6))
-				
-				except ValueError:
-					continue
-
-				coord_combos = list(itertools.product(l0, l1))
-				for pair in coord_combos:
-					toAdd = chrom + ':' + str(pair[0]) + '-' + str(pair[1])
-					returnSet.append(toAdd)
-
-			else:
-				returnSet.append(entry)
+		# get the entries shared between curr cells VCF and the LAUD filter set
+		#	remember, these are general, and NOT gene specific
+		shared_SNPs = get_shared_ROIs(SNPs, genomePos_laud_db, 1)
+		shared_indels = get_shared_ROIs(indels, genomePos_laud_db, 0)
 		
-		except IndexError:
-			continue
+		all_shared_regions = shared_SNPs + shared_indels
 
-	return returnSet
+		shared_pd = pd.Series(all_shared_regions) # convert to pandas obj
+		matches = shared_pd.apply(hit_search_genome_coords, args=(cell, queryChrom, lPosQuery, rPosQuery)) # another apply call 
 
+		# delete empty dict keys
+		for k in matches.keys():
+			try:
+				if len(matches[k])<1:
+					del matches[k]
+			except: pass
 
+		cells_dict_GOI_coords.update({cell : list(matches.values)})
 
-def write_csv(dictObj, outFile):
-	""" writes dict to csv"""
-	with open(outFile, 'w') as csv_file:
-		writer = csv.writer(csv_file)
-		for key, value in dictObj.items():
-			writer.writerow([key, value])
+	return cells_dict_GOI_coords
 
 
 
@@ -280,7 +254,7 @@ def write_csv(dictObj, outFile):
 @click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
 @click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
@@ -307,7 +281,7 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	else:
 		fNames = get_filenames()
 
-	goiDict = get_goi_hits_coords(fNames, chrom, start, end) # get genome coords
+	goiDict = driver(fNames, chrom, start, end) # get genome coords
 	print("GOI search done!")
 
 	goiDict_AA = get_mutation_aa(goiDict, chrom)
@@ -319,3 +293,43 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	else:
 		write_csv(goiDict, cwd + outprefix + '.csv')
 		write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
+
+
+
+
+
+
+
+# if currChrom == queryChrom:
+# sub0 = sample.split('-')[0] # split on `-`
+# sub1 = sample.split('-')[1] # this guy is good
+# sub00 = sub0.split(':')[1] # split on :, need to get rid of chrom
+
+# try:
+# 	lPosCurr = sub00
+# 	rPosCurr = sub1
+# 	# keep in mind rPosQuery and lPosQuery are GLOBALs
+# 	if (lPosCurr >= lPosQuery) & (lPosCurr <= rPosQuery): # left pos GOI match
+# 		if (rPosCurr >= lPosQuery) & (rPosCurr <= rPosQuery): # right pos GOI match
+# 			if lPosCurr == rPosCurr: # SNP
+# 				match = lPosCurr
+# 			else: 		# found an indel!!
+# 				match = lPosCurr + '-' + rPosCurr
+# 				#print(cell_)
+
+# except IndexError:
+# 	print('index error')
+
+
+# if (len(ref) == 1) & (len(alt) == 1): # most basic case
+# 	secondPos = pos
+# 	genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
+# elif (len(ref) > 1) & (len(alt) == 1):
+# 	secondPos = pos + len(ref)
+# 	genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
+# elif (len(alt) > 1) & (len(ref) == 1):
+# 	secondPos = pos + len(alt)
+# 	genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
+# else: # BOTH > 1 .... not sure what to do here. does this actually happen? 
+# 	secondPos = 'dummy'
+# 	genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
