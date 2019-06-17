@@ -194,15 +194,15 @@ def hit_search_genome_coords(sample, *args):
 	chrom = posStr.split(':')[0]
 	start = posStr.split(':')[1].split('-')[0]
 	end = posStr.split(':')[1].split('-')[1]
-	ref = posStr[1]
-	alt = posStr[2]
+	ref = sample[1]
+	alt = sample[2]
 
 	if chrom == queryChrom_:
 		overlap = get_overlap([start, end], [lPosQuery_, rPosQuery_])
 	
 		if overlap != 0: # curr sample is in the gene of interest!
-			print(overlap)
 			match = posStr
+			match = match + ',' + ref + '>' + alt
 	
 	return match
 
@@ -247,6 +247,7 @@ def driver(fileNames, chrom, pos1, pos2):
 			except: pass
 
 		cells_dict_GOI_coords.update({cell : list(matches.values)})
+		print(cells_dict_GOI_coords)
 
 	return cells_dict_GOI_coords
 
