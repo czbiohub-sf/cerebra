@@ -128,33 +128,25 @@ def get_mutation_aa(d, chr):
 	newDict = {}
 
 	for k in d:
-		valuesList = d.get(k) # can now handle values with multiple entries
+		valuesList = d.get(k) # handles cells with multiple hits
 		newValues = []
 
 		for entry in valuesList:
-			testSplit = entry.split('-') # if its a SNP it wont have '-' at all	
+			posStr = entry.split(',')[0]
+			nucSub = entry.split(',')[1]
 
-			### CASE 1 -- SNP
-			if len(testSplit) == 1:
-				chrStr = chr + ':' + entry + '-' + entry
-				filter_df = database_laud[database_laud["Mutation genome position"].str.contains(chrStr)==True]
-				currMuts = filter_df['Mutation AA']
+			keep = database_laud["Mutation genome position"] == posStr
+			filter_df = database_laud[keep]
+			filter_df = filter_df.reset_index(drop=True)
 
-				for item in currMuts:		# really shouldnt have a for loop here
-					item = item.replace("p.", "")
+			if len(filter_df.index) > 1:   # COSMIC db sometimes has duplicated entries
+				filter_df = filter_df.iloc[0] 
 
-				newValues.append(item) 		# effectively just taking the last item in the list
-			
-			### CASE 2 -- INDEL 
-			else:
-				chrStr = chr + ':' + entry
-				filter_df = database_laud[database_laud["Mutation genome position"].str.contains(chrStr)==True]
-				currMuts = filter_df['Mutation AA']
-
-				for item in currMuts:		# really shouldnt have a for loop here
-					item = item.replace("p.", "")
-
-				newValues.append(item)		# effectively just taking the last item in the list
+			cds = filter_df["Mutation CDS"] 
+			if nucSub in cds: # base pair substitution match
+				AA_sub = filter_df["Mutation AA"]
+				AA_sub = AA_sub.replace("p.", "")
+				newValues.append(AA_sub)
 
 		newDict.update({k : newValues})
 
@@ -247,7 +239,6 @@ def driver(fileNames, chrom, pos1, pos2):
 			except: pass
 
 		cells_dict_GOI_coords.update({cell : list(matches.values)})
-		print(cells_dict_GOI_coords)
 
 	return cells_dict_GOI_coords
 
@@ -288,7 +279,6 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 		fNames = get_filenames()
 
 	goiDict = driver(fNames, chrom, start, end) # get genome coords
-	#print(goiDict)
 	print("GOI search done!")
 
 	goiDict_AA = get_mutation_aa(goiDict, chrom)
