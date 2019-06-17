@@ -66,7 +66,7 @@ def write_csv(dictObj, outFile):
 
 def get_genome_pos_str(sample):
 	""" returns a genome position string to match against the ones found in COSMIC """
-	#try:
+
 	chr = sample[0]
 	chr = chr.replace("chr", "")
 	pos = int(sample[1])
@@ -83,9 +83,6 @@ def get_genome_pos_str(sample):
 	end = pos + add
 	genomePos = genomePos + str(end)
 
-	#except:
-	#	genomePos = 'chr0:0-0'
-
 	ret = [genomePos, ref, alt]
 	return(ret)
 
@@ -100,7 +97,6 @@ def breakdown_by_mutation_type(currSet):
 
 	for elm in currSet:
 		if len(elm[1]) > 1 or len(elm[2]) > 1: # indel
-			#print(elm)
 			indel_list.append(elm)
 		else: # SNP
 			SNP_list.append(elm)
@@ -157,32 +153,6 @@ def get_mutation_aa(d, chr):
 
 
 
-def hit_search_genome_coords(sample, *args):
-	""" given a list of shared entries between an individual cell's VCF 
-		and the COSMIC LAUD db, searches for hits to the GOI """
-	cell_ = args[0]
-	queryChrom_ = args[1]
-	lPosQuery_ = args[2]
-	rPosQuery_ = args[3]
-	match = ""
-
-	posStr = sample[0]
-	chrom = posStr.split(':')[0]
-	start = posStr.split(':')[1].split('-')[0]
-	end = posStr.split(':')[1].split('-')[1]
-	ref = posStr[1]
-	alt = posStr[2]
-
-	if chrom == queryChrom_:
-		overlap = get_overlap([start, end], [lPosQuery_, rPosQuery_])
-	
-		if overlap != 0: # curr sample is in the gene of interest!
-			match = posStr
-	
-	return match
-
-
-
 def get_shared_ROIs(currSet, genomePos_laud_db_, SNP_bool):
 	""" given a set of genome position strings, searches for the ones
 		that are in the COSMIC database """
@@ -195,17 +165,41 @@ def get_shared_ROIs(currSet, genomePos_laud_db_, SNP_bool):
 		ret = keep.values.tolist() # convert entire df to list
 
 	else: # set intersect -- NOT SURE HOW TO DO THIS YET
-		ret = [['12:121823437-121823440', 'A', 'ATT']] # dummy
+		ret = [['0:0-0', 'N', 'N']] # dummy
 
 	return(ret)
+
+
+
+def hit_search_genome_coords(sample, *args):
+	""" given a list of shared entries between an individual cell's VCF 
+		and the COSMIC LAUD db, searches for hits to the GOI """
+	cell_ = args[0]
+	queryChrom_ = args[1]
+	lPosQuery_ = args[2]
+	rPosQuery_ = args[3]
+	match = ""
+
+	posStr = sample[0]
+
+	chrom = posStr.split(':')[0]
+	start = posStr.split(':')[1].split('-')[0]
+	end = posStr.split(':')[1].split('-')[1]
+	ref = posStr[1]
+	alt = posStr[2]
+
+	if chrom == queryChrom_:
+		overlap = get_overlap([start, end], [lPosQuery_, rPosQuery_])
+		if overlap != 0: # curr sample is in the gene of interest!
+			match = posStr
+	
+	return match
 
 
 
 def driver(fileNames, chrom, pos1, pos2):
 	""" creates dict with genome coords for hits to specific GOI """
 	print('getting coords to GOI hits')
-
-	#global queryChrom, lPosQuery, rPosQuery # dont like this
 
 	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 	cells_dict_GOI_coords = {}
@@ -214,7 +208,7 @@ def driver(fileNames, chrom, pos1, pos2):
 	rPosQuery = pos2
 
 	for f in fileNames:
-		cell = f.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_all/", "")
+		cell = f.replace("/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")	
 	
 		df = VCF.dataframe(f)
@@ -231,8 +225,9 @@ def driver(fileNames, chrom, pos1, pos2):
 		
 		all_shared_regions = shared_SNPs + shared_indels
 
-		shared_pd = pd.Series(all_shared_regions) # convert to pandas obj
-		matches = shared_pd.apply(hit_search_genome_coords, args=(cell, queryChrom, lPosQuery, rPosQuery)) # another apply call 
+		shared_pd = pd.Series(all_shared_regions)
+		matches = shared_pd.apply(hit_search_genome_coords, args=(cell, queryChrom, lPosQuery, rPosQuery))
+		#print(matches)
 
 		# delete empty dict keys
 		for k in matches.keys():
@@ -242,6 +237,7 @@ def driver(fileNames, chrom, pos1, pos2):
 			except: pass
 
 		cells_dict_GOI_coords.update({cell : list(matches.values)})
+		#print(cells_dict_GOI_coords)
 
 	return cells_dict_GOI_coords
 
@@ -282,6 +278,7 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 		fNames = get_filenames()
 
 	goiDict = driver(fNames, chrom, start, end) # get genome coords
+	#print(goiDict)
 	print("GOI search done!")
 
 	goiDict_AA = get_mutation_aa(goiDict, chrom)
@@ -293,43 +290,3 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	else:
 		write_csv(goiDict, cwd + outprefix + '.csv')
 		write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
-
-
-
-
-
-
-
-# if currChrom == queryChrom:
-# sub0 = sample.split('-')[0] # split on `-`
-# sub1 = sample.split('-')[1] # this guy is good
-# sub00 = sub0.split(':')[1] # split on :, need to get rid of chrom
-
-# try:
-# 	lPosCurr = sub00
-# 	rPosCurr = sub1
-# 	# keep in mind rPosQuery and lPosQuery are GLOBALs
-# 	if (lPosCurr >= lPosQuery) & (lPosCurr <= rPosQuery): # left pos GOI match
-# 		if (rPosCurr >= lPosQuery) & (rPosCurr <= rPosQuery): # right pos GOI match
-# 			if lPosCurr == rPosCurr: # SNP
-# 				match = lPosCurr
-# 			else: 		# found an indel!!
-# 				match = lPosCurr + '-' + rPosCurr
-# 				#print(cell_)
-
-# except IndexError:
-# 	print('index error')
-
-
-# if (len(ref) == 1) & (len(alt) == 1): # most basic case
-# 	secondPos = pos
-# 	genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
-# elif (len(ref) > 1) & (len(alt) == 1):
-# 	secondPos = pos + len(ref)
-# 	genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
-# elif (len(alt) > 1) & (len(ref) == 1):
-# 	secondPos = pos + len(alt)
-# 	genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
-# else: # BOTH > 1 .... not sure what to do here. does this actually happen? 
-# 	secondPos = 'dummy'
-# 	genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
