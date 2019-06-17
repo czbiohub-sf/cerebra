@@ -29,8 +29,8 @@ def get_filenames_test():
 def get_filenames():
 	""" get file names based on specified path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_all/"):
-		PATH = cwd + 'scVCF_filtered_all/' + file
+	for file in os.listdir(cwd + "scVCF_filtered_subset/"):
+		PATH = cwd + 'scVCF_filtered_subset/' + file
 		files.append(PATH)
 
 	return files
@@ -112,7 +112,7 @@ def get_genecell_mut_counts(f):
 	tup = [] 
 
 	cell = f.replace(cwd, "")
-	cell = cell.replace('scVCF_filtered_all/', "")
+	cell = cell.replace('scVCF_filtered_subset/', "")
 	cell = cell.replace(".vcf", "")
 	
 	df = VCF.dataframe(f)
@@ -120,10 +120,10 @@ def get_genecell_mut_counts(f):
 	genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
 	items = set(genomePos_query) # genomePos_query (potentially) has dups
 
-	if test_bool:
-		shared = list(items) # no COSMIC filter
-	else:
-		shared = [i for i in genomePos_laud_db if i in items] # COSMIC filter,
+	#if test_bool:
+	shared = list(items) # no COSMIC filter
+	#else:
+	#	shared = [i for i in genomePos_laud_db if i in items] # COSMIC filter,
 																# retains dups
 	shared_series = pd.Series(shared)
 
@@ -244,7 +244,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	if test_bool:
 		intermediate.to_csv(cwd + "test/mutationcounts_table/geneCellMutationCounts_artifical.csv", index=False)	
 	else:
-		intermediate.to_csv(cwd + "geneCellMutationCounts.csv", index=False)
+		intermediate.to_csv(cwd + "geneCellMutationCounts_noLaudFilter.csv", index=False)
 
 	cmd = 'rm ' + cwd + 'intermediate.csv'
 	os.system(cmd)

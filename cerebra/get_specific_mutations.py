@@ -28,9 +28,9 @@ def get_filenames_test():
 def get_filenames():
 	""" get file names given path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_all/"):
+	for file in os.listdir(cwd + "scVCF_filtered_subset/"):
 		if file.endswith(".vcf"):
-			fullPath = cwd + 'scVCF_filtered_all/' + file 
+			fullPath = cwd + 'scVCF_filtered_subset/' + file 
 			files.append(fullPath)
     
 	return files
@@ -39,7 +39,16 @@ def get_filenames():
 
 def get_overlap(a, b):
 	""" return the len of overlap between two regions """
-	return max(0, min(int(a[1]), int(b[1])) - max(int(a[0]), int(b[0])))
+	q_start = int(a[0])
+	q_end = int(a[1])
+	r_start = int(b[0])
+	r_end = int(b[1])
+
+	if q_start == q_end:
+		q_end += 1 		# otherwise it doesnt work for SNPs
+
+	ret = max(0, min(q_end, r_end) - max(q_start, r_start))
+	return(ret)
 
 
 
@@ -190,7 +199,9 @@ def hit_search_genome_coords(sample, *args):
 
 	if chrom == queryChrom_:
 		overlap = get_overlap([start, end], [lPosQuery_, rPosQuery_])
+	
 		if overlap != 0: # curr sample is in the gene of interest!
+			print(overlap)
 			match = posStr
 	
 	return match
@@ -208,7 +219,7 @@ def driver(fileNames, chrom, pos1, pos2):
 	rPosQuery = pos2
 
 	for f in fileNames:
-		cell = f.replace("/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/scVCF_filtered_all/", "")
+		cell = f.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_subset/", "")
 		cell = cell.replace(".vcf", "")	
 	
 		df = VCF.dataframe(f)
@@ -227,7 +238,6 @@ def driver(fileNames, chrom, pos1, pos2):
 
 		shared_pd = pd.Series(all_shared_regions)
 		matches = shared_pd.apply(hit_search_genome_coords, args=(cell, queryChrom, lPosQuery, rPosQuery))
-		#print(matches)
 
 		# delete empty dict keys
 		for k in matches.keys():
@@ -237,7 +247,6 @@ def driver(fileNames, chrom, pos1, pos2):
 			except: pass
 
 		cells_dict_GOI_coords.update({cell : list(matches.values)})
-		#print(cells_dict_GOI_coords)
 
 	return cells_dict_GOI_coords
 
@@ -250,7 +259,7 @@ def driver(fileNames, chrom, pos1, pos2):
 @click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
 @click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
