@@ -4,6 +4,7 @@
 import numpy as np
 import VCF # comes from Kamil Slowikowski
 import os
+import utils
 import csv
 import pandas as pd
 import sys
@@ -28,9 +29,9 @@ def get_filenames_test():
 def get_filenames():
 	""" get file names given path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_subset/"):
+	for file in os.listdir(cwd + "scVCF_filtered_all/"):
 		if file.endswith(".vcf"):
-			fullPath = cwd + 'scVCF_filtered_subset/' + file 
+			fullPath = cwd + 'scVCF_filtered_all/' + file 
 			files.append(fullPath)
     
 	return files
@@ -53,7 +54,8 @@ def get_overlap(a, b):
 
 
 def get_laud_db():
-    """ returns the COSMIC database after lung and fathmm filter """
+    """ returns the COSMIC database after lung and fathmm filter 
+    	TODO: implement interval trees """
     pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
     database_filter = database.iloc[pSiteList]
     keepRows = database_filter['FATHMM score'] >= 0.7
@@ -122,7 +124,7 @@ def get_mutation_aa(d, chr):
 	""" given a dict of {cell, list(genomePos)}, returns a dict of 
 		{cell, list(mutation.AA)} 
 
-		THIS NEEDS WORK!! """
+		TODO: implement interval trees """
 
 	print('AA searching...')
 	newDict = {}
@@ -154,19 +156,34 @@ def get_mutation_aa(d, chr):
 
 
 
-def get_shared_ROIs(currSet, genomePos_laud_db_, SNP_bool):
+def get_shared_ROIs(queryList, genomePos_laud_db_, SNP_bool):
 	""" given a set of genome position strings, searches for the ones
-		that are in the COSMIC database """
-	if SNP_bool: # exact string match
-		curr_df = pd.DataFrame(currSet, columns=['posStr', 'ref', 'alt'])
-		overlap = set(curr_df['posStr']).intersection(set(genomePos_laud_db_))
-		keep = curr_df.where(curr_df['posStr'].isin(overlap))
-		keep = keep.dropna()
+		that are in the COSMIC database 
+		TODO: implement interval trees """
+	ret = []
+	#print(queryList)
+	if len(queryList) > 0:
+		if SNP_bool: # exact string match
+			curr_df = pd.DataFrame(queryList, columns=['posStr', 'ref', 'alt'])
+			overlap = set(curr_df['posStr']).intersection(set(genomePos_laud_db_))
+			keep = curr_df.where(curr_df['posStr'].isin(overlap))
+			keep = keep.dropna()
 
-		ret = keep.values.tolist() # convert entire df to list
+			ret = keep.values.tolist() # convert entire df to list
 
-	else: # set intersect -- NOT SURE HOW TO DO THIS YET
-		ret = [['0:0-0', 'N', 'N']] # dummy
+		else: # indel case
+			ret = []
+			for i in range(0,len(queryList)):
+				pos_str = queryList[i]
+				pos_str_raw = pos_str[0]
+				print(pos_str_raw)
+				curr_obj = utils.GenomePosition.from_str(pos_str_raw)
+				b = cosmic_genome_tree.get_best_overlap(curr_obj)
+				
+				if b is not None:
+					ret.append(pos_str)
+			
+			#ret = [['0:0-0', 'N', 'N']] # dummy
 
 	return(ret)
 
@@ -211,7 +228,7 @@ def driver(fileNames, chrom, pos1, pos2):
 	rPosQuery = pos2
 
 	for f in fileNames:
-		cell = f.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_subset/", "")
+		cell = f.replace("/Users/lincoln.harris/code/cerebra/cerebra/scVCF_filtered_all/", "")
 		cell = cell.replace(".vcf", "")	
 	
 		df = VCF.dataframe(f)
@@ -251,7 +268,7 @@ def driver(fileNames, chrom, pos1, pos2):
 @click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
 @click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
@@ -260,6 +277,7 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 		for each cell in dataset """
 	global database
 	global database_laud
+	global cosmic_genome_tree
 	global cwd
 	global test_bool
 
@@ -272,6 +290,9 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	print('setting up COSMIC database...')
 	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
+
+	# init interval tree
+	cosmic_genome_tree = utils.GenomeDataframeTree(lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])), database_laud)
 
 	if test_bool:
 		fNames = get_filenames_test()
