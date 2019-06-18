@@ -161,7 +161,7 @@ def get_shared_ROIs(queryList, genomePos_laud_db_, SNP_bool):
 		that are in the COSMIC database 
 		TODO: implement interval trees """
 	ret = []
-	#print(queryList)
+
 	if len(queryList) > 0:
 		if SNP_bool: # exact string match
 			curr_df = pd.DataFrame(queryList, columns=['posStr', 'ref', 'alt'])
@@ -176,14 +176,11 @@ def get_shared_ROIs(queryList, genomePos_laud_db_, SNP_bool):
 			for i in range(0,len(queryList)):
 				pos_str = queryList[i]
 				pos_str_raw = pos_str[0]
-				print(pos_str_raw)
 				curr_obj = utils.GenomePosition.from_str(pos_str_raw)
 				b = cosmic_genome_tree.get_best_overlap(curr_obj)
 				
 				if b is not None:
 					ret.append(pos_str)
-			
-			#ret = [['0:0-0', 'N', 'N']] # dummy
 
 	return(ret)
 
