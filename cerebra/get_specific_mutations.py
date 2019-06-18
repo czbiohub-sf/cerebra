@@ -29,27 +29,12 @@ def get_filenames_test():
 def get_filenames():
 	""" get file names given path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_all/"):
+	for file in os.listdir(cwd + "scVCF_filtered_subset/"):
 		if file.endswith(".vcf"):
-			fullPath = cwd + 'scVCF_filtered_all/' + file 
+			fullPath = cwd + 'scVCF_filtered_subset/' + file 
 			files.append(fullPath)
     
 	return files
-
-
-
-def get_overlap(a, b):
-	""" return the len of overlap between two regions """
-	q_start = int(a[0])
-	q_end = int(a[1])
-	r_start = int(b[0])
-	r_end = int(b[1])
-
-	if q_start == q_end:
-		q_end += 1 		# otherwise it doesnt work for SNPs
-
-	ret = max(0, min(q_end, r_end) - max(q_start, r_start))
-	return(ret)
 
 
 
@@ -58,11 +43,13 @@ def get_laud_db():
     	TODO: implement interval trees """
     pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
     database_filter = database.iloc[pSiteList]
-    keepRows = database_filter['FATHMM score'] >= 0.7
-    db_fathmm_filter = database_filter[keepRows]
-    db_fathmm_filter = db_fathmm_filter.reset_index(drop=True)
+    #keepRows = database_filter['FATHMM score'] >= 0.7
+    #db_fathmm_filter = database_filter[keepRows]
+    #db_fathmm_filter = db_fathmm_filter.reset_index(drop=True)
+    database_filter = database_filter.reset_index(drop=True)
 
-    return db_fathmm_filter
+    return database_filter
+    #return db_fathmm_filter
 
 
 
@@ -90,6 +77,9 @@ def get_genome_pos_str(sample):
 
 	if add == 1: # for SNPs, start actually == end
 		add = 0
+
+	if len(ref) > 1: # deletion case
+		add = len(ref)
 
 	end = pos + add
 	genomePos = genomePos + str(end)
@@ -123,34 +113,40 @@ def breakdown_by_mutation_type(currSet):
 def get_mutation_aa(d, chr):
 	""" given a dict of {cell, list(genomePos)}, returns a dict of 
 		{cell, list(mutation.AA)} 
-
 		TODO: implement interval trees """
 
 	print('AA searching...')
 	newDict = {}
 
-	for k in d:
-		valuesList = d.get(k) # handles cells with multiple hits
+	for cell in d:
+		valuesList = d.get(cell) # handles cells with multiple hits
 		newValues = []
 
 		for entry in valuesList:
 			posStr = entry.split(',')[0]
 			nucSub = entry.split(',')[1]
+			ref = nucSub.split('>')[0]
+			alt = nucSub.split('>')[1]
 
-			keep = database_laud["Mutation genome position"] == posStr
-			filter_df = database_laud[keep]
-			filter_df = filter_df.reset_index(drop=True)
+			curr_obj = utils.GenomePosition.from_str(posStr)
+			b = cosmic_genome_tree.get_best_overlap(curr_obj)
+				
+			if b is not None:
+				cds = b['Mutation CDS']
+				
+				if nucSub in cds: # SNP case
+					AA_sub = b["Mutation AA"]
+					AA_sub = AA_sub.replace("p.", "")
+					newValues.append(AA_sub)
 
-			if len(filter_df.index) > 1:   # COSMIC db sometimes has duplicated entries
-				filter_df = filter_df.iloc[0] 
+				#indel case -- think its ok to just look for the best possible
+				elif len(ref) > 1 or len(alt) > 1:             # region overlap
+													
+					AA_sub = b["Mutation AA"]
+					AA_sub = AA_sub.replace("p.", "")
+					newValues.append(AA_sub)
 
-			cds = filter_df["Mutation CDS"] 
-			if nucSub in cds: # base pair substitution match
-				AA_sub = filter_df["Mutation AA"]
-				AA_sub = AA_sub.replace("p.", "")
-				newValues.append(AA_sub)
-
-		newDict.update({k : newValues})
+		newDict.update({cell : newValues})
 
 	return newDict
 
@@ -158,8 +154,7 @@ def get_mutation_aa(d, chr):
 
 def get_shared_ROIs(queryList, genomePos_laud_db_, SNP_bool):
 	""" given a set of genome position strings, searches for the ones
-		that are in the COSMIC database 
-		TODO: implement interval trees """
+		that are in the COSMIC database """
 	ret = []
 
 	if len(queryList) > 0:
@@ -182,6 +177,21 @@ def get_shared_ROIs(queryList, genomePos_laud_db_, SNP_bool):
 				if b is not None:
 					ret.append(pos_str)
 
+	return(ret)
+
+
+
+def get_overlap(a, b):
+	""" return the len of overlap between two regions """
+	q_start = int(a[0])
+	q_end = int(a[1])
+	r_start = int(b[0])
+	r_end = int(b[1])
+
+	if q_start == q_end:
+		q_end += 1 		# otherwise it doesnt work for SNPs
+
+	ret = max(0, min(q_end, r_end) - max(q_start, r_start))
 	return(ret)
 
 
@@ -225,7 +235,7 @@ def driver(fileNames, chrom, pos1, pos2):
 	rPosQuery = pos2
 
 	for f in fileNames:
-		cell = f.replace("/Users/lincoln.harris/code/cerebra/cerebra/scVCF_filtered_all/", "")
+		cell = f.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_subset/", "")
 		cell = cell.replace(".vcf", "")	
 	
 		df = VCF.dataframe(f)
@@ -265,7 +275,7 @@ def driver(fileNames, chrom, pos1, pos2):
 @click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
 @click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
@@ -308,3 +318,25 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	else:
 		write_csv(goiDict, cwd + outprefix + '.csv')
 		write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
+
+
+
+
+
+
+
+
+		# 	keep = database_laud["Mutation genome position"] == posStr
+		# 	filter_df = database_laud[keep]
+		# 	filter_df = filter_df.reset_index(drop=True)
+
+		# 	if len(filter_df.index) > 1:   # COSMIC db sometimes has duplicated entries
+		# 		filter_df = filter_df.iloc[0] 
+
+		# 	cds = filter_df["Mutation CDS"] 
+		# 	if nucSub in cds: # base pair substitution match
+		# 		AA_sub = filter_df["Mutation AA"]
+		# 		AA_sub = AA_sub.replace("p.", "")
+		# 		newValues.append(AA_sub)
+
+		# newDict.update({k : newValues})
