@@ -16,8 +16,7 @@ class GenomePosition():
 		match = cls.genome_pos_pattern.match(pos_str)
 		
 		if not match:
-			# FIXME: this is bad
-			return cls("?", -1, -1)
+			return None
 
 		return cls(match[1], int(match[2]) - 1, int(match[3]))
 	
@@ -56,6 +55,10 @@ class GenomeDataframeTree():
 		# Iterating DataFrame rows :'(
 		for idx, row in df.iterrows():
 			genome_pos = predicate(row)
+
+			if genome_pos is None:
+				continue
+
 			chrom = genome_pos.chrom
 
 			if not chrom in working_tree_map:
