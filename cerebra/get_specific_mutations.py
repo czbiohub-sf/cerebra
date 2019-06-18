@@ -39,8 +39,7 @@ def get_filenames():
 
 
 def get_laud_db():
-    """ returns the COSMIC database after lung and fathmm filter 
-    	TODO: implement interval trees """
+    """ returns the COSMIC database after lung and fathmm filter  """
     pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
     database_filter = database.iloc[pSiteList]
     #keepRows = database_filter['FATHMM score'] >= 0.7
@@ -62,8 +61,8 @@ def write_csv(dictObj, outFile):
 
 
 
-def get_genome_pos_str(sample):
-	""" returns a genome position string to match against the ones found in COSMIC """
+def generate_genome_pos_str(sample):
+	""" given vcf record, returns a genome position string"""
 
 	chr = sample[0]
 	chr = chr.replace("chr", "")
@@ -110,10 +109,24 @@ def breakdown_by_mutation_type(currSet):
 
 
 
-def get_mutation_aa(d, chr):
+def get_overlap(a, b):
+	""" return the len of overlap between two regions """
+	q_start = int(a[0])
+	q_end = int(a[1])
+	r_start = int(b[0])
+	r_end = int(b[1])
+
+	if q_start == q_end:
+		q_end += 1 		# otherwise it doesnt work for SNPs
+
+	ret = max(0, min(q_end, r_end) - max(q_start, r_start))
+	return(ret)
+
+
+
+def get_corresponding_aa_subs(d, chr):
 	""" given a dict of {cell, list(genomePos)}, returns a dict of 
-		{cell, list(mutation.AA)} 
-		TODO: implement interval trees """
+		{cell, list(mutation.AA)} """
 
 	print('AA searching...')
 	newDict = {}
@@ -152,9 +165,9 @@ def get_mutation_aa(d, chr):
 
 
 
-def get_shared_ROIs(queryList, genomePos_laud_db_, SNP_bool):
+def are_hits_in_cosmic(queryList, genomePos_laud_db_, SNP_bool):
 	""" given a set of genome position strings, searches for the ones
-		that are in the COSMIC database """
+		that are in the COSMIC database. now supports SNPs and indels!! """
 	ret = []
 
 	if len(queryList) > 0:
@@ -181,24 +194,9 @@ def get_shared_ROIs(queryList, genomePos_laud_db_, SNP_bool):
 
 
 
-def get_overlap(a, b):
-	""" return the len of overlap between two regions """
-	q_start = int(a[0])
-	q_end = int(a[1])
-	r_start = int(b[0])
-	r_end = int(b[1])
-
-	if q_start == q_end:
-		q_end += 1 		# otherwise it doesnt work for SNPs
-
-	ret = max(0, min(q_end, r_end) - max(q_start, r_start))
-	return(ret)
-
-
-
-def hit_search_genome_coords(sample, *args):
-	""" given a list of shared entries between an individual cell's VCF 
-		and the COSMIC LAUD db, searches for hits to the GOI """
+def is_hit_in_goi(sample, *args):
+	""" given a set of position strings from a vcf file, checks to see if
+		they're in the gene of interest"""
 	cell_ = args[0]
 	queryChrom_ = args[1]
 	lPosQuery_ = args[2]
@@ -224,8 +222,8 @@ def hit_search_genome_coords(sample, *args):
 
 
 
-def driver(fileNames, chrom, pos1, pos2):
-	""" creates dict with genome coords for hits to specific GOI """
+def build_genome_positions_dict(fileNames, chrom, pos1, pos2):
+	""" creates dict with genome coords for cosmic filtered hits to specific GOI """
 	print('getting coords to GOI hits')
 
 	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
@@ -239,21 +237,21 @@ def driver(fileNames, chrom, pos1, pos2):
 		cell = cell.replace(".vcf", "")	
 	
 		df = VCF.dataframe(f)
-		genomePos_query = df.apply(get_genome_pos_str, axis=1) # apply function for every row in df
+		genomePos_query = df.apply(generate_genome_pos_str, axis=1)
 		genomePos_query_breakdown = breakdown_by_mutation_type(genomePos_query)
 		
 		SNPs = genomePos_query_breakdown[0]
 		indels = genomePos_query_breakdown[1]
 
-		# get the entries shared between curr cells VCF and the LAUD filter set
+		# get the entries shared between curr cells VCF and the cosmic filter set
 		#	remember, these are general, and NOT gene specific
-		shared_SNPs = get_shared_ROIs(SNPs, genomePos_laud_db, 1)
-		shared_indels = get_shared_ROIs(indels, genomePos_laud_db, 0)
+		shared_SNPs = are_hits_in_cosmic(SNPs, genomePos_laud_db, 1)
+		shared_indels = are_hits_in_cosmic(indels, genomePos_laud_db, 0)
 		
 		all_shared_regions = shared_SNPs + shared_indels
 
 		shared_pd = pd.Series(all_shared_regions)
-		matches = shared_pd.apply(hit_search_genome_coords, args=(cell, queryChrom, lPosQuery, rPosQuery))
+		matches = shared_pd.apply(is_hit_in_goi, args=(cell, queryChrom, lPosQuery, rPosQuery))
 
 		# delete empty dict keys
 		for k in matches.keys():
@@ -306,10 +304,10 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	else:
 		fNames = get_filenames()
 
-	goiDict = driver(fNames, chrom, start, end) # get genome coords
+	goiDict = build_genome_positions_dict(fNames, chrom, start, end) # get genome coords
 	print("GOI search done!")
 
-	goiDict_AA = get_mutation_aa(goiDict, chrom)
+	goiDict_AA = get_corresponding_aa_subs(goiDict, chrom)
 	print('AA search done')	
 
 	if test_bool:
@@ -318,25 +316,3 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	else:
 		write_csv(goiDict, cwd + outprefix + '.csv')
 		write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
-
-
-
-
-
-
-
-
-		# 	keep = database_laud["Mutation genome position"] == posStr
-		# 	filter_df = database_laud[keep]
-		# 	filter_df = filter_df.reset_index(drop=True)
-
-		# 	if len(filter_df.index) > 1:   # COSMIC db sometimes has duplicated entries
-		# 		filter_df = filter_df.iloc[0] 
-
-		# 	cds = filter_df["Mutation CDS"] 
-		# 	if nucSub in cds: # base pair substitution match
-		# 		AA_sub = filter_df["Mutation AA"]
-		# 		AA_sub = AA_sub.replace("p.", "")
-		# 		newValues.append(AA_sub)
-
-		# newDict.update({k : newValues})
