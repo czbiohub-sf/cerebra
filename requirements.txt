@@ -8,3 +8,5 @@ colorama
 numpy
 pandas
 pyvcf
+pathos
+git+git://github.com/chaimleib/intervaltree#egg=intervaltree
