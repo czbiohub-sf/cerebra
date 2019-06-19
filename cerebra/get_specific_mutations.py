@@ -11,6 +11,7 @@ import sys
 import itertools
 import warnings
 import click 
+import multiprocessing as mp
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
@@ -29,9 +30,9 @@ def get_filenames_test():
 def get_filenames():
 	""" get file names given path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_subset/"):
+	for file in os.listdir(cwd + "scVCF_filtered_all/"):
 		if file.endswith(".vcf"):
-			fullPath = cwd + 'scVCF_filtered_subset/' + file 
+			fullPath = cwd + 'scVCF_filtered_all/' + file 
 			files.append(fullPath)
     
 	return files
@@ -128,7 +129,7 @@ def get_corresponding_aa_subs(d, chr):
 	""" given a dict of {cell, list(genomePos)}, returns a dict of 
 		{cell, list(mutation.AA)} """
 
-	print('AA searching...')
+	print('finding corresponding amino acid sequences...')
 	newDict = {}
 
 	for cell in d:
@@ -181,7 +182,7 @@ def are_hits_in_cosmic(queryList, genomePos_laud_db_, SNP_bool):
 
 		else: # indel case
 			ret = []
-			for i in range(0,len(queryList)):
+			for i in range(0,len(queryList)): # dont want this to be a for loop
 				pos_str = queryList[i]
 				pos_str_raw = pos_str[0]
 				curr_obj = utils.GenomePosition.from_str(pos_str_raw)
@@ -222,47 +223,44 @@ def is_hit_in_goi(sample, *args):
 
 
 
-def build_genome_positions_dict(fileNames, chrom, pos1, pos2):
+def build_genome_positions_dict(fileName):
 	""" creates dict with genome coords for cosmic filtered hits to specific GOI """
-	print('getting coords to GOI hits')
+	#print('getting coords to GOI hits')
 
-	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
-	cells_dict_GOI_coords = {}
-	queryChrom = chrom
-	lPosQuery = pos1
-	rPosQuery = pos2
+	queryChrom = chrom_ # yuck
+	lPosQuery = start_
+	rPosQuery = end_
 
-	for f in fileNames:
-		cell = f.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_subset/", "")
-		cell = cell.replace(".vcf", "")	
+	cell = fileName.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_all/", "")
+	cell = cell.replace(".vcf", "")	
+	print(cell)
+
+	df = VCF.dataframe(fileName)
+	genomePos_query = df.apply(generate_genome_pos_str, axis=1)
+	genomePos_query_breakdown = breakdown_by_mutation_type(genomePos_query)
 	
-		df = VCF.dataframe(f)
-		genomePos_query = df.apply(generate_genome_pos_str, axis=1)
-		genomePos_query_breakdown = breakdown_by_mutation_type(genomePos_query)
-		
-		SNPs = genomePos_query_breakdown[0]
-		indels = genomePos_query_breakdown[1]
+	SNPs = genomePos_query_breakdown[0]
+	indels = genomePos_query_breakdown[1]
 
-		# get the entries shared between curr cells VCF and the cosmic filter set
-		#	remember, these are general, and NOT gene specific
-		shared_SNPs = are_hits_in_cosmic(SNPs, genomePos_laud_db, 1)
-		shared_indels = are_hits_in_cosmic(indels, genomePos_laud_db, 0)
-		
-		all_shared_regions = shared_SNPs + shared_indels
+	# get the entries shared between curr cells VCF and the cosmic filter set
+	#	remember, these are general, and NOT gene specific
+	shared_SNPs = are_hits_in_cosmic(SNPs, genomePos_laud_db, 1)
+	shared_indels = are_hits_in_cosmic(indels, genomePos_laud_db, 0)
+	
+	all_shared_regions = shared_SNPs + shared_indels
 
-		shared_pd = pd.Series(all_shared_regions)
-		matches = shared_pd.apply(is_hit_in_goi, args=(cell, queryChrom, lPosQuery, rPosQuery))
+	shared_pd = pd.Series(all_shared_regions)
+	matches = shared_pd.apply(is_hit_in_goi, args=(cell, queryChrom, lPosQuery, rPosQuery))
 
-		# delete empty dict keys
-		for k in matches.keys():
-			try:
-				if len(matches[k])<1:
-					del matches[k]
-			except: pass
+	# delete empty dict keys
+	for k in matches.keys():
+		try:
+			if len(matches[k])<1:
+				del matches[k]
+		except: pass
 
-		cells_dict_GOI_coords.update({cell : list(matches.values)})
-
-	return cells_dict_GOI_coords
+	ret = [cell, list(matches.values)]
+	return(ret)
 
 
 
@@ -272,29 +270,35 @@ def build_genome_positions_dict(fileNames, chrom, pos1, pos2):
 @click.option('--chrom', default = 7, prompt='chromosome', required=True, type=str)
 @click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
 @click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
+@click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
 @click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
-def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
+def get_specific_mutations(test, chrom, start, end, nthread, outprefix, wrkdir):
 	""" for a specific gene of interest, get the complete set of amino acid level mutations
 		for each cell in dataset """
 	global database
 	global database_laud
+	global genomePos_laud_db
 	global cosmic_genome_tree
 	global cwd
 	global test_bool
+	global chrom_  # can i get out of making these globals?
+	global start_ 
+	global end_ 
 
 	cwd = wrkdir
 	test_bool = test
-	chrom = str(chrom)
-	start = str(start)
-	end = str(end)
+	chrom_ = str(chrom)
+	start_ = str(start)
+	end_ = str(end)
 
 	print('setting up COSMIC database...')
 	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
+	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 
 	# init interval tree
 	cosmic_genome_tree = utils.GenomeDataframeTree(lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])), database_laud)
@@ -304,15 +308,34 @@ def get_specific_mutations(test, chrom, start, end, outprefix, wrkdir):
 	else:
 		fNames = get_filenames()
 
-	goiDict = build_genome_positions_dict(fNames, chrom, start, end) # get genome coords
-	print("GOI search done!")
+	print('searching for relevant vcf hits')
+	p = mp.Pool(processes=nthread)
+		
+	try:
+		goiList = p.map(build_genome_positions_dict, fNames) # how to pass adn'l args?
+	finally:
+		p.close()
+		p.join()
 
-	goiDict_AA = get_corresponding_aa_subs(goiDict, chrom)
-	print('AA search done')	
+	# convert to dictionary
+	cells_dict_GOI_coords = {}
+	naSeries = pd.Series([np.nan])
+
+	for item in goiList:
+		cell = item[0]
+		muts = item[1]
+		
+		if len(muts) == 0:
+			toAdd = {cell:naSeries}
+		else:
+			toAdd = {cell:muts}
+		cells_dict_GOI_coords.update(toAdd)
+
+	goiDict_AA = get_corresponding_aa_subs(cells_dict_GOI_coords, chrom)
 
 	if test_bool:
-		write_csv(goiDict, cwd + 'test/specific_mutations/' + outprefix + '.csv')
+		write_csv(cells_dict_GOI_coords, cwd + 'test/specific_mutations/' + outprefix + '.csv')
 		write_csv(goiDict_AA, cwd + 'test/specific_mutations/' + outprefix + '_AA.csv')
 	else:
-		write_csv(goiDict, cwd + outprefix + '.csv')
+		write_csv(cells_dict_GOI_coords, cwd + outprefix + '.csv')
 		write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
