@@ -10,10 +10,8 @@ import pandas as pd
 import sys
 import itertools
 import warnings
-import click 
 from tqdm import tqdm
 import multiprocessing as mp
-import cProfile
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
@@ -265,21 +263,17 @@ def build_genome_positions_dict(fileName):
 
 
 
-""" get cmdline input """
-@click.command()
-@click.option('--test', default = False)
-@click.option('--chrom', default = 7, prompt='chromosome', required=True, type=str)
-@click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
-@click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
-@click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
-@click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
- 
-
-
-def get_specific_mutations(test, chrom, start, end, nthread, outprefix, wrkdir):
+def main():
 	""" for a specific gene of interest, get the complete set of amino acid level mutations
 		for each cell in dataset """
+	test = False
+	chrom = 7
+	start = 55152337
+	end = 55207337
+	nthread = 4
+	outprefix = 'sampleOut'
+	wrkdir = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/'
+
 	global database
 	global database_laud
 	global genomePos_laud_db
@@ -314,7 +308,7 @@ def get_specific_mutations(test, chrom, start, end, nthread, outprefix, wrkdir):
 	p = mp.Pool(processes=nthread)
 		
 	try:   # trying to set up progress bar
-		goiList = list(tqdm(p.imap(build_genome_positions_dict, fNames), total=len(fNames)))
+		goiList = p.map(build_genome_positions_dict, fNames)
 	finally:
 		p.close()
 		p.join()
@@ -341,3 +335,7 @@ def get_specific_mutations(test, chrom, start, end, nthread, outprefix, wrkdir):
 	else:
 		write_csv(cells_dict_GOI_coords, cwd + outprefix + '.csv')
 		write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
+
+
+if __name__ == "__main__":
+	main()
