@@ -2,7 +2,7 @@
 	On a per-cell basis. """
 
 import numpy as np
-import VCF # comes from Kamil Slowikowski
+from . import VCF # comes from Kamil Slowikowski
 import os
 import csv
 import pandas as pd
