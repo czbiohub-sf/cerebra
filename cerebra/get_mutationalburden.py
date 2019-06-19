@@ -2,7 +2,7 @@
 	Two run modes -- raw and filter (COSMIC, LAUD annotation) """
 
 import numpy as np
-import VCF # comes from Kamil Slowikowski
+from . import VCF # comes from Kamil Slowikowski
 import os
 import csv
 import pandas as pd

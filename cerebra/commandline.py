@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Import modified 'os' module with LC_LANG set so click doesn't complain
-from .os_utils import os  # noqa: F401
+from cerebra.os_utils import os  # noqa: F401
 from functools import partial
 
 import click

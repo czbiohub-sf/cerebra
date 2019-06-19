@@ -10,7 +10,7 @@ import shutil
 import warnings
 import pandas as pd
 import click
-import VCF
+from . import VCF
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
