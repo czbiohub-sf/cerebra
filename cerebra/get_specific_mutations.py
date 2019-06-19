@@ -11,6 +11,7 @@ import sys
 import itertools
 import warnings
 import click 
+from tqdm import tqdm
 import multiprocessing as mp
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -225,15 +226,14 @@ def is_hit_in_goi(sample, *args):
 
 def build_genome_positions_dict(fileName):
 	""" creates dict with genome coords for cosmic filtered hits to specific GOI """
-	#print('getting coords to GOI hits')
 
 	queryChrom = chrom_ # yuck
 	lPosQuery = start_
 	rPosQuery = end_
 
-	cell = fileName.replace("/home/ubuntu/cerebra/cerebra/wrkdir/scVCF_filtered_all/", "")
+	cell = fileName.replace(cwd + "scVCF_filtered_all/", "")
 	cell = cell.replace(".vcf", "")	
-	print(cell)
+	#print(cell)
 
 	df = VCF.dataframe(fileName)
 	genomePos_query = df.apply(generate_genome_pos_str, axis=1)
@@ -295,6 +295,7 @@ def get_specific_mutations(test, chrom, start, end, nthread, outprefix, wrkdir):
 	start_ = str(start)
 	end_ = str(end)
 
+	print(' ')
 	print('setting up COSMIC database...')
 	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
@@ -311,8 +312,8 @@ def get_specific_mutations(test, chrom, start, end, nthread, outprefix, wrkdir):
 	print('searching for relevant vcf hits')
 	p = mp.Pool(processes=nthread)
 		
-	try:
-		goiList = p.map(build_genome_positions_dict, fNames) # how to pass adn'l args?
+	try:   # trying to set up progress bar
+		goiList = list(tqdm(p.imap(build_genome_positions_dict, fNames), total=len(fNames)))
 	finally:
 		p.close()
 		p.join()
