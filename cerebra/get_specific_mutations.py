@@ -132,6 +132,7 @@ def get_corresponding_aa_subs(d, chr):
 		{cell, list(mutation.AA)} """
 
 	print('finding corresponding amino acid sequences...')
+	print(' ')
 	newDict = {}
 
 	for cell in d:
@@ -271,7 +272,7 @@ def build_genome_positions_dict(fileName):
 @click.option('--chrom', default = 7, prompt='chromosome', required=True, type=str)
 @click.option('--start', default = 55152337, prompt='start position', required=True, type=int)
 @click.option('--end', default = 55207337, prompt='end position', required=True, type=int)
-@click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
+@click.option('--nthread', default = 64, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
 @click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
@@ -298,7 +299,7 @@ def get_specific_mutations(test, chrom, start, end, nthread, outprefix, wrkdir):
 
 	print(' ')
 	print('setting up COSMIC database...')
-	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
+	database = pd.read_csv(cwd + "cosmic_db_egfr_sub.csv", delimiter = ',')
 	database_laud = get_laud_db()
 	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 
@@ -319,18 +320,14 @@ def get_specific_mutations(test, chrom, start, end, nthread, outprefix, wrkdir):
 		p.close()
 		p.join()
 
-	# convert to dictionary
-	cells_dict_GOI_coords = {}
+	cells_dict_GOI_coords = {} # convert to dict
 	naSeries = pd.Series([np.nan])
 
 	for item in goiList:
 		cell = item[0]
 		muts = item[1]
 		
-		if len(muts) == 0:
-			toAdd = {cell:naSeries}
-		else:
-			toAdd = {cell:muts}
+		toAdd = {cell:muts}
 		cells_dict_GOI_coords.update(toAdd)
 
 	goiDict_AA = get_corresponding_aa_subs(cells_dict_GOI_coords, chrom)
