@@ -136,10 +136,10 @@ def get_corresponding_aa_subs(d):
 		newValues = []
 
 		for entry in valuesList:
-			posStr = entry.split(',')[0]
-			nucSub = entry.split(',')[1]
-			ref = nucSub.split('>')[0]
-			alt = nucSub.split('>')[1]
+			posStr = entry[0]
+			ref = entry[1]
+			alt = entry[2]
+			nucSub = ref + '>' + alt
 
 			curr_obj = utils.GenomePosition.from_str(posStr)
 			b = cosmic_genome_tree.get_best_overlap(curr_obj)
@@ -188,7 +188,6 @@ def are_hits_in_cosmic(queryList, SNP_bool):
 				b = cosmic_genome_tree.get_best_overlap(curr_obj)
 				
 				if b is not None:
-					print('got an indel!')
 					ret.append(pos_str)
 
 	return(ret)
@@ -222,9 +221,9 @@ def build_genome_positions_dict(fileName):
 """ get cmdline input """
 @click.command()
 @click.option('--gene', default = 'EGFR', prompt='gene id (all caps)', required=True, type=str)
-@click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
+@click.option('--nthread', default = 64, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
@@ -261,7 +260,6 @@ def get_specific_mutations_gene_id(gene, nthread, outprefix, wrkdir):
 		p.join()
 
 	cells_dict_GOI_coords = {} # convert to dict
-	naSeries = pd.Series([np.nan])
 
 	for item in goiList:
 		cell = item[0]
