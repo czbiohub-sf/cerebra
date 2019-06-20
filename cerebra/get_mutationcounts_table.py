@@ -4,7 +4,7 @@ found in a given set of vcf files
 """
 
 import numpy as np
-import VCF # comes from Kamil Slowikowski
+import vcf
 import os
 import csv
 import pandas as pd
@@ -72,26 +72,45 @@ def get_genome_pos(sample):
 			secondPos = '1'
 			genomePos = chr + ':' + str(pos) + '-' + str(secondPos)
 	except:
+		# NOTE: Should probably throw here.
 		genomePos = 'ERROR'
 
-	return(genomePos)
+	return genomePos
 
+def parse_genome_pos(pos_str):
+	chrom, pos_range = pos_str.split(':')[0:2]
+	start_pos, end_pos = pos_range.split('-')[0:2]
 
+	return (chrom, start_pos, end_pos)
 
-def get_gene_name(posString):
+def make_genome_pos(record):
+	# Although including `chr` in the CHR column constitutes malformed VCF, it
+	# may be present, so it should be removed.
+	CHROM = record.CHROM.replace("chr", "")
+	POS = record.POS
+	ref_len = len(record.REF)
+	alt_len = len(record.ALT)
+
+	if ref_len == 1 and alt_len == 1:
+		return (CHROM, POS, POS)
+	elif ref_len > 1 and alt_len == 1:
+		return (CHROM, POS, POS + ref_len)
+	elif alt_len > 1 and ref_len == 1:
+		return (CHROM, POS, POS + alt_len)
+	else: # multibase-for-multibase substitution
+		return (CHROM, POS, 1)
+
+def find_gene_name(genome_pos):
 	""" return the gene name from a given genome position string
 	   (ie. '1:21890111-21890111'), by querying the hg38-plus.gtf """
 
-	chrom = posString.split(':')[0] # work on posString
-	posString_remove = posString.split(':')[1]
-	lPosition = posString_remove.split('-')[0] 
-	rPosition = posString_remove.split('-')[1] 
+	chrom, pos_start, pos_end = genome_pos
 
 	# work on hg38_gtf
 	chromStr = 'chr' + str(chrom)
 	hg38_gtf_filt = hg38_gtf.where(hg38_gtf[0] == chromStr).dropna()
-	hg38_gtf_filt = hg38_gtf_filt.where(hg38_gtf_filt[3] <= int(lPosition)).dropna() # lPos good
-	hg38_gtf_filt = hg38_gtf_filt.where(hg38_gtf_filt[4] >= int(rPosition)).dropna() # rPos good
+	hg38_gtf_filt = hg38_gtf_filt.where(hg38_gtf_filt[3] <= int(pos_start)).dropna() # lPos good
+	hg38_gtf_filt = hg38_gtf_filt.where(hg38_gtf_filt[4] >= int(pos_end)).dropna() # rPos good
 	
 	try:
 		returnStr = str(hg38_gtf_filt.iloc[0][8])	# keep just the gene name / metadata col
@@ -106,31 +125,43 @@ def get_gene_name(posString):
 
 
 
-def get_genecell_mut_counts(f):
+def find_cell_mut_gene_names(filename):
 	""" creates a dictionary obj where each key is a cell and each value
 		is a list of the genes we found mutations for in that cell """
-	tup = [] 
+	tup = []
 
-	cell = f.replace(cwd, "")
-	cell = cell.replace('scVCF_filtered_subset/', "")
+
+	cell = filename.replace(cwd, "")
+	cell = cell.replace('scVCF_filtered_all/', "")
 	cell = cell.replace(".vcf", "")
-	
-	df = VCF.dataframe(f)
 
-	genomePos_query = df.apply(get_genome_pos, axis=1) # apply function for every row in df
-	items = set(genomePos_query) # genomePos_query (potentially) has dups
+	# PyVCF documentation claims that it automatically infers compression type
+	# from the file extension.
+	vcf_reader = vcf.Reader(filename=filename)
 
-	#if test_bool:
-	shared = list(items) # no COSMIC filter
-	#else:
-	#	shared = [i for i in genomePos_laud_db if i in items] # COSMIC filter,
-																# retains dups
-	shared_series = pd.Series(shared)
+	filtered_gene_names = []
 
-	sharedGeneNames = shared_series.apply(get_gene_name)
-	tup = [cell, sharedGeneNames]
+	for record in vcf_reader:
+		genome_pos = make_genome_pos(record)
+		# TODO: Filter out duplicates?
+		# And is it better to filter out positional duplicates or gene name
+		# duplicates?
 
-	return(tup)
+		# No COSMIC filter in test mode
+		if not test_bool:
+			# Skip this gene if it isn't in the laud_db
+			if genome_pos in genome_pos_laud_db:
+				continue
+		
+		gene_name = find_gene_name(genome_pos)
+
+		filtered_gene_names.append(gene_name)
+
+	filtered_series = pd.Series(filtered_gene_names)
+
+	tup = (cell, filtered_series)
+
+	return tup
 
 
 
@@ -143,7 +174,7 @@ def format_dataframe(raw_df):
 	for i in range(0, raw_df.shape[0]):
 		currList = list(raw_df.iloc[i].unique()) # unique genes for curr_cell 
 
-		for elm in currList:	
+		for elm in currList:
 			if elm not in genesList:
 				genesList.append(elm)
 	
@@ -160,7 +191,7 @@ def format_dataframe(raw_df):
 		for currGene in currRow:
 			df[currGene][currCell] += 1
 
-	return(df)
+	return df
 
 
 
@@ -177,8 +208,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	global database
 	global database_laud
 	global hg38_gtf
-	global genomePos_laud_db
-	global germlineFilterCells
+	global genome_pos_laud_db
 	global cwd
 	global test_bool
 
@@ -187,7 +217,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 
 	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 	database_laud = get_laud_db()
-	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
+	genome_pos_laud_db = set(map(parse_genome_pos, database_laud['Mutation genome position']))
 	hg38_gtf = pd.read_csv(cwd + 'hg38-plus.gtf', delimiter = '\t', header = None)
 
 	if test:
@@ -200,7 +230,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	print('running...')
 
 	try:
-		cells_list = p.map(get_genecell_mut_counts, fNames, chunksize=1) # default chunksize=1
+		cell_genes_pairs = p.map(find_cell_mut_gene_names, fNames, chunksize=1) # default chunksize=1
 	finally:
 		p.close()
 		p.join()
@@ -209,15 +239,11 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	cells_dict = {}
 	naSeries = pd.Series([np.nan])
 
-	for item in cells_list:
-		cell = item[0]
-		muts = item[1]
-		
-		if len(muts.index) == 0:
-			print(cell)
+	for cell, gene_names in cell_genes_pairs:
+		if len(gene_names.index) == 0:
 			toAdd = {cell:naSeries}
 		else:
-			toAdd = {cell:muts}
+			toAdd = {cell:gene_names}
 		cells_dict.update(toAdd)
 
 	print('writing file')

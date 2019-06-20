@@ -1,4 +1,4 @@
-""" TODO: add a description here """
+
 import re
 import numpy as np
 from tqdm import tqdm
@@ -6,7 +6,6 @@ from tqdm import tqdm
 from ncls import NCLS
 
 class GenomePosition():
-	""" TODO: add a description here """
 	genome_pos_pattern = re.compile(r"(\d+):(\d+)-(\d+)")
 
 	def __init__(self, chrom, start, end):
@@ -15,7 +14,7 @@ class GenomePosition():
 		self.end = end
 	
 	@classmethod
-	def from_str(cls, pos_str): # essentially a seperate initializer
+	def from_str(cls, pos_str):
 		match = cls.genome_pos_pattern.match(pos_str)
 		
 		if not match:
@@ -37,9 +36,7 @@ class GenomePosition():
 		return self.end - self.start
 
 
-
 class GenomeDataframeTree():
-	""" TODO: add a description here """
 	def __init__(self, predicate, df):
 		self.predicate = predicate
 		self.df = df
@@ -73,7 +70,6 @@ class GenomeDataframeTree():
 		self.tree_map = tree_map
 	
 
-
 	def _compute_jaccard_index(self, pos_a, pos_b):
 		range_a = range(pos_a.start - 1, pos_a.end)
 		range_b = range(pos_b.start - 1, pos_b.end)
@@ -89,7 +85,6 @@ class GenomeDataframeTree():
 		return len(intersection) / (len(range_a) + len(range_b) - len(intersection))
 	
 
-
 	def has_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
 
@@ -100,7 +95,6 @@ class GenomeDataframeTree():
 		# the edges of our query by 1.
 		return tree.has_overlap(genome_pos.start - 1, genome_pos.end + 1)
 	
-
 
 	def get_first_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
@@ -120,7 +114,6 @@ class GenomeDataframeTree():
 			return None
 
 		return self.df.iloc[row_ids[0]]
-
 
 
 	def get_best_overlap(self, genome_pos):
@@ -151,7 +144,6 @@ class GenomeDataframeTree():
 		return sorted_rows[0][0]
 	
 
-
 	def get_first_containment(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
 
@@ -168,8 +160,6 @@ class GenomeDataframeTree():
 			return None
 
 		return self.df.iloc[row_ids[0]]
-
-
 
 
 def make_genome_pos_vcf(record):
@@ -190,7 +180,6 @@ def make_genome_pos_vcf(record):
 	# 	return GenomePosition(CHROM, POS, POS + alt_len)
 	# else: # multibase-for-multibase substitution
 	# 	return GenomePosition(CHROM, POS, 1)
-
 
 
 def make_genome_pos_gtf(record):
