@@ -220,7 +220,7 @@ def build_genome_positions_dict(fileName):
 
 """ get cmdline input """
 @click.command()
-@click.option('--gene', default = 'EGFR', prompt='gene id (all caps)', required=True, type=str)
+@click.option('--gene', default = 'EGFR', prompt='gene_id (all caps)', required=True, type=str)
 @click.option('--nthread', default = 64, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
 @click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)

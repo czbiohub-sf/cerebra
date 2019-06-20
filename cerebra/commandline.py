@@ -10,10 +10,7 @@ from cerebra.hello import hello
 from cerebra.datadump import s3_import
 from cerebra.germline_filter import germline_filter
 from cerebra.get_mutationcounts_table import get_mutationcounts_table
-
-
 from cerebra.get_aa_mutations import get_aa_mutations
-
 from cerebra.get_mutationalburden import get_mutationalburden
 from cerebra.generate_summary_tables import generate_summary_tables
 from cerebra.generate_summary_tables_test import generate_summary_tables_test
@@ -27,6 +24,7 @@ settings = dict(help_option_names=['-h', '--help'])
 
 @click.group(options_metavar='', subcommand_metavar='<command>',
              context_settings=settings)
+
 def cli():
     """
     finds mutants in your scRNA-seq experiment
