@@ -166,7 +166,7 @@ def init_pool(filenames, outfile_name):
 @click.option('--start_pos', default = 55191820, prompt='start position', required=True, type=str)
 @click.option('--end_pos', default = 55191822, prompt='end position', required=True, type=str)
 @click.option('--nthreads', default = 4, prompt='number of threads', required=True, type=int)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', 
+@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', 
 	prompt='s3 import directory', required=True)
 @click.option('--batch_mode', default = 0, prompt='batch mode', required=True, type=int)
 @click.option('--outfile', default = 'egfr_L858R_coverageByCell.csv', 
@@ -198,7 +198,7 @@ def check_coverage(chrom, start_pos, end_pos, nthreads, wrkdir, batch_mode, outf
 	colNames = ['cellName', 'coverage_bool_vcf', 'depth_vcf', 'coverage_bool_gvcf', 'depth_gvcf']
 
 	if batch_mode:
-		cov_df = pd.read_csv(cwd + '../coverageBatch.csv')
+		cov_df = pd.read_csv(cwd + '../coverageBatch_v3.csv')
 
 		for i in range(0, len(cov_df.index)):
 			currRow = cov_df.iloc[i]

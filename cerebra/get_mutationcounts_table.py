@@ -29,8 +29,8 @@ def get_filenames_test():
 def get_filenames():
 	""" get file names based on specified path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_all/"):
-		PATH = cwd + 'scVCF_filtered_all/' + file
+	for file in os.listdir(cwd + "scVCF_filtered_subset/"):
+		PATH = cwd + 'scVCF_filtered_subset/' + file
 		files.append(PATH)
 
 	return files
@@ -129,6 +129,7 @@ def find_cell_mut_gene_names(filename):
 	""" creates a dictionary obj where each key is a cell and each value
 		is a list of the genes we found mutations for in that cell """
 	tup = []
+
 
 	cell = filename.replace(cwd, "")
 	cell = cell.replace('scVCF_filtered_all/', "")
@@ -269,7 +270,7 @@ def get_mutationcounts_table(nthread, test, wrkdir):
 	if test_bool:
 		intermediate.to_csv(cwd + "test/mutationcounts_table/geneCellMutationCounts_artifical.csv", index=False)	
 	else:
-		intermediate.to_csv(cwd + "geneCellMutationCounts.csv", index=False)
+		intermediate.to_csv(cwd + "geneCellMutationCounts_noLaudFilter.csv", index=False)
 
 	cmd = 'rm ' + cwd + 'intermediate.csv'
 	os.system(cmd)

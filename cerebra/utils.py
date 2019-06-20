@@ -1,3 +1,4 @@
+
 import re
 import numpy as np
 
@@ -82,6 +83,7 @@ class GenomeDataframeTree():
 		
 		self.tree_map = tree_map
 	
+
 	def _compute_jaccard_index(self, pos_a, pos_b):
 		range_a = range(pos_a.start - 1, pos_a.end)
 		range_b = range(pos_b.start - 1, pos_b.end)
@@ -96,6 +98,7 @@ class GenomeDataframeTree():
 		# |A ∩ B| / (|A| + |B| + |A ∩ B|)
 		return len(intersection) / (len(range_a) + len(range_b) - len(intersection))
 	
+
 	def has_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
 
@@ -106,6 +109,7 @@ class GenomeDataframeTree():
 		# the edges of our query by 1.
 		return tree.has_overlap(genome_pos.start - 1, genome_pos.end + 1)
 	
+
 	def get_first_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
 
@@ -124,6 +128,7 @@ class GenomeDataframeTree():
 			return None
 
 		return self.df.iloc[row_ids[0]]
+
 
 	def get_best_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
@@ -152,6 +157,7 @@ class GenomeDataframeTree():
 
 		return sorted_rows[0][0]
 	
+
 	def get_first_containment(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
 

@@ -76,20 +76,20 @@ def s3_import(metadata, cosmic_db, hg38, sc_vcf, bulk_vcf, g_vcf):
 	os.system(cmd)
 
 	cmd = 'aws s3 cp ' + sc_vcf + ' wrkdir/scVCF/ --recursive --quiet'
-	os.system(cmd)
+	#os.system(cmd)
 
 	cmd = 'aws s3 cp ' + bulk_vcf + ' wrkdir/bulkVCF/ --recursive --quiet'
-	os.system(cmd)
+	#os.system(cmd)
 
 	cmd = 'aws s3 cp ' + g_vcf + ' wrkdir/gVCF/ --recursive --quiet'
-	os.system(cmd)
+	#os.system(cmd)
 
 	cmd = 'cp vcfheader.txt wrkdir/'
 	os.system(cmd)
 
 	# dwld STAR-fusion files
 	cmd = 'aws s3 cp s3://lincoln.harris-work/fusions wrkdir/fusions --recursive --quiet'
-	os.system(cmd)
+	#os.system(cmd)
 
 	# dwld Seurat metadata
 	cmd = 'aws s3 cp s3://lincoln.harris-work/metadataSeurat.csv wrkdir/ --quiet'

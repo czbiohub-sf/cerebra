@@ -286,3 +286,6 @@ hg38-plus.gtf
 CosmicGenomeScreensMutantExport.tsv
 *_fusions_predictions.abridged.tsv
 wrkdir/
+
+# rohan's utilities library
+utils.py
