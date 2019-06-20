@@ -4,7 +4,7 @@
 
 import pandas as pd
 import numpy as np
-import VCF
+from . import VCF
 import sys
 import multiprocessing as mp
 import os

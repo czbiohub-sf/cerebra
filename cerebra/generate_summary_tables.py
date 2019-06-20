@@ -1,7 +1,7 @@
 """ creates the final validaion table(s)
 	by SAMPLE and by CELL """
 
-import summarize_module
+from . import summarize_module
 import pandas as pd
 import numpy as np
 import click

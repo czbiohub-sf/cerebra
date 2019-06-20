@@ -1,7 +1,6 @@
 
 import re
 import numpy as np
-from tqdm import tqdm
 
 from ncls import NCLS
 
@@ -18,10 +17,21 @@ class GenomePosition():
 		match = cls.genome_pos_pattern.match(pos_str)
 		
 		if not match:
-			# FIXME: this is bad
-			return cls("?", -1, -1)
+			return None
 
 		return cls(match[1], int(match[2]) - 1, int(match[3]))
+	
+	@classmethod
+	def from_vcf_record(cls, record):
+		# Although including `chr` in the CHR column constitutes malformed VCF, it
+		# may be present, so it should be removed.
+		CHROM = record.CHROM.replace("chr", "")
+
+		return cls(CHROM, record.affected_start, record.affected_end)
+
+	@classmethod
+	def from_gtf_record(cls, record):
+		return cls(record[0].replace("chr", ""), int(record[3]) - 1, int(record[4]))
 	
 	def __eq__(self, other):
 		return self.chrom == other.chrom and self.start == other.start and self.end == other.end
@@ -44,8 +54,12 @@ class GenomeDataframeTree():
 		working_tree_map = {}
 
 		# Iterating DataFrame rows :'(
-		for idx, row in tqdm(df.iterrows(), total=len(df)):
+		for idx, row in df.iterrows():
 			genome_pos = predicate(row)
+
+			if genome_pos is None:
+				continue
+
 			chrom = genome_pos.chrom
 
 			if not chrom in working_tree_map:
@@ -160,27 +174,19 @@ class GenomeDataframeTree():
 			return None
 
 		return self.df.iloc[row_ids[0]]
+	
+	def get_all_overlaps(self, genome_pos):
+		tree = self.tree_map.get(genome_pos.chrom)
 
+		if not tree:
+			return None
+		
+		starts = np.array([genome_pos.start], dtype=np.long)
+		ends = np.array([genome_pos.end], dtype=np.long)
+		ids = np.array([0], dtype=np.long)
+		
+		# The overlap algorithm used by NCLS isn't inclusive of edges, so we pad
+		# the edges of our query by 1.
+		_, row_ids = tree.all_overlaps_both(starts - 1, ends + 1, ids)
 
-def make_genome_pos_vcf(record):
-	# Although including `chr` in the CHR column constitutes malformed VCF, it
-	# may be present, so it should be removed.
-	CHROM = record.CHROM.replace("chr", "")
-
-	return GenomePosition(CHROM, record.affected_start, record.affected_end)
-
-	# ref_len = len(record.REF)
-	# alt_len = len(record.ALT)
-
-	# if ref_len == 1 and alt_len == 1:
-	# 	return GenomePosition(CHROM, POS, POS)
-	# elif ref_len > 1 and alt_len == 1:
-	# 	return GenomePosition(CHROM, POS, POS + ref_len)
-	# elif alt_len > 1 and ref_len == 1:
-	# 	return GenomePosition(CHROM, POS, POS + alt_len)
-	# else: # multibase-for-multibase substitution
-	# 	return GenomePosition(CHROM, POS, 1)
-
-
-def make_genome_pos_gtf(record):
-	return GenomePosition(record[0].replace("chr", ""), int(record[3]) - 1, int(record[4]))
+		return [self.df.iloc[row_id] for row_id in row_ids]
