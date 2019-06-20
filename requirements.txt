@@ -7,6 +7,6 @@ tqdm
 colorama
 numpy
 pandas
-pyvcf
+vcfpy
 pathos
 git+git://github.com/chaimleib/intervaltree#egg=intervaltree
