@@ -168,3 +168,19 @@ class GenomeDataframeTree():
 			return None
 
 		return self.df.iloc[row_ids[0]]
+	
+	def get_all_overlaps(self, genome_pos):
+		tree = self.tree_map.get(genome_pos.chrom)
+
+		if not tree:
+			return None
+		
+		starts = np.array([genome_pos.start], dtype=np.long)
+		ends = np.array([genome_pos.end], dtype=np.long)
+		ids = np.array([0], dtype=np.long)
+		
+		# The overlap algorithm used by NCLS isn't inclusive of edges, so we pad
+		# the edges of our query by 1.
+		_, row_ids = tree.all_overlaps_both(starts - 1, ends + 1, ids)
+
+		return [self.df.iloc[row_id] for row_id in row_ids]
