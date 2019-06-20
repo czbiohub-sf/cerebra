@@ -1,11 +1,7 @@
-import numpy as np
-import vcf
-import os
-import csv
-import pandas as pd
-import sys
-import warnings
 import click
+import numpy as np
+import pandas as pd
+import vcfpy
 import re
 from tqdm import tqdm
 from pathlib import Path
@@ -78,7 +74,7 @@ class MutationCounter():
 
         # PyVCF documentation claims that it automatically infers compression type
         # from the file extension.
-        vcf_reader = vcf.Reader(filename=filename)
+        vcf_reader = vcfpy.Reader.from_path(filename)
 
         gene_mutation_counts = {}
 
