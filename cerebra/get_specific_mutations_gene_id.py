@@ -10,21 +10,11 @@ import pandas as pd
 import sys
 import itertools
 import warnings
+import click 
 from tqdm import tqdm
 import multiprocessing as mp
+import cProfile
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
-
-def get_filenames_test():
-	""" get file names given path """
-	files = []
-	for file in os.listdir(cwd + "artificalVCF/"):
-		if file.endswith(".vcf"):
-			fullPath = cwd + 'artificalVCF/' + file 
-			files.append(fullPath)
-    
-	return files
-
 
 
 def get_filenames():
@@ -39,16 +29,24 @@ def get_filenames():
 
 
 
-def get_laud_db():
+def get_laud_db(gene_):
     """ returns the COSMIC database after lung and fathmm filter  """
     pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
-    database_filter = database.iloc[pSiteList]
-    #keepRows = database_filter['FATHMM score'] >= 0.7
-    #db_fathmm_filter = database_filter[keepRows]
+    db_filter = database.iloc[pSiteList]
+    #keepRows = db_filter['FATHMM score'] >= 0.7
+    #db_fathmm_filter = dbfilter[keepRows]
     #db_fathmm_filter = db_fathmm_filter.reset_index(drop=True)
-    database_filter = database_filter.reset_index(drop=True)
+    keep = db_filter['Gene name'] == gene_
+    db_gene = db_filter[keep]
+    db_gene = db_gene.reset_index(drop=True)
 
-    return database_filter
+    if len(db_gene.index) == 0:
+    	print('this gene is not in the cosmic database')
+    	print('maybe it has a different name? ')
+    	print('')
+    	sys.exit()
+
+    return db_gene
     #return db_fathmm_filter
 
 
@@ -125,11 +123,12 @@ def get_overlap(a, b):
 
 
 
-def get_corresponding_aa_subs(d, chr):
+def get_corresponding_aa_subs(d):
 	""" given a dict of {cell, list(genomePos)}, returns a dict of 
 		{cell, list(mutation.AA)} """
 
 	print('finding corresponding amino acid sequences...')
+	print(' ')
 	newDict = {}
 
 	for cell in d:
@@ -166,7 +165,7 @@ def get_corresponding_aa_subs(d, chr):
 
 
 
-def are_hits_in_cosmic(queryList, genomePos_laud_db_, SNP_bool):
+def are_hits_in_cosmic(queryList, SNP_bool):
 	""" given a set of genome position strings, searches for the ones
 		that are in the COSMIC database. now supports SNPs and indels!! """
 	ret = []
@@ -174,7 +173,7 @@ def are_hits_in_cosmic(queryList, genomePos_laud_db_, SNP_bool):
 	if len(queryList) > 0:
 		if SNP_bool: # exact string match
 			curr_df = pd.DataFrame(queryList, columns=['posStr', 'ref', 'alt'])
-			overlap = set(curr_df['posStr']).intersection(set(genomePos_laud_db_))
+			overlap = set(curr_df['posStr']).intersection(set(genomePos_laud_db))
 			keep = curr_df.where(curr_df['posStr'].isin(overlap))
 			keep = keep.dropna()
 
@@ -182,57 +181,25 @@ def are_hits_in_cosmic(queryList, genomePos_laud_db_, SNP_bool):
 
 		else: # indel case
 			ret = []
-			for i in range(0,len(queryList)): # dont want this to be a for loop
+			for i in range(0,len(queryList)):
 				pos_str = queryList[i]
 				pos_str_raw = pos_str[0]
 				curr_obj = utils.GenomePosition.from_str(pos_str_raw)
 				b = cosmic_genome_tree.get_best_overlap(curr_obj)
 				
 				if b is not None:
+					print('got an indel!')
 					ret.append(pos_str)
 
 	return(ret)
 
 
 
-def is_hit_in_goi(sample, *args):
-	""" given a set of position strings from a vcf file, checks to see if
-		they're in the gene of interest"""
-	cell_ = args[0]
-	queryChrom_ = args[1]
-	lPosQuery_ = args[2]
-	rPosQuery_ = args[3]
-	match = ""
-
-	posStr = sample[0]
-
-	chrom = posStr.split(':')[0]
-	start = posStr.split(':')[1].split('-')[0]
-	end = posStr.split(':')[1].split('-')[1]
-	ref = sample[1]
-	alt = sample[2]
-
-	if chrom == queryChrom_:
-		overlap = get_overlap([start, end], [lPosQuery_, rPosQuery_])
-	
-		if overlap != 0: # curr sample is in the gene of interest!
-			match = posStr
-			match = match + ',' + ref + '>' + alt
-	
-	return match
-
-
-
 def build_genome_positions_dict(fileName):
 	""" creates dict with genome coords for cosmic filtered hits to specific GOI """
 
-	queryChrom = chrom_ # yuck
-	lPosQuery = start_
-	rPosQuery = end_
-
 	cell = fileName.replace(cwd + "scVCF_filtered_all/", "")
 	cell = cell.replace(".vcf", "")	
-	#print(cell)
 
 	df = VCF.dataframe(fileName)
 	genomePos_query = df.apply(generate_genome_pos_str, axis=1)
@@ -242,100 +209,68 @@ def build_genome_positions_dict(fileName):
 	indels = genomePos_query_breakdown[1]
 
 	# get the entries shared between curr cells VCF and the cosmic filter set
-	#	remember, these are general, and NOT gene specific
-	shared_SNPs = are_hits_in_cosmic(SNPs, genomePos_laud_db, 1)
-	shared_indels = are_hits_in_cosmic(indels, genomePos_laud_db, 0)
-	
+	shared_SNPs = are_hits_in_cosmic(SNPs, 1)
+	shared_indels = are_hits_in_cosmic(indels, 0)
+
 	all_shared_regions = shared_SNPs + shared_indels
 
-	shared_pd = pd.Series(all_shared_regions)
-	matches = shared_pd.apply(is_hit_in_goi, args=(cell, queryChrom, lPosQuery, rPosQuery))
-
-	# delete empty dict keys
-	for k in matches.keys():
-		try:
-			if len(matches[k])<1:
-				del matches[k]
-		except: pass
-
-	ret = [cell, list(matches.values)]
+	ret = [cell, all_shared_regions]
 	return(ret)
 
 
 
-def main():
+""" get cmdline input """
+@click.command()
+@click.option('--gene', default = 'EGFR', prompt='gene id (all caps)', required=True, type=str)
+@click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
+@click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+ 
+
+
+def get_specific_mutations_gene_id(gene, nthread, outprefix, wrkdir):
 	""" for a specific gene of interest, get the complete set of amino acid level mutations
 		for each cell in dataset """
-	test = False
-	chrom = 7
-	start = 55152337
-	end = 55207337
-	nthread = 4
-	outprefix = 'sampleOut'
-	wrkdir = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/'
-
 	global database
 	global database_laud
 	global genomePos_laud_db
 	global cosmic_genome_tree
 	global cwd
-	global test_bool
-	global chrom_  # can i get out of making these globals?
-	global start_ 
-	global end_ 
 
 	cwd = wrkdir
-	test_bool = test
-	chrom_ = str(chrom)
-	start_ = str(start)
-	end_ = str(end)
+	gene_name = gene
 
 	print(' ')
 	print('setting up COSMIC database...')
 	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
-	database_laud = get_laud_db()
+	database_laud = get_laud_db(gene_name)
 	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 
 	# init interval tree
 	cosmic_genome_tree = utils.GenomeDataframeTree(lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])), database_laud)
 
-	if test_bool:
-		fNames = get_filenames_test()
-	else:
-		fNames = get_filenames()
+	fNames = get_filenames()
 
 	print('searching for relevant vcf hits')
 	p = mp.Pool(processes=nthread)
 		
-	try:   # trying to set up progress bar
-		goiList = p.map(build_genome_positions_dict, fNames)
+	try:  
+		goiList = list(tqdm(p.imap(build_genome_positions_dict, fNames), total=len(fNames)))
 	finally:
 		p.close()
 		p.join()
 
-	# convert to dictionary
-	cells_dict_GOI_coords = {}
+	cells_dict_GOI_coords = {} # convert to dict
 	naSeries = pd.Series([np.nan])
 
 	for item in goiList:
 		cell = item[0]
 		muts = item[1]
 		
-		if len(muts) == 0:
-			toAdd = {cell:naSeries}
-		else:
-			toAdd = {cell:muts}
+		toAdd = {cell:muts}
 		cells_dict_GOI_coords.update(toAdd)
 
-	goiDict_AA = get_corresponding_aa_subs(cells_dict_GOI_coords, chrom)
+	goiDict_AA = get_corresponding_aa_subs(cells_dict_GOI_coords)
 
-	if test_bool:
-		write_csv(cells_dict_GOI_coords, cwd + 'test/specific_mutations/' + outprefix + '.csv')
-		write_csv(goiDict_AA, cwd + 'test/specific_mutations/' + outprefix + '_AA.csv')
-	else:
-		write_csv(cells_dict_GOI_coords, cwd + outprefix + '.csv')
-		write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
-
-
-if __name__ == "__main__":
-	main()
+	write_csv(cells_dict_GOI_coords, cwd + outprefix + '.csv')
+	write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
