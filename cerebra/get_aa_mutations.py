@@ -41,8 +41,8 @@ def get_laud_db(gene_):
     db_gene = db_gene.reset_index(drop=True)
 
     if len(db_gene.index) == 0:
-    	print('this gene is not in the cosmic database')
-    	print('maybe it has a different name? ')
+    	print('   this gene is not in the cosmic database')
+    	print('   maybe it has a different name? ')
     	print('')
     	sys.exit()
 
@@ -227,7 +227,7 @@ def build_genome_positions_dict(fileName):
  
 
 
-def get_specific_mutations_gene_id(gene, nthread, outprefix, wrkdir):
+def get_aa_mutations(gene, nthread, outprefix, wrkdir):
 	""" for a specific gene of interest, get the complete set of amino acid level mutations
 		for each cell in dataset """
 	global database
