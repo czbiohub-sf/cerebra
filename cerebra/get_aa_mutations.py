@@ -3,7 +3,8 @@
 
 import numpy as np
 import os
-import utils
+from . import utils
+#import .utils
 import csv
 import pandas as pd
 import sys
@@ -170,22 +171,22 @@ def get_corresponding_aa_subs(d):
 			nucSub = ref + '>' + alt
 
 			curr_obj = utils.GenomePosition.from_str(posStr)
-			b = cosmic_genome_tree.get_best_overlap(curr_obj)
-				
-			if b is not None:
-				cds = b['Mutation CDS']
-				
-				if nucSub in cds: # SNP case
-					AA_sub = b["Mutation AA"]
-					AA_sub = AA_sub.replace("p.", "")
-					newValues.append(AA_sub)
 
-				#indel case -- think its ok to just look for the best possible
-				elif len(ref) > 1 or len(alt) > 1:             # region overlap
-													
+			if len(ref) > 1 or len(alt) > 1: # indel case -- just return best overlap
+				b = cosmic_genome_tree.get_best_overlap(curr_obj)
+				if b is not None:
 					AA_sub = b["Mutation AA"]
 					AA_sub = AA_sub.replace("p.", "")
 					newValues.append(AA_sub)
+			else: # SNP case -- specific CDS validation
+				overlaps = cosmic_genome_tree.get_all_overlaps(curr_obj)
+
+				for o_df in overlaps:
+					cds = o_df['Mutation CDS']
+					if nucSub in cds:
+						AA_sub = o_df["Mutation AA"]
+						AA_sub = AA_sub.replace("p.", "")
+						newValues.append(AA_sub)
 
 		newDict.update({cell : newValues})
 
@@ -213,10 +214,13 @@ def are_hits_in_cosmic(queryList, SNP_bool):
 				pos_str = queryList[i]
 				pos_str_raw = pos_str[0]
 				curr_obj = utils.GenomePosition.from_str(pos_str_raw)
-				b = cosmic_genome_tree.get_best_overlap(curr_obj)
+				try:
+					b = cosmic_genome_tree.get_best_overlap(curr_obj)
 				
-				if b is not None:
-					ret.append(pos_str)
+					if b is not None:
+						ret.append(pos_str)
+				except AttributeError:
+					continue
 
 	return(ret)
 
@@ -249,9 +253,9 @@ def build_genome_positions_dict(fileName):
 """ get cmdline input """
 @click.command()
 @click.option('--gene', default = 'EGFR', prompt='gene_id (all caps)', required=True, type=str)
-@click.option('--nthread', default = 64, prompt='number of threads', required=True, type=int)
+@click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
