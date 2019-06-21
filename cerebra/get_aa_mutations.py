@@ -2,7 +2,6 @@
 	On a per-cell basis. """
 
 import numpy as np
-import VCF # comes from Kamil Slowikowski
 import os
 import utils
 import csv
@@ -13,8 +12,37 @@ import warnings
 import click 
 from tqdm import tqdm
 import multiprocessing as mp
-import cProfile
 warnings.simplefilter(action='ignore', category=FutureWarning)
+
+
+def count_comments(filename):
+	""" Count comment lines (those that start with "#") 
+		cribbed from slowko """
+	comments = 0
+	fn_open = gzip.open if filename.endswith('.gz') else open
+	with fn_open(filename) as fh:
+		for line in fh:
+			if line.startswith('#'):
+				comments += 1
+			else:
+				break
+	return comments
+
+
+
+def vcf_to_dataframe(filename):
+	""" Open a VCF file and return a pandas.DataFrame with
+		each INFO field included as a column in the dataframe 
+		cribbed from slowko """
+	VCF_HEADER = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT', '20']
+
+	# Count how many comment lines should be skipped.
+	comments = count_comments(filename)
+	tbl = pd.read_table(filename, compression=None, skiprows=comments,
+							names=VCF_HEADER, usecols=range(10))
+	
+	return(tbl)
+
 
 
 def get_filenames():
@@ -200,7 +228,7 @@ def build_genome_positions_dict(fileName):
 	cell = fileName.replace(cwd + "scVCF_filtered_all/", "")
 	cell = cell.replace(".vcf", "")	
 
-	df = VCF.dataframe(fileName)
+	df = vcf_to_dataframe(fileName)
 	genomePos_query = df.apply(generate_genome_pos_str, axis=1)
 	genomePos_query_breakdown = breakdown_by_mutation_type(genomePos_query)
 	
