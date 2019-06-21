@@ -188,7 +188,10 @@ def get_corresponding_aa_subs(d):
 						AA_sub = AA_sub.replace("p.", "")
 						newValues.append(AA_sub)
 
-		newDict.update({cell : newValues})
+		if len(newValues) != 0:
+			newDict.update({cell : set(newValues)})
+		else:
+			newDict.update({cell: ''})
 
 	return newDict
 
@@ -253,9 +256,9 @@ def build_genome_positions_dict(fileName):
 """ get cmdline input """
 @click.command()
 @click.option('--gene', default = 'EGFR', prompt='gene_id (all caps)', required=True, type=str)
-@click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
+@click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
