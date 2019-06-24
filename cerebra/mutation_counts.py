@@ -43,7 +43,7 @@ class MutationCounter():
         return filtered_db
 
     def _make_mutation_counts_df(self, cell_genemuts_pairs):
-        """Transforms a list of tuples in the form
+        """Transform a list of tuples in the form
         (cell_name, {gene_name: mutation_count}) into a `DataFrame`."""
 
         cell_names, cell_gene_muts = list(zip(*cell_genemuts_pairs))
