@@ -104,7 +104,7 @@ class GenomeDataframeTree():
 		if not tree:
 			return False
 		
-		return tree.has_overlap(genome_pos.start, genome_pos.end + 1)
+		return tree.has_overlap(genome_pos.start, genome_pos.end)
 	
 	def get_first_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
@@ -133,7 +133,7 @@ class GenomeDataframeTree():
 		ends = np.array([genome_pos.end], dtype=np.long)
 		ids = np.array([0], dtype=np.long)
 		
-		_, row_ids = tree.all_overlaps_both(starts, ends, ids) # TODO: test padding more!!
+		_, row_ids = tree.all_overlaps_both(starts, ends, ids)
 
 		if len(row_ids) < 1:
 			return None
