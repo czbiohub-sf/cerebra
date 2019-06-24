@@ -25,10 +25,10 @@ class MutationCounter():
         return self._hg38_genome_tree.get_best_overlap(genome_pos)
     
     gene_name_pattern = re.compile(r"gene_name \"(.+?)\"")
-    def _parse_gene_name(self, record):
-        """Parse out a gene name from a GTF record."""
+    def _parse_gene_name(self, metadata):
+        """Parse out a gene name from a GTF metadata string."""
         
-        gene_name_match = self.gene_name_pattern.search(record[8])
+        gene_name_match = self.gene_name_pattern.search(metadata)
 
         if not gene_name_match:
             return None
@@ -88,7 +88,7 @@ class MutationCounter():
             if gene_row is None:
                 continue
 
-            gene_name = self._parse_gene_name(gene_row)
+            gene_name = self._parse_gene_name(gene_row[8])
 
             gene_mutation_counts[gene_name] = gene_mutation_counts.get(gene_name, 0) + 1
 
