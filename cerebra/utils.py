@@ -33,6 +33,9 @@ class GenomePosition():
 	def from_gtf_record(cls, record):
 		return cls(record[0].replace("chr", ""), int(record[3]) - 1, int(record[4]))
 	
+	def contains(self, other):
+		return other.chrom == self.chrom and other.start >= self.start and other.end <= self.end
+	
 	def __eq__(self, other):
 		return self.chrom == other.chrom and self.start == other.start and self.end == other.end
 
@@ -54,12 +57,12 @@ class GenomeDataframeTree():
 		working_tree_map = {}
 
 		# Iterating DataFrame rows :'(
-		for idx, row in df.iterrows():
+		for idx, (_, row) in enumerate(df.iterrows()):
 			genome_pos = predicate(row)
 
 			if genome_pos is None:
 				continue
-
+			
 			chrom = genome_pos.chrom
 
 			if not chrom in working_tree_map:
@@ -73,8 +76,7 @@ class GenomeDataframeTree():
 
 		tree_map = {}
 
-		for chrom, params in working_tree_map.items():
-			starts, ends, ids = params
+		for chrom, (starts, ends, ids) in working_tree_map.items():
 			tree_map[chrom] = NCLS(
 				np.array(starts, dtype=np.long),
 				np.array(ends, dtype=np.long),
@@ -105,9 +107,7 @@ class GenomeDataframeTree():
 		if not tree:
 			return False
 		
-		# The overlap algorithm used by NCLS isn't inclusive of edges, so we pad
-		# the edges of our query by 1.
-		return tree.has_overlap(genome_pos.start - 1, genome_pos.end + 1)
+		return tree.has_overlap(genome_pos.start, genome_pos.end)
 	
 
 	def get_first_overlap(self, genome_pos):
@@ -119,10 +119,8 @@ class GenomeDataframeTree():
 		starts = np.array([genome_pos.start], dtype=np.long)
 		ends = np.array([genome_pos.end], dtype=np.long)
 		ids = np.array([0], dtype=np.long)
-		
-		# The overlap algorithm used by NCLS isn't inclusive of edges, so we pad
-		# the edges of our query by 1.
-		_, row_ids = tree.first_overlap_both(starts - 1, ends + 1, ids)
+
+		_, row_ids = tree.first_overlap_both(starts, ends, ids)
 
 		if len(row_ids) < 1:
 			return None
@@ -140,9 +138,7 @@ class GenomeDataframeTree():
 		ends = np.array([genome_pos.end], dtype=np.long)
 		ids = np.array([0], dtype=np.long)
 		
-		# The overlap algorithm used by NCLS isn't inclusive of edges, so we pad
-		# the edges of our query by 1.
-		_, row_ids = tree.all_overlaps_both(starts - 1, ends + 1, ids)
+		_, row_ids = tree.all_overlaps_both(starts, ends, ids)
 
 		if len(row_ids) < 1:
 			return None
@@ -184,9 +180,7 @@ class GenomeDataframeTree():
 		starts = np.array([genome_pos.start], dtype=np.long)
 		ends = np.array([genome_pos.end], dtype=np.long)
 		ids = np.array([0], dtype=np.long)
-		
-		# The overlap algorithm used by NCLS isn't inclusive of edges, so we pad
-		# the edges of our query by 1.
-		_, row_ids = tree.all_overlaps_both(starts - 1, ends + 1, ids)
+
+		_, row_ids = tree.all_overlaps_both(starts, ends, ids)
 
 		return [self.df.iloc[row_id] for row_id in row_ids]
