@@ -4,7 +4,7 @@ import numpy as np
 from ncls import NCLS
 
 class GenomePosition():
-	genome_pos_pattern = re.compile(r"(\d+):(\d+)-(\d+)")
+	genome_pos_pattern = re.compile(r"(.+):(\d+)-(\d+)")
 
 	def __init__(self, chrom, start, end):
 		self.chrom = chrom
@@ -48,16 +48,15 @@ class GenomePosition():
 		return self.end - self.start
 
 
-class GenomeDataframeTree():
-	def __init__(self, predicate, df):
+class GenomeIntervalTree():
+	def __init__(self, predicate, records):
 		self.predicate = predicate
-		self.df = df
+		self.records = []
 
 		working_tree_map = {}
 
-		# Iterating DataFrame rows :'(
-		for idx, (_, row) in enumerate(df.iterrows()):
-			genome_pos = predicate(row)
+		for idx, record in enumerate(records):
+			genome_pos = predicate(record)
 
 			if genome_pos is None:
 				continue
@@ -73,6 +72,8 @@ class GenomeDataframeTree():
 			ends.append(genome_pos.end)
 			ids.append(idx)
 
+			self.records.append(record)
+
 		tree_map = {}
 
 		for chrom, (starts, ends, ids) in working_tree_map.items():
@@ -84,9 +85,15 @@ class GenomeDataframeTree():
 		
 		self.tree_map = tree_map
 	
+	def __reduce__(self):
+		return (self.__class__, (self.predicate, self.records))
+	
 	def _compute_jaccard_index(self, pos_a, pos_b):
-		range_a = range(pos_a.start - 1, pos_a.end)
-		range_b = range(pos_b.start - 1, pos_b.end)
+		if pos_a.chrom != pos_b.chrom:
+			return 0
+
+		range_a = range(pos_a.start, pos_a.end)
+		range_b = range(pos_b.start, pos_b.end)
 
 		if range_b.start > range_a.stop or range_a.start > range_b.stop:
 			return 0
@@ -116,12 +123,12 @@ class GenomeDataframeTree():
 		ends = np.array([genome_pos.end], dtype=np.long)
 		ids = np.array([0], dtype=np.long)
 
-		_, row_ids = tree.first_overlap_both(starts, ends, ids)
+		_, record_ids = tree.first_overlap_both(starts, ends, ids)
 
-		if len(row_ids) < 1:
+		if len(record_ids) < 1:
 			return None
 
-		return self.df.iloc[row_ids[0]]
+		return self.records[record_ids[0]]
 
 	def get_best_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
@@ -133,20 +140,20 @@ class GenomeDataframeTree():
 		ends = np.array([genome_pos.end], dtype=np.long)
 		ids = np.array([0], dtype=np.long)
 		
-		_, row_ids = tree.all_overlaps_both(starts, ends, ids)
+		_, record_ids = tree.all_overlaps_both(starts, ends, ids)
 
-		if len(row_ids) < 1:
+		if len(record_ids) < 1:
 			return None
 		
-		if len(row_ids) == 1:
-			return self.df.iloc[row_ids[0]]
+		if len(record_ids) == 1:
+			return self.records[record_ids[0]]
 		
-		rows = [self.df.iloc[row_id] for row_id in row_ids]
-		scored_rows = [(row, self._compute_jaccard_index(genome_pos, self.predicate(row))) for row in rows]
+		records = [self.records[record_id] for record_id in record_ids]
+		scored_records = [(record, self._compute_jaccard_index(genome_pos, self.predicate(record))) for record in records]
 
-		sorted_rows = sorted(scored_rows, key=lambda tup: tup[1], reverse=True)
+		sorted_records = sorted(scored_records, key=lambda tup: tup[1], reverse=True)
 
-		return sorted_rows[0][0]
+		return sorted_records[0][0]
 	
 	def get_first_containment(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
@@ -158,23 +165,37 @@ class GenomeDataframeTree():
 		ends = np.array([genome_pos.end], dtype=np.long)
 		ids = np.array([0], dtype=np.long)
 		
-		_, row_ids = tree.all_containments_both(starts, ends, ids)
+		_, record_ids = tree.all_containments_both(starts, ends, ids)
 
-		if len(row_ids) < 1:
+		if len(record_ids) < 1:
 			return None
 
-		return self.df.iloc[row_ids[0]]
+		return self.records[record_ids[0]]
 	
 	def get_all_overlaps(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
 
 		if not tree:
-			return None
+			return []
 		
 		starts = np.array([genome_pos.start], dtype=np.long)
 		ends = np.array([genome_pos.end], dtype=np.long)
 		ids = np.array([0], dtype=np.long)
 
-		_, row_ids = tree.all_overlaps_both(starts, ends, ids)
+		_, record_ids = tree.all_overlaps_both(starts, ends, ids)
 
-		return [self.df.iloc[row_id] for row_id in row_ids]
+		return [self.records[record_id] for record_id in record_ids]
+	
+	def get_all_containments(self, genome_pos):
+		tree = self.tree_map.get(genome_pos.chrom)
+
+		if not tree:
+			return []
+		
+		starts = np.array([genome_pos.start], dtype=np.long)
+		ends = np.array([genome_pos.end], dtype=np.long)
+		ids = np.array([0], dtype=np.long)
+		
+		_, record_ids = tree.all_containments_both(starts, ends, ids)
+
+		return [self.records[record_id] for record_id in record_ids]
