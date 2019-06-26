@@ -45,5 +45,7 @@ cli.add_command(fusions_x_cell, name='fusions_x_cell')
 cli.add_command(check_coverage_loci, name='check_coverage_loci')
 cli.add_command(check_coverage_whole_gene, name='check_coverage_whole_gene')
 
+cli.add_command(count_mutations, name="count-mutations")
+
 if __name__ == "__main__":
     cli()
