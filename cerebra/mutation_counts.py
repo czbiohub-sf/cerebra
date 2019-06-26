@@ -9,14 +9,18 @@ from pathlib import Path
 from pathos.pools import ProcessPool
 from multiprocessing import Pool
 
-from .utils import GenomePosition, GenomeDataframeTree
+from .utils import GenomePosition, GenomeIntervalTree
 
 class MutationCounter():
     def __init__(self, cosmic_df, hg38_df):
         filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
         
-        self._cosmic_genome_tree = GenomeDataframeTree(lambda row: GenomePosition.from_str(str(row["Mutation genome position"])), filtered_cosmic_df)
-        self._hg38_genome_tree = GenomeDataframeTree(GenomePosition.from_gtf_record, hg38_df)
+        self._cosmic_genome_tree = GenomeIntervalTree(
+            lambda row: GenomePosition.from_str(str(row["Mutation genome position"])),
+            (record for idx, record in filtered_cosmic_df.iterrows()))
+        self._hg38_genome_tree = GenomeIntervalTree(
+            GenomePosition.from_gtf_record,
+            (record for idx, record in hg38_df.iterrows()))
     
     def _cosmic_subset_contains_genome_pos(self, genome_pos):
         return self._cosmic_genome_tree.has_overlap(genome_pos)
@@ -56,7 +60,7 @@ class MutationCounter():
         
         mutation_data = {}
         for gene_name in all_gene_names:
-            mutation_counts = np.zeros(len(cell_genemuts_pairs), dtype=np.int32)
+            mutation_counts = np.zeros(len(cell_genemuts_pairs), dtype=int)
 
             for idx, gene_muts in enumerate(cell_gene_muts):
                 mutation_counts[idx] = gene_muts.get(gene_name, 0)
@@ -114,7 +118,7 @@ class MutationCounter():
         return self._make_mutation_counts_df(cell_genemuts_pairs)
 
 @click.command()
-@click.option("--processes", default=4, prompt="number of processes to use for computation", required=True, type=int)
+@click.option("--processes", default=1, prompt="number of processes to use for computation", required=True, type=int)
 @click.option("--cosmicdb", prompt="path to cosmic db file (.tsv)", required=True)
 @click.option("--refgenome", prompt="path to reference genome (.gtf)", required=True)
 @click.option("--outfile", prompt="path to output file (.csv)", required=True)
