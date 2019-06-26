@@ -4,201 +4,91 @@ blood, ie. germline) and filters out the common variants found in both sc
 and bulk. Creates a new directory, filteredOut, that contans the filtered vcfs. 
 """
 
-import os
-import sys
-import shutil
-import warnings
 import pandas as pd
 import click
-from . import VCF
-warnings.simplefilter(action='ignore', category=FutureWarning)
+import vcfpy
+from pathlib import Path
+from tqdm import tqdm
+from pathos.multiprocessing import ProcessPool
+from multiprocessing import current_process, Process
 
+from .utils import GenomePosition, GenomeIntervalTree
 
-def create_final_outdir():
-	""" creates a finalized out dir that has all of the filtered vcfs as
-		well as the ones we didnt have germline for """
+def create_germline_genome_tree(germline_vcf_paths):
+	germline_vcf_records = [list(vcfpy.Reader.from_path(path)) for path in germline_vcf_paths]
 
-	filterDir = cwd + 'filteredOut/'
-	filterDir_list = os.listdir(filterDir)
+	# Flatten records
+	germline_vcf_records = sum(germline_vcf_records, [])
 
-	filteredCells = []
-	for f in filterDir_list:
-		cell = f.strip('_unique.vcf')
-		filteredCells.append(cell)
+	return GenomeIntervalTree(GenomePosition.from_vcf_record, germline_vcf_records)
 
-	epiDir = cwd + 'scVCF/'
-	epiDir_list = os.listdir(epiDir)
-
-	epiCells = []
-	for f in epiDir_list:
-		cell = f.strip('.vcf')
-		epiCells.append(cell)
-
-	# get cells in epiCells but NOT filteredCells
-	nonFilteredCells = set(epiCells) - set(filteredCells)
-
-	nonFilteredCells_list = []
-	for cell in nonFilteredCells:
-		f = cell + '.vcf' 
-		nonFilteredCells_list.append(f)
-
-	cmd1 = 'sudo mkdir -p ' + cwd + 'scVCF_filtered_all/'
-	cmd2 = 'sudo chmod -R 777 ' + cwd + 'scVCF_filtered_all/'
-	os.system(cmd1)
-	os.system(cmd2)
-
-	# copy over the non-filtered cells
-	outPATH = cwd + 'scVCF_filtered_all/'
-	for file in nonFilteredCells_list:
-		src = epiDir + file
-		dst = outPATH + file
-		shutil.copyfile(src, dst)
-
-	# copy over all the filtered cells
-	for file in filterDir_list:
-		f = file.strip('_unique.vcf')
-		f = f + '.vcf'
-		src = filterDir + file
-		dst = outPATH + f
-		shutil.copyfile(src, dst)
-
-
-
-def write_vcf(df, outStr_):
-	""" routine for writing VCF files, from an existing dataframe. 
-		essentially just adding in this horrible vcf header. """
-	with open(cwd + 'vcfheader.txt', 'r') as f:
-		header = f.read()
-	
-		df['QUAL'] = 60.28
-		df['FILTER'] = '.'
-		df['INFO'] = 'AC=2;AF=1.00;AN=2;DP=7;ExcessHet=3.0103;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=3.00;QD=30.14;SOR=2.303'
-
-		output_VCF = outStr_
-		with open(output_VCF, 'w') as vcf:
-			vcf.write(header)
-
-		df.to_csv(output_VCF, sep="\t", mode='a', index=False)
-
-	# replace this damn CHROM field
-	with open(output_VCF) as f:
-		newText = f.read().replace('CHROM', '#CHROM')
-
-	with open(output_VCF, "w") as f:
-		f.write(newText)
-
-
-
-def get_patient_cells_list(scVCF_list_, patientID):
-	""" get the list of cell names from a given patient """
-	currPatient_cells_ = []
-
-	for item in scVCF_list_:
-		currCell = item.strip('.vcf')
-		currPlate = currCell.split('_')[1]
-		rowToKeep = patientMetadata['plate'] == currPlate
-    
-		try:
-			currPatient = patientMetadata['patient_id'][rowToKeep]
-			index = currPatient.index[0]
-			currPatientVal = currPatient[index]
-			if currPatientVal == patientID:
-				currPatient_cells_.append(currCell)
-		except:
-			continue
-	print('numCells: %d' % len(currPatient_cells_))
-	return currPatient_cells_
-
-
-
-def get_unique_vcf_entries(patient, cell):
+def write_filtered_vcf(cell_vcf_path, germline_tree, out_stream):
 	""" do the germline filter, and return a dataframe with only the 
 		UNIQUE entries for a given cell """
-	patientPATH = cwd + 'bulkVCF/' + patient
-	cellPATH = cwd + 'scVCF/' + cell + '.vcf'
 	
-	try:
-		patient_df = VCF.dataframe(patientPATH)
-		cell_df = VCF.dataframe(cellPATH)
-	except FileNotFoundError:
-		print('FILE NOT FOUND: %s' % cellPATH)
-		return
-    
-	patient_df_trimmed = patient_df[['CHROM', 'POS', 'ID', 'REF', 'ALT']]
-	cell_df_trimmed = cell_df[['CHROM', 'POS', 'ID', 'REF', 'ALT']]
-    
-	# get whats SHARED between patient and cell 
-	patient_cell_concat = pd.concat([patient_df_trimmed, cell_df_trimmed])
-	rowsToKeep = patient_cell_concat.duplicated()
-	patient_cell_shared = patient_cell_concat[rowsToKeep]
-	patient_cell_shared = patient_cell_shared.reset_index(drop=True)
+	cell_vcf = vcfpy.Reader.from_path(cell_vcf_path)
+	out_vcf = vcfpy.Writer.from_stream(out_stream, header=cell_vcf.header)
 
-	# now go back to the original cell df, pull out whats UNIQUE 
-	cell_cell_concat = pd.concat([cell_df_trimmed, patient_cell_shared])
-	cell_cell_concat_noDups = cell_cell_concat.drop_duplicates(keep=False)
-	cell_cell_concat_noDups = cell_cell_concat_noDups.reset_index(drop=True)
-    
-	return(cell_cell_concat_noDups)
+	for record in cell_vcf:
+		genome_pos = GenomePosition.from_vcf_record(record)
+		germline_records = germline_tree.get_all_containments(genome_pos)
 
-
+		for germline_record in germline_records:
+			if (
+				germline_record.POS == record.POS and
+				germline_record.REF == record.REF and
+				germline_record.ALT == record.ALT):
+				break
+		else:
+			out_vcf.write_record(record)
 
 """ launch """
 @click.command()
-@click.option('--test', default = False)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
-
-
-
-def germline_filter(test, wrkdir):
+@click.option("--processes", default=1, prompt="number of processes to use for computation", required=True, type=int)
+@click.option("--germline", "germline_path", prompt="path to germline vcf files directory", required=True)
+@click.option("--cells", "cells_path", prompt="path to cell vcf files directory", required=True)
+@click.option("--metadata", "metadata_path", prompt="path to metadata csv file", required=True)
+@click.option("--outdir", "out_path", prompt="path to output vcf files directory", required=True)
+def germline_filter(processes, germline_path, cells_path, metadata_path, out_path):
 	""" given a set of single-cell vcfs and bulk-seq vcfs (peripheral blood), this
 		program subtracts out the mutations common to sc- and bulkVCF. """
-	global patientMetadata
-	global cwd
-
-	cwd = wrkdir
-
-	# read in patient metadata
-	patientMetadata = pd.read_csv(cwd + 'metadata_all_cells_4.10.19.csv')
-
-	# get a list of all the single-cell VCF files
-	vcfDir = cwd + 'scVCF/'
-	scVCF_list = os.listdir(vcfDir)
-
-	# get list of bulk VCF files
-	bulkVCF_dir = cwd + 'bulkVCF/'
-	bulkVCF_list = os.listdir(bulkVCF_dir)
-
-	patientsRun = []
-
-	cmd1 = 'sudo mkdir -p ' + cwd + 'filteredOut'
-	cmd2 = 'sudo chmod -R 777 ' + cwd + 'filteredOut/' 
-	os.system(cmd1)
-	os.system(cmd2)
-
-	# outer loop -- by PATIENT
-	for item in bulkVCF_list:
-		currSample = item.strip('.vcf')
-		currPatient = currSample.split('_')[0]
-		suffix1 = currSample.split('_')[1]
-		try:
-			suffix2 = currSample.split('_')[2]
-		except IndexError:
-			suffix2 = ''
 	
-		if suffix2 != '' and currPatient not in patientsRun:
-			print('WHOLE BLOOD FOUND, for %s' % currPatient)
-			currPatient_cells = get_patient_cells_list(scVCF_list, currPatient)
+	germline_path = Path(germline_path)
+	cells_path = Path(cells_path)
+	metadata_path = Path(metadata_path)
+	out_path = Path(out_path)
+	
+	# read in patient metadata
+	metadata_df = pd.read_csv(metadata_path)
 
-			# inner loop -- by CELL 
-			for currCell in currPatient_cells:
-				currCell_unique = get_unique_vcf_entries(item, currCell)
-				outStr = cwd + 'filteredOut/' + currCell + '_unique.vcf'
-				write_vcf(currCell_unique, outStr)
-			
-			patientsRun.append(currPatient)
+	germline_vcf_paths = germline_path.glob("*.vcf")
+	all_patient_ids = set((path.stem.split('_')[0] for path in germline_vcf_paths))
 
-	if test:
-		cmd = 'cp -r ' + cwd + 'filteredOut/ ' + cwd + 'test/germline_filter/' 
-		os.system(cmd)
+	def process_patient(patient_id):
+		germline_wb_vcf_paths = list(germline_path.glob(patient_id + "_*_WB*.vcf"))
+
+		cell_ids = metadata_df.loc[metadata_df["patient_id"] == patient_id]["cell_id"]
+		cell_vcf_paths = [(cells_path / cell_id).with_suffix(".vcf") for cell_id in cell_ids]
+
+		germline_tree = create_germline_genome_tree(germline_wb_vcf_paths)
+		
+		for cell_vcf_path in cell_vcf_paths:
+			if not cell_vcf_path.exists():
+				continue
+
+			# If there were any whole blood VCFs for this patient, append
+			# `filtered_` to the file name to indicate that the output VCF was
+			# actually filtered.
+			out_name_prefix = "" if len(germline_wb_vcf_paths) < 1 else "filtered_"
+			out_vcf_path = out_path / (out_name_prefix + cell_vcf_path.name)
+
+			with open(out_vcf_path, mode='w') as out_file:
+				write_filtered_vcf(cell_vcf_path, germline_tree, out_file)
+
+	print("Running germline filter...")
+	if processes > 1:
+            with ProcessPool(processes) as pool:
+                list(tqdm(pool.imap(process_patient, all_patient_ids), total=len(all_patient_ids), smoothing=0.1))
 	else:
-		create_final_outdir()
+		map(process_patient, tqdm(all_patient_ids, smoothing=0.1))
+	
