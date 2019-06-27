@@ -4,7 +4,6 @@
 import numpy as np
 import os
 from . import utils
-#import .utils
 import csv
 import pandas as pd
 import sys
@@ -71,7 +70,7 @@ def get_laud_db(gene_):
 
     if len(db_gene.index) == 0:
     	print('   this gene is not in the cosmic database')
-    	print('   maybe it has a different name? ')
+    	print('   	are you using the official HGNC gene name? ')
     	print('')
     	sys.exit()
 
@@ -91,7 +90,6 @@ def write_csv(dictObj, outFile):
 
 def generate_genome_pos_str(sample):
 	""" given vcf record, returns a genome position string"""
-
 	chr = sample[0]
 	chr = chr.replace("chr", "")
 	pos = int(sample[1])
@@ -152,6 +150,19 @@ def get_overlap(a, b):
 
 
 
+def get_rev_comp(b):
+	""" return the reverse complement of a given base """
+	if b == 'A':
+		return('T')
+	if b == 'T':
+		return('A')
+	if b == 'C':
+		return('G')
+	if b == 'G':
+		return('C')
+
+
+
 def get_corresponding_aa_subs(d):
 	""" given a dict of {cell, list(genomePos)}, returns a dict of 
 		{cell, list(mutation.AA)} """
@@ -168,7 +179,6 @@ def get_corresponding_aa_subs(d):
 			posStr = entry[0]
 			ref = entry[1]
 			alt = entry[2]
-			nucSub = ref + '>' + alt
 
 			curr_obj = utils.GenomePosition.from_str(posStr)
 
@@ -180,10 +190,12 @@ def get_corresponding_aa_subs(d):
 					newValues.append(AA_sub)
 			else: # SNP case -- specific CDS validation
 				overlaps = cosmic_genome_tree.get_all_overlaps(curr_obj)
+				nucSub = ref + '>' + alt
+				revComp = get_rev_comp(ref) + '>' + get_rev_comp(alt)
 
 				for o_df in overlaps:
 					cds = o_df['Mutation CDS']
-					if nucSub in cds:
+					if nucSub in cds or revComp in cds:
 						AA_sub = o_df["Mutation AA"]
 						AA_sub = AA_sub.replace("p.", "")
 						newValues.append(AA_sub)
