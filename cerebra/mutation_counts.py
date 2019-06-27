@@ -6,8 +6,7 @@ import re
 from tqdm import tqdm
 from pathlib import Path
 
-from pathos.pools import ProcessPool
-from multiprocessing import Pool
+from pathos.pools import _ProcessPool as Pool
 
 from .utils import GenomePosition, GenomeIntervalTree
 
@@ -91,6 +90,9 @@ class MutationCounter():
 
             gene_name = self._parse_gene_name(gene_row[8])
 
+            if gene_name is None:
+                continue
+
             gene_mutation_counts[gene_name] = gene_mutation_counts.get(gene_name, 0) + 1
 
             if not self._cosmic_subset_contains_genome_pos(genome_pos):
@@ -104,15 +106,19 @@ class MutationCounter():
         """Create a `DataFrame` of mutation counts, where the row indices are
         cell names and the column indices are gene names."""
 
+        def init_process(mutation_counter):
+            global current_process_mutation_counter
+            current_process_mutation_counter = mutation_counter
+
         def process_cell(path):
             cell_name = Path(path).stem
-            return (cell_name, self.find_cell_gene_mut_counts(path=path))
+            return (cell_name, current_process_mutation_counter.find_cell_gene_mut_counts(path=path))
 
         if processes > 1:
-            with ProcessPool(processes) as pool:
-                results = tqdm(pool.imap(process_cell, paths), total=len(paths), smoothing=0.1)
+            with Pool(processes, initializer=init_process, initargs=(self,)) as pool:
+                results = list(tqdm(pool.imap(process_cell, paths), total=len(paths), smoothing=0.1))
         else:
-            results = map(process_cell, tqdm(paths))
+            results = list(map(process_cell, tqdm(paths)))
 
         cell_genemuts_pairs, filtered_cell_genmuts_pairs = [], []
 
