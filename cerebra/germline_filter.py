@@ -76,12 +76,8 @@ def germline_filter(processes, germline_path, cells_path, metadata_path, out_pat
 
 	metadata_df = pd.read_csv(metadata_path)
 
-	# Find all germline bulk VCF files.
-	germline_vcf_paths = germline_path.glob("*.vcf")
-
-	# Create a set of all patient IDs by extracting `patient_id`_*.vcf from the
-	# file names.
-	all_patient_ids = set((path.stem.split('_')[0] for path in germline_vcf_paths))
+	# Create a set of all patient IDs from the metadata file.
+	all_patient_ids = set(metadata_df["patient_id"])
 
 	def process_patient(patient_id):
 		# Find all non-tumor bulk VCF files for the patient ID.
