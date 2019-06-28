@@ -10,3 +10,5 @@ pandas
 vcfpy
 pathos
 git+git://github.com/chaimleib/intervaltree#egg=intervaltree
+ncls
+hgvs
