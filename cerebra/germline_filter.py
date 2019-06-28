@@ -4,12 +4,13 @@ blood, ie. germline) and filters out the common variants found in both sc
 and bulk. Creates a new directory, filteredOut, that contans the filtered vcfs.
 """
 
+import os
 import pandas as pd
 import click
 import vcfpy
 from pathlib import Path
 from tqdm import tqdm
-from pathos.multiprocessing import _ProcessPool as Pool
+from pathos.multiprocessing import _ProcessPool as Pool, ThreadPool
 from multiprocessing import current_process, Process
 
 from .utils import GenomePosition, GenomeIntervalTree
@@ -94,9 +95,9 @@ def germline_filter(processes, germline_path, cells_path, metadata_path, out_pat
 		# patients with multiple germline VCFs.
 		germline_tree = create_germline_genome_tree(germline_wb_vcf_paths[0:1])
 
-		for cell_vcf_path in cell_vcf_paths:
+		def process_cell(cell_vcf_path):
 			if not cell_vcf_path.exists():
-				continue
+				return
 
 			# If there were any germline VCFs for this patient, append `GF_` to
 			# the file name to indicate that the output VCF was
@@ -108,10 +109,18 @@ def germline_filter(processes, germline_path, cells_path, metadata_path, out_pat
 				with open(out_vcf_path, mode='w') as out_file:
 					write_filtered_vcf(in_file, germline_tree, out_file)
 
+		# TODO: Remove this in Python 3.8.
+		# This thread pool max-worker count is from the implementation in
+		# Python 3.8. This can be removed once 3.8 is released.
+		with ThreadPool(min(32, os.cpu_count() + 4)) as pool:
+			pool.map(process_cell, cell_vcf_paths)
+
 	print("Running germline filter...")
 	if processes > 1:
             with Pool(processes) as pool:
                 list(tqdm(pool.imap(process_patient, all_patient_ids), total=len(all_patient_ids), smoothing=0.1))
 	else:
 		list(map(process_patient, tqdm(all_patient_ids, smoothing=0.1)))
+
+	print("Done!")
 
