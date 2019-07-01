@@ -116,7 +116,7 @@ class MutationCounter():
 
         if processes > 1:
             with Pool(processes, initializer=init_process, initargs=(self,)) as pool:
-                results = list(tqdm(pool.imap(process_cell, paths), total=len(paths), smoothing=0.1))
+                results = list(tqdm(pool.imap(process_cell, paths), total=len(paths), smoothing=0.01))
         else:
             results = list(map(process_cell, tqdm(paths)))
 
