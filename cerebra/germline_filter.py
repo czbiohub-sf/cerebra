@@ -118,7 +118,7 @@ def germline_filter(processes, germline_path, cells_path, metadata_path, out_pat
 	print("Running germline filter...")
 	if processes > 1:
             with Pool(processes) as pool:
-                list(tqdm(pool.imap(process_patient, all_patient_ids), total=len(all_patient_ids), smoothing=0.1))
+                list(tqdm(pool.imap(process_patient, all_patient_ids), total=len(all_patient_ids), smoothing=0.01))
 	else:
 		list(map(process_patient, tqdm(all_patient_ids, smoothing=0.1)))
 
