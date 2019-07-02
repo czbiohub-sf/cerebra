@@ -87,6 +87,27 @@ class GenomeIntervalTree():
 		self.tree_map = tree_map
 	
 
+	def _make_query_params(self, genome_pos_list):
+		starts = np.array([genome_pos.start for genome_pos in genome_pos_list])
+		ends = np.array([genome_pos.end for genome_pos in genome_pos_list])
+		ids = np.array(list(range(len(genome_pos_list))))
+
+		return (starts, ends, ids)
+
+	def _pick_best_record(self, from_ids=None, for_pos=None):
+		if len(from_ids) < 1:
+			return None
+
+		if len(from_ids) == 1:
+			return self.records[from_ids[0]]
+
+		records = [self.records[record_id] for record_id in from_ids]
+
+		scored_records = [(record, self._compute_jaccard_index(for_pos, self.predicate(record))) for record in records]
+		sorted_records = sorted(scored_records, key=lambda tup: tup[1], reverse=True)
+
+		return sorted_records[0][0]
+
 	def _compute_jaccard_index(self, pos_a, pos_b):
 		if pos_a.chrom != pos_b.chrom:
 			return 0
@@ -120,11 +141,8 @@ class GenomeIntervalTree():
 		if not tree:
 			return None
 
-		starts = np.array([genome_pos.start], dtype=np.long)
-		ends = np.array([genome_pos.end], dtype=np.long)
-		ids = np.array([0], dtype=np.long)
-
-		_, record_ids = tree.first_overlap_both(starts, ends, ids)
+		qparams = self._make_query_params([genome_pos])
+		_, record_ids = tree.first_overlap_both(*qparams)
 
 		if len(record_ids) < 1:
 			return None
@@ -138,22 +156,8 @@ class GenomeIntervalTree():
 		if not tree:
 			return None
 
-		starts = np.array([genome_pos.start], dtype=np.long)
-		ends = np.array([genome_pos.end], dtype=np.long)
-		ids = np.array([0], dtype=np.long)
-
-		_, record_ids = tree.all_overlaps_both(starts, ends, ids)
-
-		if len(record_ids) < 1:
-			return None
-
-		if len(record_ids) == 1:
-			return self.records[record_ids[0]]
-
-		records = [self.records[record_id] for record_id in record_ids]
-		scored_records = [(record, self._compute_jaccard_index(genome_pos, self.predicate(record))) for record in records]
-
-		sorted_records = sorted(scored_records, key=lambda tup: tup[1], reverse=True)
+		qparams = self._make_query_params([genome_pos])
+		_, record_ids = tree.all_overlaps_both(*qparams)
 
 		return sorted_records[0][0]
 	
@@ -164,11 +168,8 @@ class GenomeIntervalTree():
 		if not tree:
 			return []
 
-		starts = np.array([genome_pos.start], dtype=np.long)
-		ends = np.array([genome_pos.end], dtype=np.long)
-		ids = np.array([0], dtype=np.long)
-
-		_, record_ids = tree.all_overlaps_both(starts, ends, ids)
+		qparams = self._make_query_params([genome_pos])
+		_, record_ids = tree.all_overlaps_both(*qparams)
 
 		return [self.records[record_id] for record_id in record_ids]
 
@@ -178,16 +179,24 @@ class GenomeIntervalTree():
 		if not tree:
 			return None
 
-		starts = np.array([genome_pos.start], dtype=np.long)
-		ends = np.array([genome_pos.end], dtype=np.long)
-		ids = np.array([0], dtype=np.long)
-
-		_, record_ids = tree.all_containments_both(starts, ends, ids)
+		qparams = self._make_query_params([genome_pos])
+		_, record_ids = tree.all_containments_both(*qparams)
 
 		if len(record_ids) < 1:
 			return None
 
 		return self.records[record_ids[0]]
+
+	def get_best_containment(self, genome_pos):
+		tree = self.tree_map.get(genome_pos.chrom)
+
+		if not tree:
+			return None
+
+		qparams = self._make_query_params([genome_pos])
+		_, record_ids = tree.all_containments_both(*qparams)
+
+		return self._pick_best_record(from_ids=record_ids, for_pos=genome_pos)
 
 	def get_all_containments(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
@@ -195,10 +204,7 @@ class GenomeIntervalTree():
 		if not tree:
 			return []
 
-		starts = np.array([genome_pos.start], dtype=np.long)
-		ends = np.array([genome_pos.end], dtype=np.long)
-		ids = np.array([0], dtype=np.long)
-
-		_, record_ids = tree.all_containments_both(starts, ends, ids)
+		qparams = self._make_query_params([genome_pos])
+		_, record_ids = tree.all_containments_both(*qparams)
 
 		return [self.records[record_id] for record_id in record_ids]
