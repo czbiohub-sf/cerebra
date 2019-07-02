@@ -191,11 +191,15 @@ def get_corresponding_aa_subs(d):
 			else: # SNP case -- specific CDS validation
 				overlaps = cosmic_genome_tree.get_all_overlaps(curr_obj)
 				nucSub = ref + '>' + alt
-				revComp = get_rev_comp(ref) + '>' + get_rev_comp(alt)
 
 				for o_df in overlaps:
 					cds = o_df['Mutation CDS']
-					if nucSub in cds or revComp in cds:
+					strand = o_df['Mutation strand']
+					# taking into account cosmic's wierd strandedness field
+					if strand == '-':
+						nucSub = get_rev_comp(ref) + '>' + get_rev_comp(alt)
+
+					if nucSub in cds:
 						AA_sub = o_df["Mutation AA"]
 						AA_sub = AA_sub.replace("p.", "")
 						newValues.append(AA_sub)
