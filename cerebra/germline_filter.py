@@ -109,9 +109,10 @@ def germline_filter(processes, germline_path, cells_path, metadata_path, out_pat
 				with open(out_vcf_path, mode='w') as out_file:
 					write_filtered_vcf(in_file, germline_tree, out_file)
 
-		# TODO: Remove this in Python 3.8.
+		# TODO: Maybe remove this in Python 3.8.
 		# This thread pool max-worker count is from the implementation in
-		# Python 3.8. This can be removed once 3.8 is released.
+		# Python 3.8. Assuming that Pathos adopts the same semantics,
+		# this can be removed.
 		with ThreadPool(min(32, os.cpu_count() + 4)) as pool:
 			pool.map(process_cell, cell_vcf_paths)
 
@@ -123,4 +124,3 @@ def germline_filter(processes, germline_path, cells_path, metadata_path, out_pat
 		list(map(process_patient, tqdm(all_patient_ids, smoothing=0.1)))
 
 	print("Done!")
-
