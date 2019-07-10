@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import vcfpy
 import hgvs.parser
-from intervaltree import IntervalTree
+from intervaltree import IntervalTree, Interval
 
 from cerebra.mutation_counts import MutationCounter
 from cerebra.utils import GenomePosition
@@ -44,7 +44,7 @@ class MutationCounterTestCase(unittest.TestCase):
                 continue
 
             # Add the genome position to a tree for use in further assertions.
-            lung_mut_interval_tree[genome_pos.start:genome_pos.end] = None
+            lung_mut_interval_tree[genome_pos.start:genome_pos.end] = genome_pos.chrom
 
             self.assertTrue(self.mutation_counter._cosmic_subset_contains_genome_pos(genome_pos))
 
@@ -58,7 +58,9 @@ class MutationCounterTestCase(unittest.TestCase):
 
             # genome_pos overlaps with a positive match, so it cannot be assumed
             # that it shouldn't match.
-            if lung_mut_interval_tree.overlaps(genome_pos.start, genome_pos.end):
+            if any(map(
+                lambda it: it.data == genome_pos.chrom,
+                lung_mut_interval_tree.overlap(genome_pos.start, genome_pos.end))):
                 continue
 
             self.assertFalse(self.mutation_counter._cosmic_subset_contains_genome_pos(genome_pos))
