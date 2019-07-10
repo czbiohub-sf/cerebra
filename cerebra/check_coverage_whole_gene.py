@@ -60,15 +60,20 @@ def coverage_search(df):
 	counts = []
 	for i in range(0, len(df.index)):
 		row = df.iloc[i]
-		extra_col = row['20']
-		AD = extra_col.split(':')[1]
+		extra_col = str(row['20'])
 
-		wt_count = int(AD.split(',')[0])
-		variant_count = int(AD.split(',')[1])
-		total_count = wt_count + variant_count
+		try:
+			AD = extra_col.split(':')[1]
+			wt_count = int(AD.split(',')[0])
+			variant_count = int(AD.split(',')[1])
+			total_count = wt_count + variant_count
 
-		ratio = str(variant_count) + ':' + str(total_count)
-		counts.append(ratio)
+			ratio = str(variant_count) + ':' + str(total_count)
+			counts.append(ratio)
+
+		except: # picking up a wierd edge case
+			print(extra_col)
+			continue
 		
 	return(counts)
 
@@ -141,9 +146,9 @@ def average_by_gene(quad_list_, ratios_df_):
 
 """ get cmdline input """
 @click.command()
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
 @click.option('--genes_list', default = 'genesList.csv', prompt='name of csv file with genes of interest to evaluate coverage for. should be in wrkdir', required=True, type=str)
-@click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
+@click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
 
 
 
@@ -167,9 +172,9 @@ def check_coverage_whole_gene(wrkdir, genes_list, nthread):
 	gene_names = list(GOI_df.gene)
 
 	print(' ')
-
 	hg38 = pd.read_csv(wrkdir_ + 'hg38-plus.gtf', sep='\t', header=None, names=['seqname', 
 			'source', 'feature', 'start', 'end', 'score', 'strand', 'frame', 'attribute'])
+
 	hg38['gene_id'] = 'NA'
 	gene_ids = hg38.attribute.apply(lambda elm: elm.split(';')[0].split('"')[1])
 	hg38.gene_id = gene_ids
