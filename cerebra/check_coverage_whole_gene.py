@@ -1,6 +1,7 @@
-""" add description here """
+""" this module reproduces figure 2E """
 
 import os
+import gzip
 import pandas as pd
 import warnings
 import click 
@@ -71,7 +72,7 @@ def coverage_search(df):
 			ratio = str(variant_count) + ':' + str(total_count)
 			counts.append(ratio)
 
-		except: # picking up a wierd edge case
+		except: # picking up a wierd edge case -- '20' field is malformed
 			print(extra_col)
 			continue
 		
@@ -96,7 +97,7 @@ def driver(cellFile):
 		start = min(list(hg38_GOI_subset.start))
 		end = max(list(hg38_GOI_subset.end))
 		seqname = hg38_GOI_subset.seqname.iloc[0]
-		chrom = seqname.strip('chr') 				# think all this should work 
+		chrom = seqname.strip('chr')
 
 		vcf_sub = GOI_df_subset(vcf, chrom, start, end)
     

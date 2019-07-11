@@ -1,4 +1,4 @@
-""" add description here """
+""" TODO: add description """
 
 import numpy as np
 import os
@@ -14,17 +14,372 @@ import multiprocessing as mp
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
+def count_comments(filename):
+	""" Count comment lines (those that start with "#") 
+		cribbed from slowko """
+	comments = 0
+	fn_open = gzip.open if filename.endswith('.gz') else open
+	with fn_open(filename) as fh:
+		for line in fh:
+			if line.startswith('#'):
+				comments += 1
+			else:
+				break
+	return comments
+
+
+
+def vcf_to_dataframe(filename):
+	""" Open a VCF file and return a pandas.DataFrame with
+		each INFO field included as a column in the dataframe 
+		cribbed from slowko """
+	VCF_HEADER = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT', '20']
+
+	# Count how many comment lines should be skipped.
+	comments = count_comments(filename)
+	tbl = pd.read_table(filename, compression=None, skiprows=comments,
+							names=VCF_HEADER, usecols=range(10))
+	
+	return(tbl)
+
+
+
+def get_filenames():
+	""" get file names given path """
+	files = []
+	for file in os.listdir(cwd + "scVCF_filtered_all/"):
+		if file.endswith(".vcf"):
+			fullPath = cwd + 'scVCF_filtered_all/' + file 
+			files.append(fullPath)
+    
+	return files
+
+
+
+def get_laud_db(gene_):
+    """ returns the COSMIC database after lung and fathmm filter  """
+    pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
+    db_filter = database.iloc[pSiteList]
+    #keepRows = db_filter['FATHMM score'] >= 0.7
+    #db_fathmm_filter = dbfilter[keepRows]
+    #db_fathmm_filter = db_fathmm_filter.reset_index(drop=True)
+    keep = db_filter['Gene name'] == gene_
+    db_gene = db_filter[keep]
+    db_gene = db_gene.reset_index(drop=True)
+
+    if len(db_gene.index) == 0:
+    	print('   this gene is not in the cosmic database')
+    	print('   	are you using the official HGNC gene name? ')
+    	print('')
+    	sys.exit()
+
+    return db_gene
+    #return db_fathmm_filter
+
+
+
+def write_csv(dictObj, outFile):
+	""" writes dict to csv"""
+	with open(outFile, 'w') as csv_file:
+		writer = csv.writer(csv_file)
+		for key, value in dictObj.items():
+			writer.writerow([key, value])
+
+
+
+def generate_genome_pos_str(sample):
+	""" given vcf record, returns a genome position string"""
+	chr = sample[0]
+	chr = chr.replace("chr", "")
+	pos = int(sample[1])
+	ref = str(sample[3])
+	alt = str(sample[4])
+
+	genomePos = chr + ":" + str(pos) + '-'
+	altSplt = alt.split(',')
+	add = len(max(altSplt , key = len))
+
+	if add == 1: # for SNPs, start actually == end
+		add = 0
+
+	if len(ref) > 1: # deletion case
+		add = len(ref)
+
+	end = pos + add
+	genomePos = genomePos + str(end)
+
+	ret = [genomePos, ref, alt]
+	return(ret)
+
+
+
+def breakdown_by_mutation_type(currSet):
+	""" breaks down the mutations set into two categories: SNP and indel
+		returns seperate lists for each """
+
+	SNP_list = []
+	indel_list = []
+
+	for elm in currSet:
+		if len(elm[1]) > 1 or len(elm[2]) > 1: # indel
+			indel_list.append(elm)
+		else: # SNP
+			SNP_list.append(elm)
+
+	retSet = []
+	retSet.append(SNP_list)
+	retSet.append(indel_list)
+
+	return retSet
+
+
+
+def get_overlap(a, b):
+	""" return the len of overlap between two regions """
+	q_start = int(a[0])
+	q_end = int(a[1])
+	r_start = int(b[0])
+	r_end = int(b[1])
+
+	if q_start == q_end:
+		q_end += 1 		# otherwise it doesnt work for SNPs
+
+	ret = max(0, min(q_end, r_end) - max(q_start, r_start))
+	return(ret)
+
+
+
+def get_rev_comp(b):
+	""" return the reverse complement of a given base """
+	if b == 'A':
+		return('T')
+	if b == 'T':
+		return('A')
+	if b == 'C':
+		return('G')
+	if b == 'G':
+		return('C')
+
+
+
+def are_hits_in_cosmic(queryList, SNP_bool):
+	""" given a set of genome position strings, searches for the ones
+		that are in the COSMIC database. now supports SNPs and indels!! """
+	ret = []
+
+	if len(queryList) > 0:
+		if SNP_bool: # exact string match
+			curr_df = pd.DataFrame(queryList, columns=['posStr', 'ref', 'alt'])
+			overlap = set(curr_df['posStr']).intersection(set(genomePos_laud_db))
+			keep = curr_df.where(curr_df['posStr'].isin(overlap))
+			keep = keep.dropna()
+
+			ret = keep.values.tolist() # convert entire df to list
+
+		else: # indel case
+			ret = []
+			for i in range(0,len(queryList)):
+				pos_str = queryList[i]
+				pos_str_raw = pos_str[0]
+				curr_obj = utils.GenomePosition.from_str(pos_str_raw)
+				try:
+					b = cosmic_genome_tree.get_best_overlap(curr_obj)
+				
+					if b is not None:
+						ret.append(pos_str)
+				except AttributeError:
+					continue
+
+	return(ret)
+
+
+
+def build_genome_positions_dict(fileName):
+	""" creates dict with genome coords for cosmic filtered hits to specific GOI """
+	cell = fileName.replace(cwd + "scVCF_filtered_all/", "")
+	cell = cell.replace(".vcf", "")	
+
+	df = vcf_to_dataframe(fileName)
+	genomePos_query = df.apply(generate_genome_pos_str, axis=1)
+	genomePos_query_breakdown = breakdown_by_mutation_type(genomePos_query)
+	
+	SNPs = genomePos_query_breakdown[0]
+	indels = genomePos_query_breakdown[1]
+
+	# get the entries shared between curr cells VCF and the cosmic filter set
+	shared_SNPs = are_hits_in_cosmic(SNPs, 1)
+	shared_indels = are_hits_in_cosmic(indels, 0)
+
+	all_shared_regions = shared_SNPs + shared_indels
+
+	ret = [cell, all_shared_regions]
+	return(ret)
+
+
+
+def GOI_df_subset(vcf_, chrom_, start_, end_):
+	""" subset a single vcf based on genomic coords"""
+	chrStr = 'chr' + str(chrom_)
+	start_ = int(start_)
+	end_ = int(end_)
+
+	keep0 = vcf_['CHROM'] == chrStr
+	vcf_sub0 = vcf_[keep0]
+
+	keep1 = vcf_sub0['POS'] >= start_
+	vcf_sub1 = vcf_sub0[keep1]
+
+	keep2 = vcf_sub1['POS'] <= end_
+	vcf_sub2 = vcf_sub1[keep2]
+    
+	return(vcf_sub2)
+
+
+
+def coverage_search_on_vcf(df):
+	""" given subset of vcf entries, search for AD (DepthPerAlleleBySample) col """ 
+	counts = []
+	for i in range(0, len(df.index)):
+		row = df.iloc[i]
+		extra_col = str(row['20'])
+
+		try:
+			AD = extra_col.split(':')[1]
+			wt_count = int(AD.split(',')[0])
+			variant_count = int(AD.split(',')[1])
+			total_count = wt_count + variant_count
+
+			ratio = str(variant_count) + ':' + str(total_count)
+			counts.append(ratio)
+
+		except: # picking up a wierd edge case -- '20' field is malformed
+			print(extra_col)
+			continue
+		
+	return(counts)
+
+
+
+def get_corresponding_aa_sub(position_sub_str):
+	""" given a dict of {cell, list(genomePos)}, returns a dict of 
+		{cell, list(mutation.AA)} 
+
+		7.11 - lets modify this so that it takes in a single value, and 
+			not a dict"""
+
+	posStr = position_sub_str[0]
+	ref = position_sub_str[1]
+	alt = position_sub_str[2]
+
+	curr_obj = utils.GenomePosition.from_str(posStr)
+
+	if len(ref) > 1 or len(alt) > 1: # indel case -- just return best overlap
+		b = cosmic_genome_tree.get_best_overlap(curr_obj)
+		if b is not None:
+			AA_sub = b["Mutation AA"]
+			AA_sub = AA_sub.replace("p.", "")
+
+	else: # SNP case -- specific CDS validation
+		overlaps = cosmic_genome_tree.get_all_overlaps(curr_obj)
+		nucSub = ref + '>' + alt
+
+		for o_df in overlaps:
+			cds = o_df['Mutation CDS']
+			strand = o_df['Mutation strand']
+			# taking into account cosmic's wierd strandedness field
+			if strand == '-':
+				nucSub = get_rev_comp(ref) + '>' + get_rev_comp(alt)
+
+			if nucSub in cds:
+				AA_sub = o_df["Mutation AA"]
+				AA_sub = AA_sub.replace("p.", "")
+
+	return(AA_sub)
+
+
+
+def evaluate_coverage_driver(ROI_hits_dict):
+	""" TODO: add description """
+	ret = []
+
+	for cell in ROI_hits_dict.keys():
+		vcf_path = cwd + 'scVCF_filtered_all/' + cell + '.vcf'
+		vcf = vcf_to_dataframe(vcf_path)
+
+		ROIs = ROI_hits_dict.get(cell)
+		if len(ROIs) > 0:
+
+		 	for hit in ROIs:
+		 		aa_sub = get_corresponding_aa_sub(hit)
+		 		posStr = hit[0]
+		 		chrom = posStr.split(':')[0]
+		 		start = posStr.split('-')[0].split(':')[1]
+		 		end = posStr.split('-')[1]
+
+		 		vcf_sub = GOI_df_subset(vcf, chrom, start, end)
+		 		counts = coverage_search_on_vcf(vcf_sub)
+		 		
+		 		print(cell)
+		 		print(aa_sub)
+		 		print(counts)
+		 		print(' ')
+
+
+	return(ret)
+
+
 
 """ get cmdline input """
 @click.command()
-@click.option('--genes_list', default = 'EGFR', prompt='path to csv file with list of genes you wish to assess coverage for', required=True, type=str)
-@click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
-@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--gene', default = 'EGFR', prompt='gene_id (all caps)', required=True, type=str)
+@click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
+@click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+ 
 
 
+def check_coverage_loci(gene, nthread, outprefix, wrkdir):
+	""" TODO: add description """
+	global database
+	global database_laud
+	global genomePos_laud_db
+	global cosmic_genome_tree
+	global cwd
 
-def check_coverage_loci(genes_list, nthread, wrkdir):
-	""" evaluate coverage to every loci in a list of user-defined genes. 
-		reports on a per-loci basis. """
+	cwd = wrkdir
+	gene_name = gene
 
-	print('hello world')
+	print(' ')
+	print('setting up COSMIC database...')
+	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
+	database_laud = get_laud_db(gene_name)
+	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
+
+	# init interval tree
+	cosmic_genome_tree = utils.GenomeDataframeTree(lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])), database_laud)
+
+	fNames = get_filenames()
+
+	print('searching for relevant vcf hits')
+	p = mp.Pool(processes=nthread)
+		
+	try:  
+		goiList = list(tqdm(p.imap(build_genome_positions_dict, fNames), total=len(fNames)))
+	finally:
+		p.close()
+		p.join()
+
+	cells_dict_GOI_coords = {} # convert to dict
+
+	for item in goiList:
+		cell = item[0]
+		muts = item[1]
+		
+		toAdd = {cell:muts}
+		cells_dict_GOI_coords.update(toAdd)
+	
+	#goiDict_AA = get_corresponding_aa_subs(cells_dict_GOI_coords)
+	dummy = evaluate_coverage_driver(cells_dict_GOI_coords)
+
+	#write_csv(cells_dict_GOI_coords, cwd + outprefix + '.csv')
+	#write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')

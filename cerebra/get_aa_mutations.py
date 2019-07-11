@@ -272,9 +272,9 @@ def build_genome_positions_dict(fileName):
 """ get cmdline input """
 @click.command()
 @click.option('--gene', default = 'EGFR', prompt='gene_id (all caps)', required=True, type=str)
-@click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
+@click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
@@ -319,6 +319,7 @@ def get_aa_mutations(gene, nthread, outprefix, wrkdir):
 		toAdd = {cell:muts}
 		cells_dict_GOI_coords.update(toAdd)
 
+	print(cells_dict_GOI_coords)
 	goiDict_AA = get_corresponding_aa_subs(cells_dict_GOI_coords)
 
 	write_csv(cells_dict_GOI_coords, cwd + outprefix + '.csv')
