@@ -56,10 +56,10 @@ def get_filenames():
 
 
 
-def get_laud_db(gene_):
+def get_laud_db(gene_, db):
     """ returns the COSMIC database after lung and fathmm filter  """
-    pSiteList = database.index[database['Primary site'] == 'lung'].tolist()
-    db_filter = database.iloc[pSiteList]
+    pSiteList = db.index[db['Primary site'] == 'lung'].tolist()
+    db_filter = db.iloc[pSiteList]
     #keepRows = db_filter['FATHMM score'] >= 0.7
     #db_fathmm_filter = dbfilter[keepRows]
     #db_fathmm_filter = db_fathmm_filter.reset_index(drop=True)
@@ -298,7 +298,7 @@ def get_corresponding_aa_sub(position_sub_str):
 
 
 
-def evaluate_coverage_driver(ROI_hits_dict):
+def evaluate_coverage_driver(ROI_hits_dict, gene_):
 	""" TODO: add description """
 	ret = []
 
@@ -320,6 +320,7 @@ def evaluate_coverage_driver(ROI_hits_dict):
 		 		counts = coverage_search_on_vcf(vcf_sub)
 		 		
 		 		print(cell)
+		 		print(gene_)
 		 		print(aa_sub)
 		 		print(counts)
 		 		print(' ')
@@ -331,55 +332,50 @@ def evaluate_coverage_driver(ROI_hits_dict):
 
 """ get cmdline input """
 @click.command()
-@click.option('--gene', default = 'EGFR', prompt='gene_id (all caps)', required=True, type=str)
+@click.option('--genes_list', default = 'genesList.csv', prompt='name of csv file with genes of interest to evaluate coverage for. should be in wrkdir', required=True, type=str)
 @click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
 @click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
-def check_coverage_loci(gene, nthread, outprefix, wrkdir):
+def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 	""" TODO: add description """
-	global database
-	global database_laud
 	global genomePos_laud_db
 	global cosmic_genome_tree
 	global cwd
 
 	cwd = wrkdir
-	gene_name = gene
-
-	print(' ')
-	print('setting up COSMIC database...')
-	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
-	database_laud = get_laud_db(gene_name)
-	genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
-
-	# init interval tree
-	cosmic_genome_tree = utils.GenomeDataframeTree(lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])), database_laud)
-
 	fNames = get_filenames()
+	GOI_df = pd.read_csv(cwd + genes_list, header=None, names=['gene'])
+	gene_names = list(GOI_df.gene)
+	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
 
-	print('searching for relevant vcf hits')
-	p = mp.Pool(processes=nthread)
-		
-	try:  
-		goiList = list(tqdm(p.imap(build_genome_positions_dict, fNames), total=len(fNames)))
-	finally:
-		p.close()
-		p.join()
+	# driver loop 
+	for gene in gene_names:
+		database_laud = get_laud_db(gene, database)
+		genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 
-	cells_dict_GOI_coords = {} # convert to dict
+		# init interval tree
+		cosmic_genome_tree = utils.GenomeDataframeTree(lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])), database_laud)
 
-	for item in goiList:
-		cell = item[0]
-		muts = item[1]
-		
-		toAdd = {cell:muts}
-		cells_dict_GOI_coords.update(toAdd)
-	
-	#goiDict_AA = get_corresponding_aa_subs(cells_dict_GOI_coords)
-	dummy = evaluate_coverage_driver(cells_dict_GOI_coords)
+		p = mp.Pool(processes=nthread)
+			
+		try:  
+			goiList = list(p.imap(build_genome_positions_dict, fNames))
+		finally:
+			p.close()
+			p.join()
 
-	#write_csv(cells_dict_GOI_coords, cwd + outprefix + '.csv')
-	#write_csv(goiDict_AA, cwd + outprefix + '_AA.csv')
+		cells_dict_GOI_coords = {} # convert to dict
+
+		for item in goiList:
+			cell = item[0]
+			muts = item[1]
+			
+			toAdd = {cell:muts}
+			cells_dict_GOI_coords.update(toAdd)
+
+		dummy = evaluate_coverage_driver(cells_dict_GOI_coords, gene)
+
+
