@@ -342,6 +342,16 @@ def covert_to_df(cd):
 				muts_list.append(curr_mut)
 
 	df = pd.DataFrame(columns=muts_list, index=cells)
+	df[:] = '0:0'
+
+	for cell in coverage_dict.keys():
+	values = coverage_dict.get(cell)
+		for val in values:
+			mut = val[0]
+			cov = val[1]
+			if '?' not in mut:
+				df.loc[cell,mut] = cov
+
 	return(df)
  
 
@@ -395,7 +405,7 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 
 		coverage_dict = evaluate_coverage_driver(cells_dict_GOI_coords, gene, coverage_dict)
 	
-	#print(coverage_dict)
 	coverage_df = covert_to_df(coverage_dict)
+	coverage_dict.to_csv(cwd + 'coverage_dict_test.csv')
 
 
