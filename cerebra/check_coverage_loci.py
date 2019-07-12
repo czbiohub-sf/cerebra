@@ -47,9 +47,9 @@ def vcf_to_dataframe(filename):
 def get_filenames():
 	""" get file names given path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_all/"):
+	for file in os.listdir(cwd + "scVCF_filtered_subset/"):
 		if file.endswith(".vcf"):
-			fullPath = cwd + 'scVCF_filtered_all/' + file 
+			fullPath = cwd + 'scVCF_filtered_subset/' + file 
 			files.append(fullPath)
     
 	return files
@@ -196,7 +196,7 @@ def are_hits_in_cosmic(queryList, SNP_bool):
 
 def build_genome_positions_dict(fileName):
 	""" creates dict with genome coords for cosmic filtered hits to specific GOI """
-	cell = fileName.replace(cwd + "scVCF_filtered_all/", "")
+	cell = fileName.replace(cwd + "scVCF_filtered_subset/", "")
 	cell = cell.replace(".vcf", "")	
 
 	df = vcf_to_dataframe(fileName)
@@ -238,7 +238,7 @@ def GOI_df_subset(vcf_, chrom_, start_, end_):
 
 def coverage_search_on_vcf(df):
 	""" given subset of vcf entries, search for AD (DepthPerAlleleBySample) col """ 
-	counts = []
+	counts = ''
 	for i in range(0, len(df.index)):
 		row = df.iloc[i]
 		extra_col = str(row['20'])
@@ -250,7 +250,7 @@ def coverage_search_on_vcf(df):
 			total_count = wt_count + variant_count
 
 			ratio = str(variant_count) + ':' + str(total_count)
-			counts.append(ratio)
+			counts = ratio
 
 		except: # picking up a wierd edge case -- '20' field is malformed
 			print(extra_col)
@@ -261,12 +261,10 @@ def coverage_search_on_vcf(df):
 
 
 def get_corresponding_aa_sub(position_sub_str):
-	""" given a dict of {cell, list(genomePos)}, returns a dict of 
-		{cell, list(mutation.AA)} 
+	""" for a given chromosomal position, searches the cosmic interval tree 
+		for that exact position, and returns the corresponding AA level substitution """
 
-		7.11 - lets modify this so that it takes in a single value, and 
-			not a dict"""
-
+	AA_sub = '?' # need to establish a base case, for if we hit a wierd edge
 	posStr = position_sub_str[0]
 	ref = position_sub_str[1]
 	alt = position_sub_str[2]
@@ -302,7 +300,7 @@ def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
 	""" TODO: add description """
 
 	for cell in ROI_hits_dict.keys():
-		vcf_path = cwd + 'scVCF_filtered_all/' + cell + '.vcf'
+		vcf_path = cwd + 'scVCF_filtered_subset/' + cell + '.vcf'
 		vcf = vcf_to_dataframe(vcf_path)
 
 		ROIs = ROI_hits_dict.get(cell)
@@ -325,7 +323,7 @@ def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
 		 		else:
 		 			to_add = {cell:[[gene_ + '_' + aa_sub, counts]]}
 		 			cd.update(to_add)
-	print(cd)
+		 			
 	return(cd)
 
 
@@ -333,9 +331,9 @@ def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
 """ get cmdline input """
 @click.command()
 @click.option('--genes_list', default = 'genesList.csv', prompt='name of csv file with genes of interest to evaluate coverage for. should be in wrkdir', required=True, type=str)
-@click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
+@click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
@@ -378,5 +376,7 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 			cells_dict_GOI_coords.update(toAdd)
 
 		coverage_dict = evaluate_coverage_driver(cells_dict_GOI_coords, gene, coverage_dict)
+	
+	print(coverage_dict)
 
 
