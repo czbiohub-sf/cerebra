@@ -23,10 +23,7 @@ class GenomePosition():
 
 	@classmethod
 	def from_vcf_record(cls, record):
-		# Although including `chr` in the CHR column constitutes malformed VCF, it
-		# may be present, so it should be removed.
 		CHROM = record.CHROM.replace("chr", "")
-
 		return cls(CHROM, record.affected_start, record.affected_end)
 
 	@classmethod
