@@ -264,7 +264,7 @@ def get_corresponding_aa_sub(position_sub_str):
 	""" for a given chromosomal position, searches the cosmic interval tree 
 		for that exact position, and returns the corresponding AA level substitution """
 
-	AA_sub = '?' # need to establish a base case, for if we hit a wierd edge
+	AA_sub = '?' # base case -- hits NOT in cosmic
 	posStr = position_sub_str[0]
 	ref = position_sub_str[1]
 	alt = position_sub_str[2]
@@ -323,9 +323,27 @@ def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
 		 		else:
 		 			to_add = {cell:[[gene_ + '_' + aa_sub, counts]]}
 		 			cd.update(to_add)
-		 			
+
 	return(cd)
 
+
+
+def covert_to_df(cd):
+	""" what are we doin here buh? """
+
+	cells = list(cd.keys())
+	l = list(cd.values())
+	muts_list = []
+
+	for item in l:
+		for sub_item in item:
+			curr_mut = sub_item[0]
+			if '?' not in curr_mut:
+				muts_list.append(curr_mut)
+
+	df = pd.DataFrame(columns=muts_list, index=cells)
+	return(df)
+ 
 
 
 """ get cmdline input """
@@ -377,6 +395,7 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 
 		coverage_dict = evaluate_coverage_driver(cells_dict_GOI_coords, gene, coverage_dict)
 	
-	print(coverage_dict)
+	#print(coverage_dict)
+	coverage_df = covert_to_df(coverage_dict)
 
 
