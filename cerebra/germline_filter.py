@@ -47,15 +47,19 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
 		# This avoids O(n*m) complexity.
 		germline_records = germline_tree.get_all_containments(genome_pos)
 
+		unique_alts = set(record.ALT)
+
 		for germline_record in germline_records:
 			if (
-				germline_record.POS == record.POS and
-				germline_record.REF == record.REF and
-				germline_record.ALT == record.ALT):
-				break
-		else:
-			# Write this record if it wasn't the same as any of the containment
-			# records.
+				germline_record.POS != record.POS or
+				germline_record.REF != record.REF):
+				continue
+
+			unique_alts -= set(germline_record.ALT)
+
+		# Write this record if there are still has remaining (unique) ALTs.
+		if unique_alts:
+			record.ALT = list(unique_alts)
 			out_vcf.write_record(record)
 
 """ launch """
