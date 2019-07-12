@@ -9,7 +9,7 @@ import click
 from cerebra.hello import hello
 from cerebra.datadump import s3_import
 from cerebra.germline_filter import germline_filter
-from cerebra.get_mutationcounts_table import get_mutationcounts_table
+from cerebra.mutation_counts import count_mutations
 from cerebra.get_aa_mutations import get_aa_mutations
 from cerebra.get_mutationalburden import get_mutationalburden
 from cerebra.generate_summary_tables import generate_summary_tables
@@ -34,8 +34,8 @@ def cli():
 
 cli.add_command(hello, name='hello')
 cli.add_command(s3_import, name='s3_import')
-cli.add_command(germline_filter, name='germline_filter')
-cli.add_command(get_mutationcounts_table, name='get_mutationcounts_table')
+cli.add_command(germline_filter, name='germline-filter')
+cli.add_command(count_mutations, name='count-mutations')
 cli.add_command(get_aa_mutations, name='get_aa_mutations')
 cli.add_command(get_mutationalburden, name='get_mutationalburden')
 cli.add_command(generate_summary_tables, name='generate_summary_tables')

@@ -82,7 +82,6 @@ class GenomeIntervalTree():
 			)
 
 		self.tree_map = tree_map
-	
 
 	def _make_query_params(self, genome_pos_list):
 		starts = np.array([genome_pos.start for genome_pos in genome_pos_list])
@@ -121,7 +120,6 @@ class GenomeIntervalTree():
 		# a union.
 		# |A ∩ B| / (|A| + |B| + |A ∩ B|)
 		return len(intersection) / (len(range_a) + len(range_b) - len(intersection))
-	
 
 	def has_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
@@ -130,7 +128,6 @@ class GenomeIntervalTree():
 			return False
 
 		return tree.has_overlap(genome_pos.start, genome_pos.end)
-	
 
 	def get_first_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
@@ -146,7 +143,6 @@ class GenomeIntervalTree():
 
 		return self.records[record_ids[0]]
 
-
 	def get_best_overlap(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
 
@@ -156,10 +152,9 @@ class GenomeIntervalTree():
 		qparams = self._make_query_params([genome_pos])
 		_, record_ids = tree.all_overlaps_both(*qparams)
 
-		return sorted_records[0][0]
-	
+		return self._pick_best_record(from_ids=record_ids, for_pos=genome_pos)
 
-	def get_first_containment(self, genome_pos):
+	def get_all_overlaps(self, genome_pos):
 		tree = self.tree_map.get(genome_pos.chrom)
 
 		if not tree:
