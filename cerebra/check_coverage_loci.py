@@ -1,4 +1,5 @@
-""" TODO: add description """
+""" evaluate coverage on a loci-specific basis. most of these functions are
+	copied from get_aa_mutations.py """
 
 import numpy as np
 import os
@@ -47,9 +48,9 @@ def vcf_to_dataframe(filename):
 def get_filenames():
 	""" get file names given path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_subset/"):
+	for file in os.listdir(cwd + "scVCF_filtered_all/"):
 		if file.endswith(".vcf"):
-			fullPath = cwd + 'scVCF_filtered_subset/' + file 
+			fullPath = cwd + 'scVCF_filtered_all/' + file 
 			files.append(fullPath)
     
 	return files
@@ -196,7 +197,7 @@ def are_hits_in_cosmic(queryList, SNP_bool):
 
 def build_genome_positions_dict(fileName):
 	""" creates dict with genome coords for cosmic filtered hits to specific GOI """
-	cell = fileName.replace(cwd + "scVCF_filtered_subset/", "")
+	cell = fileName.replace(cwd + "scVCF_filtered_all/", "")
 	cell = cell.replace(".vcf", "")	
 
 	df = vcf_to_dataframe(fileName)
@@ -297,10 +298,11 @@ def get_corresponding_aa_sub(position_sub_str):
 
 
 def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
-	""" TODO: add description """
+	""" takes a dict of ROI strings and converts to AA level muts, then
+		calls coverage_search_on_vcf() for each of those AA level hitsß """
 
 	for cell in ROI_hits_dict.keys():
-		vcf_path = cwd + 'scVCF_filtered_subset/' + cell + '.vcf'
+		vcf_path = cwd + 'scVCF_filtered_all/' + cell + '.vcf'
 		vcf = vcf_to_dataframe(vcf_path)
 
 		ROIs = ROI_hits_dict.get(cell)
@@ -329,7 +331,8 @@ def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
 
 
 def covert_to_df(cd):
-	""" what are we doin here buh? """
+	""" takes in a dictionary obj where keys are cells and values are loci and their
+		associated coverage ratios, and converts to a cell x mutation dataframe """
 
 	cells = list(cd.keys())
 	l = list(cd.values())
@@ -341,6 +344,7 @@ def covert_to_df(cd):
 			if '?' not in curr_mut:
 				muts_list.append(curr_mut)
 
+	muts_list = list(set(muts_list))
 	df = pd.DataFrame(columns=muts_list, index=cells)
 	df[:] = '0:0'
 
@@ -361,12 +365,13 @@ def covert_to_df(cd):
 @click.option('--genes_list', default = 'genesList.csv', prompt='name of csv file with genes of interest to evaluate coverage for. should be in wrkdir', required=True, type=str)
 @click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/home/ubuntu/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
 def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
-	""" TODO: add description """
+	""" evaluate coverage for each loci for which we find a variant, for 
+		a given set of genes  """
 	global genomePos_laud_db
 	global cosmic_genome_tree
 	global cwd
@@ -406,6 +411,7 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 
 		coverage_dict = evaluate_coverage_driver(cells_dict_GOI_coords, gene, coverage_dict)
 	
+	print(coverage_dict)
 	coverage_df = covert_to_df(coverage_dict)
 	coverage_df.to_csv(cwd + 'coverage_df_test.csv')
 
