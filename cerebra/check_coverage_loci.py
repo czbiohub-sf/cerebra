@@ -298,9 +298,8 @@ def get_corresponding_aa_sub(position_sub_str):
 
 
 
-def evaluate_coverage_driver(ROI_hits_dict, gene_):
+def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
 	""" TODO: add description """
-	ret = []
 
 	for cell in ROI_hits_dict.keys():
 		vcf_path = cwd + 'scVCF_filtered_all/' + cell + '.vcf'
@@ -318,15 +317,16 @@ def evaluate_coverage_driver(ROI_hits_dict, gene_):
 
 		 		vcf_sub = GOI_df_subset(vcf, chrom, start, end)
 		 		counts = coverage_search_on_vcf(vcf_sub)
-		 		
-		 		print(cell)
-		 		print(gene_)
-		 		print(aa_sub)
-		 		print(counts)
-		 		print(' ')
 
-
-	return(ret)
+		 		if cell in cd:
+		 			curr_val = cd.get(cell)
+		 			curr_val.append([gene_ + '_' + aa_sub, counts])
+		 			cd.update({cell:curr_val})
+		 		else:
+		 			to_add = {cell:[[gene_ + '_' + aa_sub, counts]]}
+		 			cd.update(to_add)
+	print(cd)
+	return(cd)
 
 
 
@@ -350,6 +350,7 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 	GOI_df = pd.read_csv(cwd + genes_list, header=None, names=['gene'])
 	gene_names = list(GOI_df.gene)
 	database = pd.read_csv(cwd + "CosmicGenomeScreensMutantExport.tsv", delimiter = '\t')
+	coverage_dict = {}
 
 	# driver loop 
 	for gene in gene_names:
@@ -376,6 +377,6 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 			toAdd = {cell:muts}
 			cells_dict_GOI_coords.update(toAdd)
 
-		dummy = evaluate_coverage_driver(cells_dict_GOI_coords, gene)
+		coverage_dict = evaluate_coverage_driver(cells_dict_GOI_coords, gene, coverage_dict)
 
 
