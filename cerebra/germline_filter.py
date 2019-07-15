@@ -1,9 +1,3 @@
-"""
-This program takes in two sets of vcfs, single-cell and bulk (peripheral
-blood, ie. germline) and filters out the common variants found in both sc
-and bulk. Creates a new directory, filteredOut, that contans the filtered vcfs.
-"""
-
 import os
 import pandas as pd
 import click
