@@ -330,7 +330,7 @@ def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
 
 
 
-def covert_to_df(cd):
+def convert_to_df(cd):
 	""" takes in a dictionary obj where keys are cells and values are loci and their
 		associated coverage ratios, and converts to a cell x mutation dataframe """
 
@@ -390,7 +390,7 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 		genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 
 		# init interval tree
-		cosmic_genome_tree = utils.GenomeDataframeTree(lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])), database_laud)
+		cosmic_genome_tree = utils.GenomeIntervalTree(lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])), database_laud)
 
 		p = mp.Pool(processes=nthread)
 			
@@ -412,6 +412,6 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 		coverage_dict = evaluate_coverage_driver(cells_dict_GOI_coords, gene, coverage_dict)
 	
 	print(coverage_dict)
-	coverage_df = covert_to_df(coverage_dict)
+	coverage_df = convert_to_df(coverage_dict)
 	coverage_df.to_csv(cwd + 'coverage_df_test.csv')
 
