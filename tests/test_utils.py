@@ -188,6 +188,26 @@ class GenomeIntervalTreeTestCase(unittest.TestCase):
         for test, expected in tests:
             self.assertAlmostEqual(expected, self.tree._compute_jaccard_index(*test))
 
+    def test_record_indexing(self):
+        # For the purposes of this test, the end value is treated as a notion
+        # of identity, so each record's end value should be unique.
+        tree_positions = [
+            GenomePosition("1", 0, 0),
+            None,
+            GenomePosition("2", 0, 1),
+            None,
+            None,
+            GenomePosition("1", 0, 2),
+        ]
+
+        tree = GenomeIntervalTree(lambda row: row, tree_positions)
+
+        for chrom in set([pos.chrom for pos in tree_positions if pos]):
+            for _, end, idx in tree._intervals(chrom):
+                self.assertGreater(len(tree.records), idx)
+                record = tree.records[idx]
+                self.assertEqual(end, record.end)
+
     def test_has_overlap(self):
         for test, _, _ in self.overlap_positive_tests:
             self.assertTrue(self.tree.has_overlap(test))

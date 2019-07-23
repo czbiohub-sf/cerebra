@@ -70,7 +70,6 @@ class GenomeIntervalTree():
 			ends.append(genome_pos.end)
 			ids.append(idx)
 
-			self.records.append(record)
 			idx += 1
 			self.records.append(record)
 
@@ -84,6 +83,9 @@ class GenomeIntervalTree():
 			)
 
 		self.tree_map = tree_map
+
+	def _intervals(self, chrom):
+		return self.tree_map[chrom].intervals()
 
 	def _make_query_params(self, genome_pos_list):
 		starts = np.array([genome_pos.start for genome_pos in genome_pos_list])
