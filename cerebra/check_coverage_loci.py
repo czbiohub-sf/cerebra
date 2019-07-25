@@ -389,9 +389,10 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 		database_laud = get_laud_db(gene, database)
 		genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 
+		# init interval tree
 		cosmic_genome_tree = utils.GenomeIntervalTree(
             lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])),
-            (record for idx, record in database.iterrows()))
+            (record for idx, record in database_laud.iterrows()))
 
 		p = mp.Pool(processes=nthread)
 			
@@ -412,7 +413,5 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 
 		coverage_dict = evaluate_coverage_driver(cells_dict_GOI_coords, gene, coverage_dict)
 	
-	print(coverage_dict)
 	coverage_df = convert_to_df(coverage_dict)
 	coverage_df.to_csv(cwd + 'coverage_df_test.csv')
-
