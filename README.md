@@ -65,5 +65,5 @@ Commands:
 Features
 --------
 
--   TODO
+-   test
 
