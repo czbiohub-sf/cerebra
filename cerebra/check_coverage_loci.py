@@ -48,9 +48,9 @@ def vcf_to_dataframe(filename):
 def get_filenames():
 	""" get file names given path """
 	files = []
-	for file in os.listdir(cwd + "scVCF_filtered_subset/"):
+	for file in os.listdir(cwd + "vcf_test_set/"):
 		if file.endswith(".vcf"):
-			fullPath = cwd + 'scVCF_filtered_subset/' + file 
+			fullPath = cwd + 'vcf_test_set/' + file 
 			files.append(fullPath)
     
 	return files
@@ -197,7 +197,7 @@ def are_hits_in_cosmic(queryList, SNP_bool):
 
 def build_genome_positions_dict(fileName):
 	""" creates dict with genome coords for cosmic filtered hits to specific GOI """
-	cell = fileName.replace(cwd + "scVCF_filtered_subset/", "")
+	cell = fileName.replace(cwd + "vcf_test_set/", "")
 	cell = cell.replace(".vcf", "")	
 
 	df = vcf_to_dataframe(fileName)
@@ -302,7 +302,7 @@ def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
 		calls coverage_search_on_vcf() for each of those AA level hitsß """
 
 	for cell in ROI_hits_dict.keys():
-		vcf_path = cwd + 'scVCF_filtered_subset/' + cell + '.vcf'
+		vcf_path = cwd + 'vcf_test_set/' + cell + '.vcf'
 		vcf = vcf_to_dataframe(vcf_path)
 
 		ROIs = ROI_hits_dict.get(cell)
@@ -356,6 +356,11 @@ def convert_to_df(cd):
 			if '?' not in mut:
 				df.loc[cell,mut] = cov
 
+	# alphabetize rows and cols
+	df = df.reindex(sorted(df.columns), axis=1)
+	df = df.reindex(sorted(df.index), axis=0)
+	df.index.name = 'sample'
+
 	return(df)
  
 
@@ -364,8 +369,8 @@ def convert_to_df(cd):
 @click.command()
 @click.option('--genes_list', default = 'genesList.csv', prompt='name of csv file with genes of interest to evaluate coverage for. should be in wrkdir', required=True, type=str)
 @click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
-@click.option('--outprefix', default = 'sampleOut', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--wrkdir', default = '/home/lincoln/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
+@click.option('--outprefix', default = 'sampleOut.csv', prompt='prefix to use for outfile', required=True, type=str)
+@click.option('--wrkdir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/', prompt='s3 import directory', required=True)
  
 
 
@@ -414,4 +419,4 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 		coverage_dict = evaluate_coverage_driver(cells_dict_GOI_coords, gene, coverage_dict)
 	
 	coverage_df = convert_to_df(coverage_dict)
-	coverage_df.to_csv(cwd + 'coverage_df_test.csv')
+	coverage_df.to_csv(cwd + outprefix)
