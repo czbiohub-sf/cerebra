@@ -9,41 +9,41 @@ def dir_setup():
 	print(' ')
 	print('setting up directory structure...')
 
-	os.system('sudo mkdir -p wrkdir')
-	os.system('sudo chmod -R 777 wrkdir')
+	os.system('mkdir -p wrkdir')
+	os.system('chmod -R 777 wrkdir')
 
-	os.system('sudo mkdir -p wrkdir/bulkVCF')
-	os.system('sudo chmod -R 777 wrkdir/bulkVCF/')
+	os.system('mkdir -p wrkdir/bulkVCF')
+	os.system('chmod -R 777 wrkdir/bulkVCF/')
 
-	os.system('sudo mkdir -p wrkdir/coverage')
-	os.system('sudo chmod -R 777 wrkdir/coverage')
+	os.system('mkdir -p wrkdir/coverage')
+	os.system('chmod -R 777 wrkdir/coverage')
 
-	os.system('sudo mkdir -p wrkdir/filteredOut')
-	os.system('sudo chmod -R 777 wrkdir/filteredOut')
+	os.system('mkdir -p wrkdir/filteredOut')
+	os.system('chmod -R 777 wrkdir/filteredOut')
 
-	os.system('sudo mkdir -p wrkdir/fusionsOut')
-	os.system('sudo chmod -R 777 wrkdir/fusionsOut')
+	os.system('mkdir -p wrkdir/fusionsOut')
+	os.system('chmod -R 777 wrkdir/fusionsOut')
 
-	os.system('sudo mkdir -p wrkdir/fusions')
-	os.system('sudo chmod -R 777 wrkdir/fusions')
+	os.system('mkdir -p wrkdir/fusions')
+	os.system('chmod -R 777 wrkdir/fusions')
 
-	os.system('sudo mkdir -p wrkdir/gVCF')
-	os.system('sudo chmod -R 777 wrkdir/gVCF')
+	os.system('mkdir -p wrkdir/gVCF')
+	os.system('chmod -R 777 wrkdir/gVCF')
 
-	os.system('sudo mkdir -p wrkdir/scVCF')
-	os.system('sudo chmod -R 777 wrkdir/scVCF')
+	os.system('mkdir -p wrkdir/scVCF')
+	os.system('chmod -R 777 wrkdir/scVCF')
 
-	os.system('sudo mkdir -p wrkdir/scVCF_filtered_all')
-	os.system('sudo chmod -R 777 wrkdir/scVCF_filtered_all')
+	os.system('mkdir -p wrkdir/scVCF_filtered_all')
+	os.system('chmod -R 777 wrkdir/scVCF_filtered_all')
 
-	os.system('sudo mkdir -p wrkdir/test')
-	os.system('sudo chmod -R 777 wrkdir/test')
-	os.system('sudo mkdir -p wrkdir/test/coverage')
-	os.system('sudo mkdir -p wrkdir/test/germline_filter')
-	os.system('sudo mkdir -p wrkdir/test/mutationcounts_table')
-	os.system('sudo mkdir -p wrkdir/test/specific_mutations')
-	os.system('sudo mkdir -p wrkdir/test/summary_tables')
-	os.system('sudo chmod -R 777 wrkdir/test')
+	os.system('mkdir -p wrkdir/test')
+	os.system('chmod -R 777 wrkdir/test')
+	os.system('mkdir -p wrkdir/test/coverage')
+	os.system('mkdir -p wrkdir/test/germline_filter')
+	os.system('mkdir -p wrkdir/test/mutationcounts_table')
+	os.system('mkdir -p wrkdir/test/specific_mutations')
+	os.system('mkdir -p wrkdir/test/summary_tables')
+	os.system('chmod -R 777 wrkdir/test')
 
 
 

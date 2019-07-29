@@ -48,9 +48,11 @@ def vcf_to_dataframe(filename):
 def get_filenames():
 	""" get file names given path """
 	files = []
+
 	for file in os.listdir(cwd):
 		if file.endswith(".vcf"):
 			fullPath = cwd + file 
+
 			files.append(fullPath)
     
 	return files
@@ -197,6 +199,7 @@ def are_hits_in_cosmic(queryList, SNP_bool):
 
 def build_genome_positions_dict(fileName):
 	""" creates dict with genome coords for cosmic filtered hits to specific GOI """
+
 	cell = fileName.replace(cwd, "")
 	cell = cell.replace(".vcf", "")	
 
@@ -302,6 +305,7 @@ def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
 		calls coverage_search_on_vcf() for each of those AA level hitsß """
 
 	for cell in ROI_hits_dict.keys():
+
 		vcf_path = cwd + cell + '.vcf'
 		vcf = vcf_to_dataframe(vcf_path)
 
@@ -421,3 +425,4 @@ def check_coverage_loci(genes_list, nthread, outprefix, vcf_dir, cosmic_db):
 	
 	coverage_df = convert_to_df(coverage_dict)
 	coverage_df.to_csv(outprefix)
+  
