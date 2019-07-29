@@ -7,7 +7,6 @@ from functools import partial
 import click
 
 from cerebra.hello import hello
-from cerebra.datadump import s3_import
 from cerebra.germline_filter import germline_filter
 from cerebra.mutation_counts import count_mutations
 from cerebra.get_aa_mutations import get_aa_mutations
@@ -33,7 +32,6 @@ def cli():
     pass
 
 cli.add_command(hello, name='hello')
-cli.add_command(s3_import, name='s3_import')
 cli.add_command(germline_filter, name='germline-filter')
 cli.add_command(count_mutations, name='count-mutations')
 cli.add_command(get_aa_mutations, name='get_aa_mutations')
