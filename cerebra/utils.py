@@ -52,8 +52,7 @@ class GenomeIntervalTree():
 
 		working_tree_map = {}
 
-		idx = 0
-		for record in records:
+		for idx, record in enumerate(records):
 			genome_pos = predicate(record)
 
 			if genome_pos is None:
@@ -70,8 +69,6 @@ class GenomeIntervalTree():
 			ends.append(genome_pos.end)
 			ids.append(idx)
 
-			self.records.append(record)
-			idx += 1
 			self.records.append(record)
 
 		tree_map = {}
