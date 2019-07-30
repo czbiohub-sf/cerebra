@@ -12,7 +12,7 @@ def test_cov_module():
 	n_thread = 2
 	prefix = 'test_cov_mod_out.csv'
 	vcf_dir_ = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/vcf_test_set/'
-	cosmic_db_ = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/CosmicGenomeScreensMutantExport.tsv'
+	cosmic_db_ = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/CosmicGenomeScreensMutantExport_edit.csv'
 
 	runner = CliRunner()
 	result = runner.invoke(check_coverage_loci, ["--genes_list", genes_file,

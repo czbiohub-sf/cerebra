@@ -374,11 +374,11 @@ def convert_to_df(cd):
 
 """ get cmdline input """
 @click.command()
-@click.option('--genes_list', default = '/home/lincoln/code/cerebra/cerebra/wrkdir/genesList.csv', prompt='path to csv file with genes of interest to evaluate coverage for', required=True, type=str)
-@click.option('--nthread', default = 16, prompt='number of threads', required=True, type=int)
+@click.option('--genes_list', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/genesList.csv', prompt='path to csv file with genes of interest to evaluate coverage for', required=True, type=str)
+@click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
 @click.option('--outprefix', default = 'sampleOut.csv', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--vcf_dir', default = '/home/lincoln/code/cerebra/cerebra/wrkdir/vcf/', prompt='path to directory containing vcf files', required=True)
-@click.option('--cosmic_db', default = '/home/lincoln/code/cerebra/cerebra/wrkdir/CosmicGenomeScreensMutantExport.tsv', prompt='path to cosmic database', required=True)
+@click.option('--vcf_dir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/vcf_test_set/', prompt='path to directory containing vcf files', required=True)
+@click.option('--cosmic_db', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/CosmicGenomeScreensMutantExport_edit.csv', prompt='path to cosmic database', required=True)
  
 
 
