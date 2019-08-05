@@ -12,7 +12,7 @@ def test_cov_module():
 	n_thread = 2
 	prefix = 'test_cov_mod_out.csv'
 	vcf_dir_ = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/vcf_test_set/'
-	cosmic_db_ = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/CosmicGenomeScreensMutantExport_edit.csv'
+	cosmic_db_ = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/CosmicGenomeScreensMutantExport.tsv'
 
 	runner = CliRunner()
 	result = runner.invoke(check_coverage_loci, ["--genes_list", genes_file,
@@ -22,5 +22,5 @@ def test_cov_module():
 	assert result.exit_code == 0
 	assert os.path.isfile(prefix)
 
-	p2 = 'artificial_vcf_gold_std.csv'
-	assert filecmp.cmp(prefix,p2), 'filecmp to artificial_vcf_gold_std.csv FAILED'
+	p2 = 'artificial_vcf_gold_std_cov.csv'
+	assert filecmp.cmp(prefix,p2), 'filecmp to artificial_vcf_gold_std_cov.csv FAILED'
