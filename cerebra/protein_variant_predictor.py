@@ -211,23 +211,6 @@ class AAVariantPredictor():
 
         return seq[nearest_codon_start:nearest_codon_end]
 
-    # -> Get coding sequence (including stop codon)
-    # -> If 5' CDS has a nonzero phase, pad Ns in new seq
-    #   -> What about 3'?
-    # -> Replace REF in translatable sequence with ALT
-    # -> Translate ref and alt sequences
-
-    # Alternative procedure...
-    # -> Get entire transcript sequence
-    # -> Make copy of tx seq with REF->ALT
-    # -> Splice together ref seq from CDS+stop codon bounds
-    # -> Splice together alt seq from CDS+stop codon bounds shifted by len(ALT) - len(REF) after POS
-    # -> Copy alt and ref seq and add phase padding to 5' (maybe 3'??)
-    # -> Translate alt, ref
-    # -> Add gaps to ref to maintain alignment (or not)
-    # -> If n' not incomplete & start/stop codon missing, try to take orig. non-padded seq and splice in n' UTR until respective codon (for 5' & 3')
-    # -> Re-translate alt, add gaps to ref
-
     def _splice_seq(self, seq, intervals):
         ordered_intervals = _merge_and_sort_intersecting_intervals(intervals)
 
@@ -405,20 +388,3 @@ class AAVariantPredictor():
             return None
 
         return range(int(match[1]) - 1, int(match[2]))
-
-    # Just jotting down some ideas
-
-    # Main tree generation procedure
-    #   -> iterate through transcript records
-    #       -> try to grab ENST* transcript ID
-    #       -> look up in annotated genome
-    #       -> grab CDS entries
-    #       -> add record to tree once for each CDS position
-    #           -> might have to trim transcript for CDS region
-    #       -> also keep track of gene name
-
-    # Check for variant procedure
-    #   -> look up variant position in main tree
-    #   -> iterate through overlap records
-    #       -> compose HGVS StructuralVariant(?)
-    #   -> report found struct vars
