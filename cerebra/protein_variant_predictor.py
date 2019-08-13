@@ -310,32 +310,6 @@ class AAVariantPredictor():
 
                 # FIXME: phase/padding + strandedness
 
-                # coding_seq, cds_pos = self._get_translatable_locseq(transcript)
-
-                # ref_pos = record_pos.shifted_by(0, len(ref) - 1)
-                # ref_slice = ref_pos.slice_within(cds_pos)
-
-                # alt_seq_padding = -(len(alt.value) % -3)
-
-                # alt_coding_seq = coding_seq[:ref_slice.start] \
-                #                + alt.value \
-                #                + coding_seq[ref_slice.stop:] \
-                #                + ('N' * alt_seq_padding)
-
-                # aa_seq = coding_seq.translate()
-                # alt_aa_seq = alt_coding_seq.translate()
-
-                # psvm = ProteinSequenceVariantMatcher(alt.type, aa_seq,
-                #                                      alt_aa_seq)
-                #
-                # posedit = psvm.create_hgvs_posedit()
-
-                # transcript_id = transcript.feat.attributes["transcript_id"]
-                # # FIXME: Should use protein product id, not transcript id
-                # seqvar = hgvs.sequencevariant.SequenceVariant(ac=transcript_id,
-                #                                               type='p',
-                #                                               posedit=posedit)
-
                 ref_aa_seq = ref_coding_seq.translate()
                 alt_aa_seq = alt_coding_seq.translate()
                 protein_id = transcript.feat.attributes["protein_id"]
