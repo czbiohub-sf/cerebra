@@ -151,66 +151,6 @@ class AAVariantPredictor():
         self.tree = GenomeIntervalTree(lambda record: record.feat.pos,
                                        cds_records)
 
-    # this method could be named more concisely maybe
-    def _splice_codon_padding(self, seq, transcript_record, offset):
-        transcript_coding_seq = transcript_record.seq[
-            transcript_record.cds_slice]
-        padded_transcript_coding_seq = (
-            'N' * -(transcript_record.five_prime_cds.phase % -3)
-        ) + transcript_coding_seq
-
-        if len(padded_transcript_coding_seq) % 3 != 0:
-            # FIXME(remove): temp trap
-            print("Bad padded tx seq len")
-
-        # Trim the first `offset` characters if `offset` is negative.
-        trimmed_start = max(0, -offset)
-        trimmed_end = min(
-            len(seq),
-            # Length of the transcript sequence relative to the sequence
-            len(padded_transcript_coding_seq) - offset)
-
-        splice_start = offset + trimmed_start
-        splice_end = offset + trimmed_end
-
-        nearest_codon_start = splice_start - (splice_start % 3)
-        nearest_codon_end = splice_end - (splice_end % -3)
-
-        # NOTE: For sequences which start before or end after the transcript
-        # sequence, the nearest codon start/end indices may be greater than the
-        # splice start/end indices, which is fine. In these cases, nothing will
-        # be prepended/appended.
-
-        splice_prepend_seq = padded_transcript_coding_seq[nearest_codon_start:
-                                                          splice_start]
-        splice_append_seq = padded_transcript_coding_seq[splice_end:
-                                                         nearest_codon_end]
-
-        return splice_prepend_seq + seq + splice_append_seq
-
-    def _get_translatable_locseq(self, transcript_record):
-        transcript_coding_seq = transcript_record.seq[
-            transcript_record.cds_slice]
-
-        inverse_phase = -(transcript_record.five_prime_cds.phase % -3)
-
-        if transcript_record.feat.is_reverse_stranded:
-            inverse_phase = -inverse_phase
-
-        padded_transcript_coding_seq = (
-            'N' * abs(inverse_phase)) + transcript_coding_seq
-
-        pos = transcript_record.five_prime_cds.pos
-        pos = pos.shifted_by(-inverse_phase, 0)
-
-        return _LocalizedSeq(seq=padded_transcript_coding_seq, pos=pos)
-
-    def _slice_seq_codons(self, seq, seq_slice):
-        nearest_codon_start = seq_slice.start - (seq_slice.start % 3)
-        nearest_codon_end = seq_slice.stop - (seq_slice.stop % -3)
-
-        return seq[nearest_codon_start:nearest_codon_end]
-
     def _splice_seq(self, seq, intervals):
         ordered_intervals = _merge_and_sort_intersecting_intervals(intervals)
 
