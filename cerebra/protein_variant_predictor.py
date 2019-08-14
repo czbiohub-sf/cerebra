@@ -1,14 +1,10 @@
 from collections import defaultdict, namedtuple
-import operator
 from itertools import tee
-import re
 
-from Bio import Alphabet, SeqIO
+from Bio import Alphabet
 from Bio.Seq import Seq
 import hgvs.edit, hgvs.location, hgvs.posedit, hgvs.sequencevariant
 from hgvs.utils.altseq_to_hgvsp import AltSeqToHgvsp
-from pyfaidx import Fasta
-import vcfpy
 
 from .utils import GenomePosition, GenomeIntervalTree, vcf_alt_affected_range
 
@@ -44,38 +40,14 @@ ProteinVariantResult = namedtuple(
     ["query_variant", "predicted_variant", "transcript_feat"])
 
 
-def _merge_and_sort_intersecting_intervals(intervals):
-    current_interval = None
-
-    for interval in sorted(intervals):
-        if current_interval is None:
-            current_interval = interval
-            continue
-
-        i0, i1, c0, c1 = *interval, *current_interval
-
-        if i0 > c1:  # i1 < c0 shouldn't be possible due to sort
-            # New interval
-            yield current_interval
-            current_interval = interval
-            continue
-
-        # This interval intersects with the current one; merge them
-        current_interval = (min(i0, c0), max(i1, c1))
-
-    if current_interval is not None:
-        yield current_interval
-
-
-class AAVariantPredictor():
+class ProteinVariantPredictor():
     # TODO: Now I think it would be nice if this was written to use GFF3 instead
     # of GTF (hierarchic features) and the entire genome transcript rather than
     # fragmented protein-coding transcripts. However, using the entire genome
     # transcript would require a more sophisticated method for querying regions...
 
-    def __init__(self, refgenome_tree, genome_fasta_file):
-        # transcript_reader = SeqIO.parse(protein_coding_transcript, "fasta")
-        self.genome_fasta = Fasta(genome_fasta_file)
+    def __init__(self, refgenome_tree, genome_faidx):
+        self.genome_fasta = genome_faidx
 
         transcript_feats_dict = defaultdict(lambda: defaultdict(list))
         for feature in refgenome_tree.records:
@@ -151,10 +123,36 @@ class AAVariantPredictor():
         self.tree = GenomeIntervalTree(lambda record: record.feat.pos,
                                        cds_records)
 
-    def _splice_seq(self, seq, intervals):
-        ordered_intervals = _merge_and_sort_intersecting_intervals(intervals)
+    @classmethod
+    def _merged_and_sorted_intersecting_intervals(cls, intervals):
+        current_interval = None
 
-        # Create empty seq with same alphabet
+        for interval in sorted(intervals):
+            if current_interval is None:
+                current_interval = interval
+                continue
+
+            i0, i1, c0, c1 = *interval, *current_interval
+
+            if i0 > c1:  # i1 < c0 shouldn't be possible due to sort
+                # This new interval doesn't overlap with the current one; yield
+                # the old interval and rotate.
+                yield current_interval
+                current_interval = interval
+                continue
+
+            # This interval intersects with the current one; merge them
+            current_interval = (min(i0, c0), max(i1, c1))
+
+        if current_interval is not None:
+            yield current_interval
+
+    @classmethod
+    def _splice_seq(cls, seq, intervals):
+        ordered_intervals = cls._merged_and_sorted_intersecting_intervals(
+            intervals)
+
+        # Create empty `Seq` with same alphabet
         spliced_seq = seq[0:0]
 
         for interval in ordered_intervals:
@@ -198,9 +196,6 @@ class AAVariantPredictor():
 
                 alt_tx_seq_len_delta = len(alt_tx_seq) - len(ref_tx_seq)
 
-                # i think this is right, maybe could use some comments explaining logic
-                # kinda hard to explain though
-
                 ref_splice_intervals, alt_splice_intervals = tee(
                     (feat.pos.slice_within(tx_pos).indices(len(tx_pos))[:2]
                      for feat in transcript.translated_feats), 2)
@@ -208,6 +203,11 @@ class AAVariantPredictor():
                 record_pos_tx_slice = record_pos.slice_within(tx_pos)
 
                 alt_splice_intervals = (
+                    # If the variant comes after a feature's position, the
+                    # interval doesn't need to be changed; if it does,
+                    # the length difference between the alt and ref is added.
+                    # This applies individually for both the start and end of
+                    # each interval.
                     (ival[0] + (0 if record_pos_tx_slice.start >= ival[0] else
                                 alt_tx_seq_len_delta),
                      ival[1] + (0 if record_pos_tx_slice.start >= ival[1] else
@@ -217,19 +217,14 @@ class AAVariantPredictor():
                 ref_splice_intervals = list(ref_splice_intervals)
                 alt_splice_intervals = list(alt_splice_intervals)
 
-                print(
-                    list(
-                        _merge_and_sort_intersecting_intervals(
-                            ref_splice_intervals)))
-                print(
-                    list(
-                        _merge_and_sort_intersecting_intervals(
-                            alt_splice_intervals)))
+                ref_coding_seq = self._splice_seq(ref_tx_seq,
+                                                  ref_splice_intervals)
+                alt_coding_seq = self._splice_seq(alt_tx_seq,
+                                                  alt_splice_intervals)
 
-                ref_coding_seq = self._splice_seq(
-                    ref_tx_seq, ref_splice_intervals).reverse_complement()
-                alt_coding_seq = self._splice_seq(
-                    alt_tx_seq, alt_splice_intervals).reverse_complement()
+                if transcript.feat.is_reverse_stranded:
+                    ref_coding_seq = ref_coding_seq.reverse_complement()
+                    alt_coding_seq = alt_coding_seq.reverse_complement()
 
                 # FIXME: phase/padding + strandedness
 
@@ -249,44 +244,63 @@ class AAVariantPredictor():
                 is_frameshift = (len(ref_coding_seq) -
                                  len(alt_coding_seq)) % 3 != 0
                 variant_start_aa = None
-                is_substitution = None
+                is_substitution = False
+                # The implementation for `is_ambiguous` used by `hgvs`
+                # considers "ambiguity" to mean "more than one stop codon."
                 is_ambiguous = alt_aa_seq.count('*') > 1
 
-                diff_count = 0
-                for pos, (ref_aa,
-                          alt_aa) in enumerate(zip(ref_aa_seq, alt_aa_seq)):
-                    if ref_aa != alt_aa:
-                        diff_count += 1
+                min_coding_seq_length = min(len(ref_coding_seq),
+                                            len(alt_coding_seq))
+                for pos in range(min_coding_seq_length):
+                    ref_na, alt_na = ref_coding_seq[pos], alt_coding_seq[pos]
 
-                        if variant_start_aa is None:
-                            variant_start_aa = pos + 1  # 1-indexed
+                    if ref_na != alt_na:
+                        variant_start_aa = pos // 3
+                        break
+                else:
+                    if len(ref_coding_seq) == len(alt_coding_seq):
+                        # The coding sequence was unchanged by the variant.
+                        continue
 
-                is_substitution = (
-                    len(ref_aa_seq) == len(alt_aa_seq)) and diff_count == 1
+                    variant_start_aa = min_coding_seq_length // 3
+
+                # This doesn't handle silent substitutions, which should be
+                # fine.
+                min_aa_seq_length = min(len(ref_aa_seq), len(alt_aa_seq))
+                if len(ref_aa_seq) == len(alt_aa_seq):
+                    for pos in range(min_aa_seq_length):
+                        ref_aa, alt_aa = ref_aa_seq[pos], alt_aa_seq[pos]
+
+                        if ref_aa != alt_aa:
+                            if is_substitution:
+                                is_substitution = False
+                                break
+
+                            is_substitution = True
 
                 ref_tx_data = _MockRefTranscriptData(
                     transcript_sequence=str(ref_coding_seq),
                     aa_sequence=str(ref_aa_seq),
-                    cds_start=None,  # Used for initialization
-                    cds_stop=None,  # Used for initialization
+                    cds_start=None,  # Only used for initialization
+                    cds_stop=None,  # Only used for initialization
                     protein_accession=protein_id)
                 alt_tx_data = _MockAltTranscriptData(
                     transcript_sequence=str(alt_coding_seq),
                     aa_sequence=str(alt_aa_seq),
-                    cds_start=None,  # Used for initialization
-                    cds_stop=None,  # Used for initialization
+                    cds_start=None,  # Only used for initialization
+                    cds_stop=None,  # Only used for initialization
                     protein_accession=protein_id,
                     is_frameshift=is_frameshift,
-                    variant_start_aa=variant_start_aa,  # 1-indexed
+                    variant_start_aa=variant_start_aa + 1,  # 1-indexed
                     frameshift_start=None,  # Seems to be unused currently
                     is_substitution=is_substitution,
                     # The `AltTranscriptData` builder used by hgvs` sets
                     # `is_ambiguous` to true if there are multiple stop codons
-                    # in the AA sequence. This doesn't work in this case,
-                    # because frameshifts typically create many new stop
-                    # codons. It is uncertain why `hgvs` doesn't run into this
-                    # issue; perhaps it's because they indiscriminately pad
-                    # sequences that can't be cleanly translated.
+                    # in the AA sequence. This doesn't work in this code's
+                    # context, because frameshifts typically create many new
+                    # stop codons. It is uncertain why `hgvs` doesn't run into
+                    # this issue; perhaps it's because they indiscriminately
+                    # pad sequences that can't be cleanly translated.
                     is_ambiguous=(not is_frameshift) and is_ambiguous)
 
                 protein_variant_builder = AltSeqToHgvsp(
@@ -305,26 +319,6 @@ class AAVariantPredictor():
                 variant_results.append(
                     ProteinVariantResult(query_variant=alt,
                                          predicted_variant=protein_variant,
-                                         transcript_feat=transcript))
+                                         transcript_feat=transcript.feat))
 
         return variant_results
-
-    enst_id_pattern = re.compile(r"ENST[\d\.]+")
-
-    def parse_enst_id(self, enst_str):
-        match = self.enst_id_pattern.match(enst_str)
-
-        if not match:
-            return None
-
-        return match[0]
-
-    cds_range_pattern = re.compile(r"CDS:(\d+)-(\d+)")
-
-    def parse_cds_range(self, cds_str):
-        match = self.cds_range_pattern
-
-        if not match:
-            return None
-
-        return range(int(match[1]) - 1, int(match[2]))
