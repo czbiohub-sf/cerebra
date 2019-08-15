@@ -5,6 +5,7 @@ import vcfpy
 
 from cerebra.utils import GenomePosition, GenomeIntervalTree
 
+
 class GenomePositionTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(self):
@@ -44,12 +45,14 @@ class GenomePositionTestCase(unittest.TestCase):
             self.GPOS_E,
         ]
 
-        tests = [
-            (vcfpy.Record(
-                CHROM=pos.chrom, POS=pos.start + 1, ID='.', REF='.' * len(pos),
-                ALT=[], QUAL=0, FILTER='.', INFO={}
-            ), pos) for pos in tests
-        ]
+        tests = [(vcfpy.Record(CHROM=pos.chrom,
+                               POS=pos.start + 1,
+                               ID='.',
+                               REF='.' * len(pos),
+                               ALT=[],
+                               QUAL=0,
+                               FILTER='.',
+                               INFO={}), pos) for pos in tests]
 
         for test, expected in tests:
             self.assertEqual(expected, GenomePosition.from_vcf_record(test))
@@ -58,7 +61,8 @@ class GenomePositionTestCase(unittest.TestCase):
         tests = [
             (pd.Series(["1", "unknown", "exon", "1", "10"]), self.GPOS_A),
             (pd.Series(["2", "unknown", "stop codon", "6", "6"]), self.GPOS_B),
-            (pd.Series(["test", "unknown", "exon", "101", "101"]), self.GPOS_C),
+            (pd.Series(["test", "unknown", "exon", "101",
+                        "101"]), self.GPOS_C),
         ]
 
         for test, expected in tests:
@@ -142,6 +146,7 @@ class GenomePositionTestCase(unittest.TestCase):
         for test, expected in tests:
             self.assertEqual(expected, len(test))
 
+
 class GenomeIntervalTreeTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(self):
@@ -163,12 +168,18 @@ class GenomeIntervalTreeTestCase(unittest.TestCase):
 
         # (query, bests, matches)
         self.overlap_positive_tests = [
-            (GenomePosition("1", 0, 10), self.tree_positions[0:1], self.tree_positions[0:1]),
-            (GenomePosition("1", 9, 10), self.tree_positions[0:1], self.tree_positions[0:1]),
-            (GenomePosition("2", -10, 20), self.tree_positions[4:5], self.tree_positions[4:5]),
-            (GenomePosition("1", 40, 41), self.tree_positions[2:3], self.tree_positions[2:3]),
-            (GenomePosition("1", 49, 51), self.tree_positions[3:4], self.tree_positions[3:4]),
-            (GenomePosition("1", 0, 51), self.tree_positions[0:2], self.tree_positions[0:4]),
+            (GenomePosition("1", 0, 10), self.tree_positions[0:1],
+             self.tree_positions[0:1]),
+            (GenomePosition("1", 9, 10), self.tree_positions[0:1],
+             self.tree_positions[0:1]),
+            (GenomePosition("2", -10, 20), self.tree_positions[4:5],
+             self.tree_positions[4:5]),
+            (GenomePosition("1", 40, 41), self.tree_positions[2:3],
+             self.tree_positions[2:3]),
+            (GenomePosition("1", 49, 51), self.tree_positions[3:4],
+             self.tree_positions[3:4]),
+            (GenomePosition("1", 0, 51), self.tree_positions[0:2],
+             self.tree_positions[0:4]),
         ]
 
         self.overlap_negative_tests = [
@@ -183,11 +194,16 @@ class GenomeIntervalTreeTestCase(unittest.TestCase):
 
         # (query, bests, matches)
         self.containment_positive_tests = [
-            (GenomePosition("1", 0, 10), self.tree_positions[0:1], self.tree_positions[0:1]),
-            (GenomePosition("1", 0, 1), self.tree_positions[0:1], self.tree_positions[0:1]),
-            (GenomePosition("1", 9, 10), self.tree_positions[0:1], self.tree_positions[0:1]),
-            (GenomePosition("1", 2, 8), self.tree_positions[0:1], self.tree_positions[0:1]),
-            (GenomePosition("1", 40, 41), self.tree_positions[2:3], self.tree_positions[2:3]),
+            (GenomePosition("1", 0, 10), self.tree_positions[0:1],
+             self.tree_positions[0:1]),
+            (GenomePosition("1", 0, 1), self.tree_positions[0:1],
+             self.tree_positions[0:1]),
+            (GenomePosition("1", 9, 10), self.tree_positions[0:1],
+             self.tree_positions[0:1]),
+            (GenomePosition("1", 2, 8), self.tree_positions[0:1],
+             self.tree_positions[0:1]),
+            (GenomePosition("1", 40, 41), self.tree_positions[2:3],
+             self.tree_positions[2:3]),
         ]
 
         self.containment_negative_tests = [
@@ -208,7 +224,8 @@ class GenomeIntervalTreeTestCase(unittest.TestCase):
         ]
 
         for test, expected in tests:
-            self.assertAlmostEqual(expected, self.tree._compute_jaccard_index(*test))
+            self.assertAlmostEqual(expected,
+                                   self.tree._compute_jaccard_index(*test))
 
     def test_record_indexing(self):
         # For the purposes of this test, the end value is treated as a notion
