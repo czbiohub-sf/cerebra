@@ -46,7 +46,7 @@ class ProteinVariantPredictor():
     # fragmented protein-coding transcripts. However, using the entire genome
     # transcript would require a more sophisticated method for querying regions...
 
-    def __init__(self, refgenome_tree, genome_faidx):
+    def __init__(self, annotation_genome_tree, genome_faidx):
         self.genome_fasta = genome_faidx
 
         transcript_feats_dict = defaultdict(lambda: defaultdict(list))
@@ -183,15 +183,29 @@ class ProteinVariantPredictor():
             for tx_id in transcript_ids:
                 transcript = self.transcript_records[tx_id]
                 tx_pos = transcript.feat.pos
+                ref_pos = record_pos.shifted_by(0, len(ref) - 1)
+
+                # We want to make sure that the transcript sequence we pull
+                # includes the REF so that we can cleanly replace it with the
+                # ALT later.
+                tx_pos = tx_pos.shifted_by(
+                    min(0, ref_pos.start - tx_pos.start),
+                    max(0, ref_pos.end - tx_pos.end))
+
                 ref_tx_seq = Seq(self.genome_fasta["chr" + tx_pos.chrom]
                                  [tx_pos.start:tx_pos.end].seq,
                                  alphabet=Alphabet.generic_dna)
 
-                ref_pos = record_pos.shifted_by(0, len(ref) - 1)
                 ref_slice = ref_pos.slice_within(tx_pos)
+                # print(f"tx_pos: {tx_pos}")
+                # print(f"ref_pos: {ref_pos}")
+                # print(f"ref_slice: {ref_slice}")
+
+                # The '*' ALT allele means the entire REF was deleted.
+                alt_value = '' if alt.value == '*' else alt.value
 
                 alt_tx_seq = ref_tx_seq[:ref_slice.start] \
-                           + alt.value \
+                           + alt_value \
                            + ref_tx_seq[ref_slice.stop:]
 
                 alt_tx_seq_len_delta = len(alt_tx_seq) - len(ref_tx_seq)
@@ -205,7 +219,7 @@ class ProteinVariantPredictor():
                 alt_splice_intervals = (
                     # If the variant comes after a feature's position, the
                     # interval doesn't need to be changed; if it does,
-                    # the length difference between the alt and ref is added.
+                    # the length difference between the ALT and REF is added.
                     # This applies individually for both the start and end of
                     # each interval.
                     (ival[0] + (0 if record_pos_tx_slice.start >= ival[0] else
@@ -226,10 +240,11 @@ class ProteinVariantPredictor():
                     ref_coding_seq = ref_coding_seq.reverse_complement()
                     alt_coding_seq = alt_coding_seq.reverse_complement()
 
-                # FIXME: phase/padding + strandedness
+                # FIXME: phase and padding
 
                 ref_aa_seq = ref_coding_seq.translate()
                 alt_aa_seq = alt_coding_seq.translate()
+
                 protein_id = transcript.feat.attributes["protein_id"]
 
                 print(
@@ -260,6 +275,8 @@ class ProteinVariantPredictor():
                 else:
                     if len(ref_coding_seq) == len(alt_coding_seq):
                         # The coding sequence was unchanged by the variant.
+                        # FIXME: `variant_start_aa` can be None because of this
+                        # exit case.
                         continue
 
                     variant_start_aa = min_coding_seq_length // 3
@@ -278,6 +295,18 @@ class ProteinVariantPredictor():
 
                             is_substitution = True
 
+                if not is_substitution and (
+                    (len(ref_aa_seq) > len(alt_aa_seq)
+                     and ref_aa_seq.startswith(alt_aa_seq)) or
+                    (len(alt_aa_seq) > len(ref_aa_seq)
+                     and alt_aa_seq.startswith(ref_aa_seq))):
+                    # FIXME (by filing a bug report?):
+                    # `hgvs` has a weird bug where deletions/insertions that do
+                    # not cause any observable variation at the protein level
+                    # cause an `IndexError` while attempting to find the first
+                    # varying amino acid. These must be skipped for now.
+                    continue
+
                 ref_tx_data = _MockRefTranscriptData(
                     transcript_sequence=str(ref_coding_seq),
                     aa_sequence=str(ref_aa_seq),
@@ -294,18 +323,29 @@ class ProteinVariantPredictor():
                     variant_start_aa=variant_start_aa + 1,  # 1-indexed
                     frameshift_start=None,  # Seems to be unused currently
                     is_substitution=is_substitution,
-                    # The `AltTranscriptData` builder used by hgvs` sets
+                    # The `AltTranscriptData` builder used by `hgvs` sets
                     # `is_ambiguous` to true if there are multiple stop codons
                     # in the AA sequence. This doesn't work in this code's
                     # context, because frameshifts typically create many new
                     # stop codons. It is uncertain why `hgvs` doesn't run into
-                    # this issue; perhaps it's because they indiscriminately
-                    # pad sequences that can't be cleanly translated.
+                    # this issue; perhaps it's because it indiscriminately pads
+                    # sequences that can't be cleanly translated.
                     is_ambiguous=(not is_frameshift) and is_ambiguous)
 
                 protein_variant_builder = AltSeqToHgvsp(
                     ref_tx_data, alt_tx_data)
-                protein_variant = protein_variant_builder.build_hgvsp()
+
+                try:
+                    protein_variant = protein_variant_builder.build_hgvsp()
+                except Exception as ex:
+                    print(f"ref_aa_seq: {ref_aa_seq}")
+                    print(f"alt_aa_seq: {alt_aa_seq}")
+                    print("ref_tx_data")
+                    print(ref_tx_data)
+                    print("alt_tx_data")
+                    print(alt_tx_data)
+
+                    raise ex
 
                 print("[[[ === MATCH ===")
                 print(f"<<TX::{protein_id}>>")
