@@ -14,7 +14,7 @@ from pyfaidx import Fasta
 from pathos.pools import _ProcessPool as Pool
 
 from .protein_variant_predictor import ProteinVariantPredictor
-from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, vcf_alt_affected_range, protein_sequence_variants_are_equal
+from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, vcf_alt_affected_range, sequence_variants_are_equal
 
 
 class AminoAcidMutationFinder():
@@ -122,26 +122,31 @@ class AminoAcidMutationFinder():
 
             # TODO: maybe clean this up into a method
 
-            overlaps = self._cosmic_genome_tree.get_all_overlaps(record_pos)
+            protein_variant_results = self._protein_variant_predictor \
+                .predict_for_vcf_record(record)
 
-            target_variants = (self._get_cosmic_record_protein_variant(overlap)
-                               for overlap in overlaps)
-
-            if False and not target_variants:
+            if not protein_variant_results:
                 continue
 
             target_variants = []
+            if self._cosmic_genome_tree:
+                overlaps = self._cosmic_genome_tree.get_all_overlaps(
+                    record_pos)
 
-            protein_variant_results = self._protein_variant_predictor \
-                .predict_for_vcf_record(record)
+                target_variants = (
+                    self._get_cosmic_record_protein_variant(overlap)
+                    for overlap in overlaps)
+
+                if not target_variants:
+                    continue
 
             for result in protein_variant_results:
                 predicted_variant = result.predicted_variant
 
                 if target_variants:
                     for target_variant in target_variants:
-                        if protein_sequence_variants_are_equal(
-                                target_variant, predicted_variant):
+                        if sequence_variants_are_equal(target_variant,
+                                                       predicted_variant):
                             break
                     else:
                         # This protein variant didn't match any of the target
