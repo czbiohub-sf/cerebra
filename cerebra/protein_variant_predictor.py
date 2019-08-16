@@ -216,6 +216,11 @@ class ProteinVariantPredictor():
 
                 record_pos_tx_slice = record_pos.slice_within(tx_pos)
 
+                # NOTE: Because of the way the splicing interval offsets are
+                # calculated, insertions should not affect the length of the
+                # ALT coding sequence; e.g. an insertion which starts before
+                # the 5' CDS will just shift the splicing intervals over by its
+                # length.
                 alt_splice_intervals = (
                     # If the variant comes after a feature's position, the
                     # interval doesn't need to be changed; if it does,
@@ -240,7 +245,21 @@ class ProteinVariantPredictor():
                     ref_coding_seq = ref_coding_seq.reverse_complement()
                     alt_coding_seq = alt_coding_seq.reverse_complement()
 
-                # FIXME: phase and padding
+                # TODO: For instances where start/stop codons have been
+                # altered, consider splicing in UTRs up until start/stop
+                # codons.
+
+                n_term_padding = -(transcript.five_prime_cds_feat.phase % -3)
+
+                ref_c_term_trim = (n_term_padding + len(ref_coding_seq)) % 3
+                alt_c_term_trim = (n_term_padding + len(alt_coding_seq)) % 3
+                ref_trim_slice = slice(0, len(ref_coding_seq) - ref_c_term_trim)
+                alt_trim_slice = slice(0, len(alt_coding_seq) - alt_c_term_trim)
+
+                ref_coding_seq = (
+                    'N' * n_term_padding) + ref_coding_seq[ref_trim_slice]
+                alt_coding_seq = (
+                    'N' * n_term_padding) + alt_coding_seq[alt_trim_slice]
 
                 ref_aa_seq = ref_coding_seq.translate()
                 alt_aa_seq = alt_coding_seq.translate()
