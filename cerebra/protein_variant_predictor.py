@@ -192,7 +192,9 @@ class ProteinVariantPredictor():
 
                 ref_slice = ref_pos.slice_within(tx_pos)
 
-                # The '*' ALT allele means the entire REF was deleted.
+                # TODO: The '*' ALT indicates that the allele was missing.
+                # Right now, this is treated as a deletion of the entire REF
+                # sequence, but perhaps this should be handled differently...
                 alt_value = '' if alt.value == '*' else alt.value
 
                 alt_tx_seq = ref_tx_seq[:ref_slice.start] \
