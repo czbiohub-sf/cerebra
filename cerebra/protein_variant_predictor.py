@@ -41,12 +41,9 @@ ProteinVariantResult = namedtuple(
 
 
 class ProteinVariantPredictor():
-    # TODO: Now I think it would be nice if this was written to use GFF3 instead
-    # of GTF (hierarchic features) and the entire genome transcript rather than
-    # fragmented protein-coding transcripts. However, using the entire genome
-    # transcript would require a more sophisticated method for querying
-    # regions...
-
+    # TODO: Now I think it would be nice if this was written to use GFF3
+    # instead of GTF because of the hierarchic feature structure GFF3 provides,
+    # which is is already being emulated (to an extent) below.
     def __init__(self, annotation_genome_tree, genome_faidx):
         self.genome_fasta = genome_faidx
 
