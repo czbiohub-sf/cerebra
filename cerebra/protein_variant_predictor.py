@@ -44,7 +44,8 @@ class ProteinVariantPredictor():
     # TODO: Now I think it would be nice if this was written to use GFF3 instead
     # of GTF (hierarchic features) and the entire genome transcript rather than
     # fragmented protein-coding transcripts. However, using the entire genome
-    # transcript would require a more sophisticated method for querying regions...
+    # transcript would require a more sophisticated method for querying
+    # regions...
 
     def __init__(self, annotation_genome_tree, genome_faidx):
         self.genome_fasta = genome_faidx
@@ -71,9 +72,8 @@ class ProteinVariantPredictor():
 
             # Hopefully redundant check
             if not transcript_feat:
-                print(
-                    f"Unexpected missing transcript feature for transcript ID {transcript_id}"
-                )
+                print(f"Unexpected missing transcript feature for transcript"
+                      " ID {transcript_id}")
                 continue
 
             cds_feats = features["CDS"]
@@ -167,8 +167,8 @@ class ProteinVariantPredictor():
 
         ref = vcf_record.REF
         for alt in vcf_record.ALT:
-            # Create a GenomePosition representing the range affected by the ALT
-            # sequence.
+            # Create a GenomePosition representing the range affected by the
+            # ALT sequence.
             affected_pos = record_pos.shifted_by(
                 vcf_alt_affected_range(ref, alt))
 
