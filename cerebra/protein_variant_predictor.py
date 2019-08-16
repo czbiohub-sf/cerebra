@@ -172,9 +172,6 @@ class ProteinVariantPredictor():
             affected_pos = record_pos.shifted_by(
                 vcf_alt_affected_range(ref, alt))
 
-            # TODO: Would be better in theory if overlaps were used rather than
-            # containments, but containments allow a very useful set of
-            # assumptions to be made.
             coding_overlaps = self.tree.get_all_overlaps(affected_pos)
             transcript_ids = set(
                 record.transcript.feat.attributes["transcript_id"]
