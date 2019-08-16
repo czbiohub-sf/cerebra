@@ -349,17 +349,7 @@ class ProteinVariantPredictor():
                 protein_variant_builder = AltSeqToHgvsp(
                     ref_tx_data, alt_tx_data)
 
-                try:
-                    protein_variant = protein_variant_builder.build_hgvsp()
-                except Exception as ex:
-                    print(f"ref_aa_seq: {ref_aa_seq}")
-                    print(f"alt_aa_seq: {alt_aa_seq}")
-                    print("ref_tx_data")
-                    print(ref_tx_data)
-                    print("alt_tx_data")
-                    print(alt_tx_data)
-
-                    raise ex
+                protein_variant = protein_variant_builder.build_hgvsp()
 
                 variant_results.append(
                     ProteinVariantResult(query_variant=alt,
