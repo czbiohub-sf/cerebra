@@ -282,14 +282,14 @@ class ProteinVariantPredictor():
                 else:
                     if len(ref_coding_seq) == len(alt_coding_seq):
                         # The coding sequence was unchanged by the variant.
-                        # FIXME: `variant_start_aa` can be None because of this
-                        # exit case.
                         continue
 
                     variant_start_aa = min_coding_seq_length // 3
 
-                # This doesn't handle silent substitutions, which should be
-                # fine.
+                # NOTE: Not sure if `hgvs` expects `is_substitution` to be
+                # evaluated on the amino acid-level or the nucleic acid-level.
+                # Currently evaluated on the amino acid-level; therefore silent
+                # substitutions aren't taken into account.
                 min_aa_seq_length = min(len(ref_aa_seq), len(alt_aa_seq))
                 if len(ref_aa_seq) == len(alt_aa_seq):
                     for pos in range(min_aa_seq_length):
