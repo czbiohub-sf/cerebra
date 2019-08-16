@@ -253,8 +253,10 @@ class ProteinVariantPredictor():
 
                 ref_c_term_trim = (n_term_padding + len(ref_coding_seq)) % 3
                 alt_c_term_trim = (n_term_padding + len(alt_coding_seq)) % 3
-                ref_trim_slice = slice(0, len(ref_coding_seq) - ref_c_term_trim)
-                alt_trim_slice = slice(0, len(alt_coding_seq) - alt_c_term_trim)
+                ref_trim_slice = slice(0,
+                                       len(ref_coding_seq) - ref_c_term_trim)
+                alt_trim_slice = slice(0,
+                                       len(alt_coding_seq) - alt_c_term_trim)
 
                 ref_coding_seq = (
                     'N' * n_term_padding) + ref_coding_seq[ref_trim_slice]
@@ -265,13 +267,6 @@ class ProteinVariantPredictor():
                 alt_aa_seq = alt_coding_seq.translate()
 
                 protein_id = transcript.feat.attributes["protein_id"]
-
-                print(
-                    f"ref {len(ref_tx_seq)}\t->\t{len(ref_coding_seq)}\t->\t{len(ref_aa_seq)}"
-                )
-                print(
-                    f"alt {len(alt_tx_seq)}\t->\t{len(alt_coding_seq)}\t->\t{len(alt_aa_seq)}"
-                )
 
                 # Alt transcript data flags
 
@@ -365,15 +360,6 @@ class ProteinVariantPredictor():
                     print(alt_tx_data)
 
                     raise ex
-
-                print("[[[ === MATCH ===")
-                print(f"<<TX::{protein_id}>>")
-                print(f"{ref_coding_seq} => {ref_aa_seq}")
-                print("->")
-                print(f"{alt_coding_seq} => {alt_aa_seq}")
-                print()
-                print(protein_variant)
-                print("]]]")
 
                 variant_results.append(
                     ProteinVariantResult(query_variant=alt,
