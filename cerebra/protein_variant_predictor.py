@@ -197,9 +197,6 @@ class ProteinVariantPredictor():
                                  alphabet=Alphabet.generic_dna)
 
                 ref_slice = ref_pos.slice_within(tx_pos)
-                # print(f"tx_pos: {tx_pos}")
-                # print(f"ref_pos: {ref_pos}")
-                # print(f"ref_slice: {ref_slice}")
 
                 # The '*' ALT allele means the entire REF was deleted.
                 alt_value = '' if alt.value == '*' else alt.value
