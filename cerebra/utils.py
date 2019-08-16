@@ -2,6 +2,7 @@ import re
 import numpy as np
 
 import vcfpy
+from hgvs import edit
 from ncls import NCLS
 
 
@@ -301,3 +302,85 @@ def vcf_alt_affected_range(ref, alt):
         return range(len(ref))
 
     raise NotImplementedError()
+
+
+def _seqs_are_equal(seq_a, seq_b, wildcard=None):
+    if not len(seq_a) == len(seq_b):
+        return False
+
+    for a, b in zip(seq_a, seq_b):
+        if a == wildcard or b == wildcard:
+            continue
+
+        if not a == b:
+            return False
+
+    return True
+
+
+# This could be extended for other types of `SequenceVariant`s in the future if
+# needed.
+def sequence_variants_are_equal(seqvar_a,
+                                seqvar_b,
+                                strict_uncertain=False,
+                                strict_unknown=False,
+                                strict_silent=False):
+    if not seqvar_a.ac == seqvar_b.ac:
+        return False
+
+    if not seqvar_a.type == seqvar_b.type:
+        return False
+
+    sv_type = seqvar_a.type
+
+    if sv_type not in ["p"]:
+        raise NotImplementedError()
+
+    posedit_a, posedit_b = seqvar_a.posedit, seqvar_b.posedit
+
+    if (posedit_a is None) or (posedit_b is None):
+        return posedit_a is None and posedit_b is None
+
+    if strict_uncertain and not posedit_a.uncertain == posedit_b.uncertain:
+        return False
+
+    pos_a, pos_b = posedit_a.pos, posedit_b.pos
+
+    # TODO: Handle positional uncertainty
+
+    if not pos_a == pos_b:
+        return False
+
+    edit_a, edit_b = posedit_a.edit, posedit_b.edit
+
+    if not type(edit_a) is type(edit_b):
+        print(type(edit_a), type(edit_b))
+        return False
+
+    _seqs_cmp = lambda a, b: _seqs_are_equal(
+        a, b, wildcard=(None if strict_unknown else 'X'))
+
+    if isinstance(edit_a, (edit.AARefAlt, edit.AAFs, edit.AAExt)):
+        if (edit_a is None) or (edit_b is None):
+            return edit_a is None and edit_b is None
+
+        if not _seqs_cmp(edit_a.ref, edit_b.ref):
+            return False
+
+        if not _seqs_cmp(edit_a.alt, edit_b.alt):
+            return False
+
+        if strict_silent and (not edit_a.ref) and (not edit_a.alt):
+            return False
+    else:
+        raise NotImplementedError()
+
+    if isinstance(edit_a, (edit.AAFs, edit.AAExt)):
+        if not edit_a.length == edit_b.length:
+            return False
+
+    if isinstance(edit_b, (edit.AAExt)):
+        if not _seqs_cmp(edit_a.aaterm, edit_b.aaterm):
+            return False
+
+    return True
