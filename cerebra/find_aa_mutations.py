@@ -50,33 +50,42 @@ class AminoAcidMutationFinder():
         return filtered_db
 
     hgvs_parser = hgvs.parser.Parser(expose_all_rules=True)
-    mutation_aa_delins_fix_pattern = re.compile(r"(p\.\d+_\d+)(\w+)>(\w+)")
-    mutation_aa_uncertain_ins_del_fix_pattern = re.compile(
-        r"(p\.)(\d+_\d+)(ins|del)(\d+)")
+    mutation_aa_silent_sub_fix_pattern = re.compile(
+        r"(p\.)([A-Z](?:[a-z]{2})?)(\d+)\2")
 
-    @classmethod
-    def _get_cosmic_record_protein_variant(cls, cosmic_record):
+    def _get_cosmic_record_protein_variant(self, cosmic_record):
         mutation_aa = cosmic_record["Mutation AA"]
-        accession = cosmic_record["Accession Number"]
+        transcript_accession = cosmic_record["Accession Number"]
 
-        # Unfortunately, it seems that (some?) COSMIC mutation CDS strings are not quite HGVS-compliant; they use `>` rather than `del` + `ins`.
-        mutation_aa = cls.mutation_aa_delins_fix_pattern.sub(
-            r"\1del\2ins\3", mutation_aa)
+        for tx_id, tx_record in self._protein_variant_predictor \
+            .transcript_records.items():
+            if tx_id.split('.')[0] == transcript_accession:
+                transcript_record = tx_record
+                break
+        else:
+            # If we can't find the transcript record, it probably is not
+            # protein-coding.
+            print(f"[{transcript_accession} -> N/A] {mutation_aa}")
+            return None
+
+        protein_accession = transcript_record.feat.attributes["protein_id"]
+
+        # COSMIC incorrectly reports silent substitutions as `X{pos}X`, rather
+        # than `X{pos}=``.
+        mutation_aa = self.mutation_aa_silent_sub_fix_pattern.sub(
+            r"\1\2\3=", mutation_aa)
 
         # COSMIC mutation CDS strings have uncertainty variants which are not HGVS-compliant.
         # mutation_cds = self.mutation_cds_uncertain_ins_del_fix_pattern.sub(r"\1(\2)\3(\4)", mutation_cds)
 
         cosmic_protein_posedit = (
-            cls.hgvs_parser  # pylint: disable=no-member
+            self.hgvs_parser  # pylint: disable=no-member
             .parse_p_typed_posedit(mutation_aa)).posedit
 
         cosmic_protein_variant = SequenceVariant(
-            ac=accession, type='p', posedit=cosmic_protein_posedit)
+            ac=protein_accession, type='p', posedit=cosmic_protein_posedit)
 
         return cosmic_protein_variant
-
-    def _cosmic_subset_contains_genome_pos(self, genome_pos):
-        return self._cosmic_genome_tree.has_overlap(genome_pos)
 
     def _make_mutation_counts_df(self, cell_genemuts_pairs):
         """Transform a list of tuples in the form
@@ -128,7 +137,7 @@ class AminoAcidMutationFinder():
             if not protein_variant_results:
                 continue
 
-            target_variants = []
+            target_variants = None
             if self._cosmic_genome_tree:
                 overlaps = self._cosmic_genome_tree.get_all_overlaps(
                     record_pos)
@@ -137,52 +146,36 @@ class AminoAcidMutationFinder():
                     self._get_cosmic_record_protein_variant(overlap)
                     for overlap in overlaps)
 
+                # Filter out variants which could not be correctly obtained for
+                # some reason.
+                target_variants = [
+                    variant for variant in target_variants if variant
+                ]
+
                 if not target_variants:
                     continue
 
             for result in protein_variant_results:
                 predicted_variant = result.predicted_variant
 
-                if target_variants:
+                if target_variants is not None:
                     for target_variant in target_variants:
+                        # `strict_silent` is enabled because silent mutations
+                        # have effects which are not discernable at the protein
+                        # level and could easily be different at the DNA level.
                         if sequence_variants_are_equal(target_variant,
-                                                       predicted_variant):
+                                                       predicted_variant,
+                                                       strict_silent=True):
                             break
                     else:
                         # This protein variant didn't match any of the target
                         # variants; don't proceed.
                         continue
 
-                # The predicted protein variant matches the protein variant
-                # found in COSMIC.
+                # The predicted protein variant matches one or more target
+                # variants (if there are any).
                 gene_name = result.transcript_feat.attributes["gene_name"]
                 gene_aa_mutations[gene_name].add(str(predicted_variant))
-
-                # The REFs are not the same; thus none of the ALTs can match.
-                # Exit early.
-                # if posedit.edit.ref != record.REF:
-                #     continue
-
-                # for alt in record.ALT:
-                #     # TODO: Consider subset mutations in the future?
-
-                #     affected_range = vcf_alt_affected_range(record.REF, alt)
-                #     affected_pos = GenomePosition(
-                #         record_pos.chrom,
-                #         record_pos.start + affected_range.start,
-                #         record_pos.end + affected_range.stop
-                #     )
-
-                #     # The mutations' positions are not the same.
-                #     if overlap_pos != affected_pos:
-                #         continue
-
-                #     # The mutations' ALTs are not the same.
-                #     if posedit.edit.alt != alt:
-                #         continue
-
-                #     # These mutations are the same!
-                #     gene_aa_mutations.get(gene_name, d=[]).append(mutation_aa)
 
         return gene_aa_mutations
 
