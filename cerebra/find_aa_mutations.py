@@ -209,23 +209,23 @@ class AminoAcidMutationFinder():
 @click.option("--processes",
               "num_processes",
               default=1,
-              prompt="number of processes to use for computation",
+              help="number of processes to use for computation",
               type=int)
 @click.option("--cosmicdb",
               "cosmicdb_path",
-              prompt="optional path to cosmic db file (.tsv)",
+              help="optional path to cosmic db file (.tsv)",
               default=None)
 @click.option("--annotation",
               "annotation_path",
-              prompt="path to genome annotation (.gtf)",
+              help="path to genome annotation (.gtf)",
               required=True)
 @click.option("--genomefa",
               "genomefa_path",
-              prompt="path to full genome sequences (.fasta)",
+              help="path to full genome sequences (.fasta)",
               required=True)
 @click.option("--output",
               "output_path",
-              prompt="path to output file (.csv)",
+              help="path to output file (.csv)",
               required=True)
 @click.argument("input_files", required=True, nargs=-1)
 def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
