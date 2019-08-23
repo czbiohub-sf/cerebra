@@ -9,7 +9,7 @@ import re
 from pathos.pools import _ProcessPool as Pool
 from tqdm import tqdm
 
-from .utils import GenomePosition, GenomeIntervalTree
+from .utils import GenomePosition, GenomeIntervalTree, GFFFeature
 
 
 class MutationCounter():
@@ -25,8 +25,8 @@ class MutationCounter():
             self._cosmic_genome_tree = None
 
         self._annotation_genome_tree = GenomeIntervalTree(
-            lambda feat: GenomePosition.from_gtf_record(feat),
-            (row for _, row in annotation_df.iterrows()))
+            lambda feat: feat.pos,
+            (GFFFeature(row) for _, row in annotation_df.iterrows()))
 
     def _filter_includes_genome_pos(self, genome_pos):
         if not self._cosmic_genome_tree:
@@ -34,20 +34,10 @@ class MutationCounter():
 
         return self._cosmic_genome_tree.has_overlap(genome_pos)
 
-    def _find_containing_gene_record(self, genome_pos):
+    def _find_containing_gene_feature(self, genome_pos):
         return self._annotation_genome_tree.get_best_overlap(genome_pos)
 
     gene_name_pattern = re.compile(r"gene_name \"(.+?)\"")
-
-    def _parse_gene_name(self, metadata):
-        """Parse out a gene name from a GTF metadata string."""
-
-        gene_name_match = self.gene_name_pattern.search(metadata)
-
-        if not gene_name_match:
-            return None
-
-        return gene_name_match[1]
 
     def _make_filtered_cosmic_df(self, cosmic_df):
         """Return a view of the input `cosmic_df` filtered for
@@ -101,12 +91,12 @@ class MutationCounter():
             # duplicates?
 
             # TODO: Report all relevant genes, not just "best" one.
-            gene_row = self._find_containing_gene_record(genome_pos)
+            gene_feature = self._find_containing_gene_feature(genome_pos)
 
-            if gene_row is None:
+            if gene_feature is None:
                 continue
 
-            gene_name = self._parse_gene_name(gene_row[8])
+            gene_name = gene_feature.attributes["gene_name"]
 
             if gene_name is None:
                 continue
