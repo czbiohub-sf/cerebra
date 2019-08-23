@@ -1,12 +1,13 @@
+from collections import defaultdict
+from pathlib import Path
+
 import click
 import numpy as np
 import pandas as pd
 import vcfpy
 import re
-from tqdm import tqdm
-from pathlib import Path
-
 from pathos.pools import _ProcessPool as Pool
+from tqdm import tqdm
 
 from .utils import GenomePosition, GenomeIntervalTree
 
@@ -77,7 +78,7 @@ class MutationCounter():
             mutation_counts = np.zeros(len(cell_genemuts_pairs), dtype=int)
 
             for idx, gene_muts in enumerate(cell_gene_muts):
-                mutation_counts[idx] = gene_muts.get(gene_name, 0)
+                mutation_counts[idx] = gene_muts[gene_name]
 
             mutation_data[gene_name] = mutation_counts
 
@@ -91,8 +92,7 @@ class MutationCounter():
         vcf_reader = vcfpy.Reader.from_stream(
             stream) if stream is not None else vcfpy.Reader.from_path(path)
 
-        # TODO: Defaultdict would be cleaner.
-        gene_mutation_counts = {}
+        gene_mutation_counts = defaultdict(int)
 
         for record in vcf_reader:
             genome_pos = GenomePosition.from_vcf_record(record)
@@ -114,8 +114,8 @@ class MutationCounter():
             if self._filter_includes_genome_pos(genome_pos):
                 continue
 
-            gene_mutation_counts[gene_name] = gene_mutation_counts.get(
-                gene_name, 0) + 1
+            gene_mutation_counts[
+                gene_name] = gene_mutation_counts[gene_name] + 1
 
         return gene_mutation_counts
 
