@@ -19,24 +19,19 @@ from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, vcf_alt_affec
 
 class AminoAcidMutationFinder():
     def __init__(self, cosmic_df, annotation_df, genome_faidx):
-        filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
+        if cosmic_df is not None:
+            filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
 
-        print("Building COSMIC genome tree...")
-
-        self._cosmic_genome_tree = GenomeIntervalTree(
-            lambda row: GenomePosition.from_str(
-                str(row["Mutation genome position"])),
-            tqdm((record for idx, record in filtered_cosmic_df.iterrows()),
-                 total=len(filtered_cosmic_df)))
-
-        print("Building genome feature tree...")
+            self._cosmic_genome_tree = GenomeIntervalTree(
+                lambda row: GenomePosition.from_str(
+                    str(row["Mutation genome position"])),
+                (record for idx, record in filtered_cosmic_df.iterrows()))
+        else:
+            self._cosmic_genome_tree = None
 
         self._annotation_genome_tree = GenomeIntervalTree(
             lambda feat: feat.pos,
-            tqdm((GFFFeature(row) for _, row in annotation_df.iterrows()),
-                 total=len(annotation_df)))
-
-        print("Building protein variant predictor...")
+            (GFFFeature(row) for _, row in annotation_df.iterrows()))
 
         self._protein_variant_predictor = ProteinVariantPredictor(
             self._annotation_genome_tree, genome_faidx)
@@ -71,7 +66,7 @@ class AminoAcidMutationFinder():
         protein_accession = transcript_record.feat.attributes["protein_id"]
 
         # COSMIC incorrectly reports silent substitutions as `X{pos}X`, rather
-        # than `X{pos}=``.
+        # than `X{pos}=`.
         mutation_aa = self.mutation_aa_silent_sub_fix_pattern.sub(
             r"\1\2\3=", mutation_aa)
 
@@ -209,32 +204,42 @@ class AminoAcidMutationFinder():
 
 @click.command()
 @click.option("--processes",
+              "num_processes",
               default=1,
               prompt="number of processes to use for computation",
               type=int)
 @click.option("--cosmicdb",
-              prompt="path to cosmic db file (.tsv)",
-              required=True)
+              "cosmicdb_path",
+              prompt="optional path to cosmic db file (.tsv)",
+              default=None)
 @click.option("--annotation",
+              "annotation_path",
               prompt="path to genome annotation (.gtf)",
               required=True)
 @click.option("--genomefa",
+              "genomefa_path",
               prompt="path to full genome sequences (.fasta)",
               required=True)
-@click.option("--outfile", prompt="path to output file (.csv)", required=True)
-@click.argument("files", required=True, nargs=-1)
-def find_aa_mutations(processes, cosmicdb, annotation, genomefa, outfile,
-                      files):
+@click.option("--output",
+              "output_path",
+              prompt="path to output file (.csv)",
+              required=True)
+@click.argument("input_files", required=True, nargs=-1)
+def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
+                      genomefa_path, output_path, input_files):
     print("Beginning setup (this may take several minutes!)")
 
-    print("Loading COSMIC database...")
-    cosmic_df = pd.read_csv(cosmicdb, delimiter='\t')
+    if cosmicdb_path:
+        print("Loading COSMIC database...")
+        cosmic_df = pd.read_csv(cosmicdb_path, delimiter='\t')
+    else:
+        cosmic_df = None
 
     print("Loading genome annotation...")
-    annotation_df = pd.read_csv(annotation, sep='\t', skiprows=5)
+    annotation_df = pd.read_csv(annotation_path, sep='\t', skiprows=5)
 
     print("Loading genome sequences...")
-    genome_faidx = Fasta(genomefa)
+    genome_faidx = Fasta(genomefa_path)
 
     print("Building genome trees...")
     aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df,
@@ -242,12 +247,11 @@ def find_aa_mutations(processes, cosmicdb, annotation, genomefa, outfile,
     print("Setup complete.")
 
     print("Finding mutations...")
-    result_df = aa_mutation_finder.find_aa_mutations(files,
-                                                     processes=processes)
+    result_df = aa_mutation_finder.find_aa_mutations(input_files,
+                                                     processes=num_processes)
 
     print("Writing file...")
-    outfile = Path(outfile)
-
-    result_df.to_csv(outfile)
+    output_path = Path(output_path)
+    result_df.to_csv(output_path)
 
     print("Done!")
