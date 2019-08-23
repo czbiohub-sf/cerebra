@@ -320,11 +320,27 @@ def _seqs_are_equal(seq_a, seq_b, wildcard=None):
 
 # This could be extended for other types of `SequenceVariant`s in the future if
 # needed.
-def sequence_variants_are_equal(seqvar_a,
-                                seqvar_b,
-                                strict_uncertain=False,
-                                strict_unknown=False,
-                                strict_silent=False):
+def sequence_variants_are_equivalent(seqvar_a,
+                                     seqvar_b,
+                                     strict_uncertain=False,
+                                     strict_unknown=True,
+                                     strict_silent=False):
+    """Check if `seqvar_a` and `seqvar_b` are equivalent.
+    Currently only works correctly for protein-level variants.
+
+    Parameters
+    ---------
+    strict_uncertain : bool
+        True if variant (position/edit) uncertainty is factored into
+        this equivalency check. (default False)
+    strict_unknown : bool
+        True if unknown sequence units (e.g. 'X' for amino acids) should
+        not match known sequence units. (default True)
+    strict_silent : bool
+        True if synonymous variants (e.g. 'Arg17=') should not match
+        otherwise equivalent variants. (default False)
+    """
+
     if not seqvar_a.ac == seqvar_b.ac:
         return False
 

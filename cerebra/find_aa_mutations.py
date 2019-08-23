@@ -162,6 +162,7 @@ class AminoAcidMutationFinder():
                         if sequence_variants_are_equivalent(
                                 target_variant,
                                 predicted_variant,
+                                strict_unknown=False,
                                 strict_silent=True):
                             break
                     else:
