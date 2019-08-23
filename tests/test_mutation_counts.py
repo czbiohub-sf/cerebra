@@ -94,12 +94,11 @@ class MutationCounterTestCase(unittest.TestCase):
     def test_gene_record_finding(self):
         for _, row in self.hg38_df.iterrows():
             genome_pos = GenomePosition.from_gtf_record(row)
-            gene_record = self.mutation_counter._find_containing_gene_feature(
+            gene_features = self.mutation_counter._find_containing_gene_features(
                 genome_pos)
 
-            self.assertIsNotNone(gene_record)
-            self.assertEqual(genome_pos,
-                             GenomePosition.from_gtf_record(gene_record))
+            self.assertTrue(gene_features)
+            self.assertIn(genome_pos, [feat.pos for feat in gene_features])
 
     @unittest.skip(
         """This is now handled by `utils.GFFFeature` and should be moved into
@@ -124,14 +123,21 @@ class MutationCounterTestCase(unittest.TestCase):
             ("CellA", {
                 "GENE1": 5,
                 "GENE2": 0,
-                "GENE3": 1
+                "GENE3": 1,
+                "GENE4": 0,
             }),
             ("CellB", {
                 "GENE1": 2,
                 "GENE3": 3,
-                "GENE4": 7
+                "GENE2": 0,
+                "GENE4": 7,
             }),
-            ("CellC", {}),
+            ("CellC", {
+                "GENE1": 0,
+                "GENE2": 0,
+                "GENE3": 0,
+                "GENE4": 0,
+            }),
         ]
 
         actual_df = self.mutation_counter._make_mutation_counts_df(data)

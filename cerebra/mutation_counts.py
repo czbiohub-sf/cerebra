@@ -34,8 +34,8 @@ class MutationCounter():
 
         return self._cosmic_genome_tree.has_overlap(genome_pos)
 
-    def _find_containing_gene_feature(self, genome_pos):
-        return self._annotation_genome_tree.get_best_overlap(genome_pos)
+    def _find_containing_gene_features(self, genome_pos):
+        return self._annotation_genome_tree.get_all_overlaps(genome_pos)
 
     gene_name_pattern = re.compile(r"gene_name \"(.+?)\"")
 
@@ -86,26 +86,22 @@ class MutationCounter():
 
         for record in vcf_reader:
             genome_pos = GenomePosition.from_vcf_record(record)
-            # TODO: Filter out duplicates?
-            # And is it better to filter out positional duplicates or gene name
-            # duplicates?
+            gene_features = self._find_containing_gene_features(genome_pos)
 
-            # TODO: Report all relevant genes, not just "best" one.
-            gene_feature = self._find_containing_gene_feature(genome_pos)
+            for gene_feature in gene_features:
+                if gene_feature is None:
+                    continue
 
-            if gene_feature is None:
-                continue
+                gene_name = gene_feature.attributes["gene_name"]
 
-            gene_name = gene_feature.attributes["gene_name"]
+                if gene_name is None:
+                    continue
 
-            if gene_name is None:
-                continue
+                if not self._filter_includes_genome_pos(genome_pos):
+                    continue
 
-            if not self._filter_includes_genome_pos(genome_pos):
-                continue
-
-            gene_mutation_counts[
-                gene_name] = gene_mutation_counts[gene_name] + 1
+                gene_mutation_counts[
+                    gene_name] = gene_mutation_counts[gene_name] + 1
 
         return gene_mutation_counts
 
