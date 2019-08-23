@@ -299,5 +299,96 @@ class GenomeIntervalTreeTestCase(unittest.TestCase):
             self.assertEqual([], matches)
 
 
+class UtilMiscFunctionsTestCase(unittest.TestCase):
+    def test_sequence_variant_equality(self):
+        parser = hgvs.parser.Parser()
+
+        def _seqvars_eq(sv1_str,
+                        sv2_str,
+                        strict_uncertain=True,
+                        strict_unknown=True):
+            return sequence_variants_are_equal(
+                parser.parse(sv1_str),
+                parser.parse(sv2_str),
+                strict_uncertain=strict_uncertain,
+                strict_unknown=strict_unknown)
+
+        def assertSequenceVariantsEqual(*args, **kwargs):
+            self.assertTrue(_seqvars_eq(*args, **kwargs))
+
+        def assertSequenceVariantsNotEqual(*args, **kwargs):
+            self.assertFalse(_seqvars_eq(*args, **kwargs))
+
+        # Test accessions
+        assertSequenceVariantsEqual("FAUX1.1:p.?", "FAUX1.1:p.?")
+        assertSequenceVariantsNotEqual("FAUX1.1:p.?", "FAUX2.1:p.?")
+
+        # Test types
+        assertSequenceVariantsEqual("FAUX1.1:p.?", "FAUX1.1:p.?")
+        assertSequenceVariantsNotEqual("FAUX1.1:p.?", "FAUX1.1:c.1_1=")
+
+        with self.assertRaises(NotImplementedError):
+            assertSequenceVariantsEqual("FAUX1.1:c.1_1=", "FAUX1.1:c.1_1=")
+
+        sv1 = parser.parse("FAUX1.1:p.Ala2Cys")
+        sv2 = parser.parse("FAUX1.1:p.Ala2Cys")
+        sv3 = parser.parse("FAUX1.1:p.Ala2Cys")
+
+        # Test reflexive, symetric, transitive properties
+        # Some tests are repeated just for completeness
+
+        # TODO: Could perhaps be refactored into doing each property of
+        # equality for every individual test rather than just for this
+        # singular type of variant.
+
+        # Reflexive
+        self.assertTrue(sequence_variants_are_equal(sv1, sv1))
+
+        # Symetric
+        self.assertTrue(sequence_variants_are_equal(sv1, sv2))
+        self.assertTrue(sequence_variants_are_equal(sv2, sv1))
+
+        # Transitive
+        self.assertTrue(sequence_variants_are_equal(sv1, sv2))
+        self.assertTrue(sequence_variants_are_equal(sv2, sv3))
+        self.assertTrue(sequence_variants_are_equal(sv1, sv3))
+
+        # Substitutions
+        assertSequenceVariantsEqual(*(["FAUX1.1:p.Ala2Lys"] * 2))
+
+        # Insertions
+        assertSequenceVariantsEqual(*(["FAUX1.1:p.Ala2_Arg3insLysGluThr"] * 2))
+
+        assertSequenceVariantsNotEqual(*([
+            "FAUX1.1:p.Ala2_Arg3insLysGluThr",
+            "FAUX1.1:p.Ala2_Arg3insXaaXaaXaa"
+        ]))
+
+        assertSequenceVariantsEqual(*([
+            "FAUX1.1:p.Ala2_Arg3insLysGluThr",
+            "FAUX1.1:p.Ala2_Arg3insXaaXaaXaa"
+        ]),
+                                    strict_unknown=False)
+
+        # Deletions
+        assertSequenceVariantsEqual(*(["FAUX1.1:p.Ala2_Ile10del"] * 2))
+
+        # Deletion-insertions
+        assertSequenceVariantsEqual(*(["FAUX1.1:p.Ala2delinsLysGluThr"] * 2))
+        assertSequenceVariantsEqual(*(["FAUX1.1:p.Ala2_Ile4delinsLysGluThr"] *
+                                      2))
+
+        assertSequenceVariantsNotEqual(*([
+            "FAUX1.1:p.Ala2_Ile4delinsLysGluThr",
+            "FAUX1.1:p.Ala2_Ile4delinsXaaXaaXaa"
+        ]))
+
+        assertSequenceVariantsEqual(*([
+            "FAUX1.1:p.Ala2_Ile4delinsLysGluThr",
+            "FAUX1.1:p.Ala2_Ile4delinsXaaXaaXaa"
+        ]),
+                                    strict_unknown=False)
+
+
 if __name__ == "__main__":
     unittest.main()
