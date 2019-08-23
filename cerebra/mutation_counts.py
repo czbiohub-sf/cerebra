@@ -27,9 +27,9 @@ class MutationCounter():
             lambda feat: GenomePosition.from_gtf_record(feat),
             (row for _, row in annotation_df.iterrows()))
 
-    def _cosmic_subset_contains_genome_pos(self, genome_pos):
+    def _filter_includes_genome_pos(self, genome_pos):
         if not self._cosmic_genome_tree:
-            return False
+            return True
 
         return self._cosmic_genome_tree.has_overlap(genome_pos)
 
@@ -92,7 +92,7 @@ class MutationCounter():
             stream) if stream is not None else vcfpy.Reader.from_path(path)
 
         # TODO: Defaultdict would be cleaner.
-        gene_mutation_counts, filtered_gene_mutation_counts = {}, {}
+        gene_mutation_counts = {}
 
         for record in vcf_reader:
             genome_pos = GenomePosition.from_vcf_record(record)
@@ -111,17 +111,13 @@ class MutationCounter():
             if gene_name is None:
                 continue
 
+            if self._filter_includes_genome_pos(genome_pos):
+                continue
+
             gene_mutation_counts[gene_name] = gene_mutation_counts.get(
                 gene_name, 0) + 1
 
-            if not self._cosmic_subset_contains_genome_pos(genome_pos):
-                continue
-
-            filtered_gene_mutation_counts[
-                gene_name] = filtered_gene_mutation_counts.get(gene_name,
-                                                               0) + 1
-
-        return gene_mutation_counts, filtered_gene_mutation_counts
+        return gene_mutation_counts
 
     def find_mutation_counts(self, paths, processes=1):
         """Create a `DataFrame` of mutation counts, where the row indices are
@@ -147,17 +143,7 @@ class MutationCounter():
             init_process(self)
             results = list(map(process_cell, tqdm(paths)))
 
-        cell_genemuts_pairs, filtered_cell_genmuts_pairs = [], []
-
-        for cell_name, (mutation_counts, filtered_mutation_counts) in results:
-            cell_genemuts_pairs.append((cell_name, mutation_counts))
-            filtered_cell_genmuts_pairs.append(
-                (cell_name, filtered_mutation_counts))
-
-        return (
-            self._make_mutation_counts_df(cell_genemuts_pairs),
-            self._make_mutation_counts_df(filtered_cell_genmuts_pairs),
-        )
+        return self._make_mutation_counts_df(results)
 
 
 @click.command()
@@ -196,15 +182,12 @@ def count_mutations(num_processes, cosmicdb_path, annotation_path, output_path,
     print("Setup complete.")
 
     print("Finding mutations...")
-    result_df, filtered_result_df = mutation_counter.find_mutation_counts(
-        input_files, processes=num_processes)
+    result_df = mutation_counter.find_mutation_counts(input_files,
+                                                      processes=num_processes)
 
     print("Writing file...")
     output_path = Path(output_path)
 
     result_df.to_csv(output_path)
-    filtered_result_df.to_csv(
-        output_path.with_name(output_path.stem + "_filtered").with_suffix(
-            output_path.suffix))
 
     print("Done!")

@@ -46,7 +46,7 @@ class MutationCounterTestCase(unittest.TestCase):
             # Add the genome position to a tree for use in further assertions.
             lung_mut_interval_tree[genome_pos.start:genome_pos.end] = genome_pos.chrom
 
-            self.assertTrue(self.mutation_counter._cosmic_subset_contains_genome_pos(genome_pos))
+            self.assertTrue(self.mutation_counter._filter_includes_genome_pos(genome_pos))
 
         # Test for negative matches, excluding negative mutation matches which
         # overlap with positive ones.
@@ -63,7 +63,7 @@ class MutationCounterTestCase(unittest.TestCase):
                 lung_mut_interval_tree.overlap(genome_pos.start, genome_pos.end))):
                 continue
 
-            self.assertFalse(self.mutation_counter._cosmic_subset_contains_genome_pos(genome_pos))
+            self.assertFalse(self.mutation_counter._filter_includes_genome_pos(genome_pos))
 
         # Do some further negative testing to ensure that garbage genome
         # positions don't match the filter.
@@ -74,7 +74,7 @@ class MutationCounterTestCase(unittest.TestCase):
         ]
 
         for test in negative_tests:
-            self.assertFalse(self.mutation_counter._cosmic_subset_contains_genome_pos(test))
+            self.assertFalse(self.mutation_counter._filter_includes_genome_pos(test))
 
     def test_gene_record_finding(self):
         for _, row in self.hg38_df.iterrows():
