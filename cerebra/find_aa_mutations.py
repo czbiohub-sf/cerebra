@@ -14,7 +14,8 @@ from pyfaidx import Fasta
 from pathos.pools import _ProcessPool as Pool
 
 from .protein_variant_predictor import ProteinVariantPredictor
-from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, vcf_alt_affected_range, sequence_variants_are_equal
+from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, \
+                   vcf_alt_affected_range, sequence_variants_are_equivalent
 
 
 class AminoAcidMutationFinder():
@@ -25,7 +26,7 @@ class AminoAcidMutationFinder():
             self._cosmic_genome_tree = GenomeIntervalTree(
                 lambda row: GenomePosition.from_str(
                     str(row["Mutation genome position"])),
-                (record for idx, record in filtered_cosmic_df.iterrows()))
+                (row for _, row in filtered_cosmic_df.iterrows()))
         else:
             self._cosmic_genome_tree = None
 
@@ -158,9 +159,10 @@ class AminoAcidMutationFinder():
                         # `strict_silent` is enabled because silent mutations
                         # have effects which are not discernable at the protein
                         # level and could easily be different at the DNA level.
-                        if sequence_variants_are_equal(target_variant,
-                                                       predicted_variant,
-                                                       strict_silent=True):
+                        if sequence_variants_are_equivalent(
+                                target_variant,
+                                predicted_variant,
+                                strict_silent=True):
                             break
                     else:
                         # This protein variant didn't match any of the target
@@ -174,7 +176,7 @@ class AminoAcidMutationFinder():
 
         return gene_aa_mutations
 
-    def find_aa_mutations(self, paths, processes=4):
+    def find_aa_mutations(self, paths, processes=1):
         """Create a `DataFrame` of mutation counts, where the row indices are
         cell names and the column indices are gene names."""
         def init_process(aa_mutation_finder):
@@ -231,7 +233,7 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
 
     if cosmicdb_path:
         print("Loading COSMIC database...")
-        cosmic_df = pd.read_csv(cosmicdb_path, delimiter='\t')
+        cosmic_df = pd.read_csv(cosmicdb_path, sep='\t')
     else:
         cosmic_df = None
 
