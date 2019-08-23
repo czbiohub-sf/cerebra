@@ -101,7 +101,7 @@ class MutationCounter():
             if gene_name is None:
                 continue
 
-            if self._filter_includes_genome_pos(genome_pos):
+            if not self._filter_includes_genome_pos(genome_pos):
                 continue
 
             gene_mutation_counts[
