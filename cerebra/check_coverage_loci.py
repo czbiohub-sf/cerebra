@@ -64,15 +64,18 @@ def get_laud_db(gene_, db):
     #keepRows = db_filter['FATHMM score'] >= 0.7
     #db_fathmm_filter = dbfilter[keepRows]
     #db_fathmm_filter = db_fathmm_filter.reset_index(drop=True)
+
+    db_gene = pd.DataFrame([np.nan]) # init empty df
+
     keep = db_filter['Gene name'] == gene_
     db_gene = db_filter[keep]
     db_gene = db_gene.reset_index(drop=True)
 
     if len(db_gene.index) == 0:
-    	print('   this gene is not in the cosmic database')
+    	print(' ')
+    	print("%s is not in the cosmic database" % gene_)
     	print('   	are you using the official HGNC gene name? ')
     	print('')
-    	sys.exit()
 
     return db_gene
     #return db_fathmm_filter
@@ -330,7 +333,7 @@ def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
 
 
 
-def covert_to_df(cd):
+def convert_to_df(cd):
 	""" takes in a dictionary obj where keys are cells and values are loci and their
 		associated coverage ratios, and converts to a cell x mutation dataframe """
 
@@ -387,10 +390,14 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 	for gene in gene_names:
 		print(gene)
 		database_laud = get_laud_db(gene, database)
+
+		if list(database_laud.isnull().all())[0]: # gene not found, empty df returned
+			continue
+
 		genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
 
 		# init interval tree
-		cosmic_genome_tree = utils.GenomeDataframeTree(lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])), database_laud)
+		cosmic_genome_tree = utils.GenomeIntervalTree(lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])), database_laud)
 
 		p = mp.Pool(processes=nthread)
 			
@@ -412,6 +419,6 @@ def check_coverage_loci(genes_list, nthread, outprefix, wrkdir):
 		coverage_dict = evaluate_coverage_driver(cells_dict_GOI_coords, gene, coverage_dict)
 	
 	print(coverage_dict)
-	coverage_df = covert_to_df(coverage_dict)
+	coverage_df = convert_to_df(coverage_dict)
 	coverage_df.to_csv(cwd + 'coverage_df_test.csv')
 
