@@ -71,6 +71,8 @@ class GenomeIntervalTree():
 
 			self.records.append(record)
 
+			idx += 1
+
 		tree_map = {}
 
 		for chrom, (starts, ends, ids) in working_tree_map.items():
