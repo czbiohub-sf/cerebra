@@ -48,7 +48,7 @@ class ProteinVariantPredictor():
         self.genome_fasta = genome_faidx
 
         transcript_feats_dict = defaultdict(lambda: defaultdict(list))
-        for feature in refgenome_tree.records:
+        for feature in annotation_genome_tree.records:
             if feature.attributes.get("transcript_type") != "protein_coding":
                 continue
 
