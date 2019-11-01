@@ -382,9 +382,8 @@ def convert_to_df(cd):
  
 
 
-def check_coverage_loci(genes_list, nthread, outprefix, vcf_dir, cosmic_db):
-	""" evaluate coverage for each loci for which we find a variant, for 
-		a given set of genes  """
+def get_coverage(genes_list, nthread, outprefix, vcf_dir, cosmic_db):
+	""" report coverage to each SNP location contained within a set of genes """
 	global genomePos_laud_db
 	global cosmic_genome_tree
 	global cwd

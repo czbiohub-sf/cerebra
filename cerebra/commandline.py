@@ -7,9 +7,9 @@ from functools import partial
 import click
 
 from cerebra.germline_filter import germline_filter
-from cerebra.mutation_counts import count_mutations
+from cerebra.count_mutations import count_mutations
 from cerebra.find_aa_mutations import find_aa_mutations
-from cerebra.check_coverage_loci import check_coverage_loci
+from cerebra.get_coverage import get_coverage
 
 click.option = partial(click.option, show_default=True)
 
@@ -29,7 +29,7 @@ def cli():
 cli.add_command(germline_filter, name='germline-filter')
 cli.add_command(count_mutations, name='count-mutations')
 cli.add_command(find_aa_mutations, name='find-aa-mutations')
-cli.add_command(check_coverage_loci, name='check_coverage_loci')
+cli.add_command(get_coverage, name='get-coverage')
 
 if __name__ == "__main__":
     cli()
