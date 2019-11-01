@@ -25,7 +25,7 @@ cd cerebra
 conda create -n cerebra python=3.6
 conda activate cerebra
 
-# The '.' means install *this*, the folder where I am now. The 'e' means...?
+# The '.' means install *this*, the folder where I am now.
 pip install -e . 
 ```
 
