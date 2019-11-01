@@ -1,5 +1,4 @@
-""" evaluate coverage on a loci-specific basis. most of these functions are
-	copied from get_aa_mutations.py """
+""" report coverage to each SNP location contained within a set of genes """
 
 import numpy as np
 import os
