@@ -21,7 +21,7 @@ settings = dict(help_option_names=['-h', '--help'])
              context_settings=settings)
 def cli():
     """
-    finds mutants in your scRNA-seq experiment
+    high-throughput summarizing of vcf entries following a sequencing experiment
     """
     pass
 
