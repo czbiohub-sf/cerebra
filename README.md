@@ -7,7 +7,7 @@ cerebra
 What is _cerebra_?
 -------------------------------------
 
-This tool allows you to extract meaningful variant calls from a single-cell RNA-seq experiment. Mutation callers like GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) generate 1000s of output files (.vcf) for the typical RNA-seq experiment, and consolidating that output into a form from which meaningful biological conclusions can be drawn represents a significant challange. _cerebra_ is comprised of several modules which do the following: 1) generate a cell_x_gene mutation-counts matrix, 2) generate a cell_x_ROI summary table that reports amino acid level mutations for a user-defined list of genes, 3) report read coverage (variant vs total reads) to each ROI.   
+This tool allows you to extract meaningful variant calls from a single-cell RNA-seq experiment. Mutation callers like GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) generate 1000s of output files (.vcf) for a typical single-cell RNA-seq experiment, and consolidating that output into a form from which meaningful biological conclusions can be drawn represents a significant challange. _cerebra_ is comprised of several modules which do the following: 1) generate a cell_x_gene mutation-counts matrix, 2) generate a cell_x_ROI summary table that reports amino acid level mutations for a user-defined list of genes, 3) report read coverage (variant vs total reads) to each ROI.   
 
 -   Free software: MIT license
 -   Documentation: <https://>czbiohub.github.io/cerebra
@@ -36,7 +36,6 @@ _cerebra_ should now be installed as a commandline executable.
 `$ cerebra` should return help information
 
 ```
-$ cerebra
 Usage: cerebra  <command>
 
   finds mutants in your scRNA-seq experiment
@@ -45,25 +44,18 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
-  check_coverage_loci           evaluate coverage for each loci for which
-                                we...
-  check_coverage_whole_gene     evaluate the coverage across every loci
-                                with...
-  count-mutations
-  fusion_search                 searches STAR-fusion output files for a...
-  fusions_x_cell                create a cell-wise fusion counts table.
-  generate_summary_tables       generate by cell and by sample summary...
-  generate_summary_tables_test  generate by cell and by sample summary...
-  germline-filter               Given a set of single-cell VCFs and bulk...
-  get_aa_mutations              for a specific gene of interest, get the...
-  get_mutationalburden          returns the total number of mutations...
-  hello                         helloWorld
-  s3_import                     import necessary files from s3
+  count-mutations    count total number of mutations in each sample
+  find-aa-mutations  report amino-acid level SNPs and indels in each sample
+  germline-filter    filter out common SNPs/indels between germline samples...
+  get-coverage       report coverage to each SNP location contained within
+                     a...
 ```
 
 
 Features
 --------
-
--   TODO
+**count-mutations:** count total number of mutations in each sample         
+**find-aa-mutations:** report amino-acid level SNPs and indels in each sample            
+**germline-filter:** filter out common SNPs/indels between germline samples and samples of interest          
+**get-coverage:** report coverage to each SNP location contained within a set of genes           
 
