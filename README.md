@@ -40,7 +40,8 @@ _cerebra_ should now be installed as a commandline executable.
 ```
 Usage: cerebra  <command>
 
-  finds mutants in your scRNA-seq experiment
+  high-throughput summarizing of vcf entries following a sequencing
+  experiment
 
 Options:
   -h, --help  Show this message and exit.
