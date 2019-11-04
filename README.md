@@ -65,7 +65,7 @@ Features
 
 Authors
 --------
-This work was produced by Lincoln Harris, Rohan Vanheusden and Spyros Darmanis of the Chan Zuckerberg Biohub
+This work was produced by [Lincoln Harris](https://github.com/lincoln-harris), [Rohan Vanheusden](https://github.com/rvanheusden) and [Spyros Darmanis](https://spyrosdarmanis.wixsite.com/mylab) of the Chan Zuckerberg Biohub
 
 
 Correspondence
