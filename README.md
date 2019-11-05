@@ -21,7 +21,6 @@ If you're working with tumor data, it might be a good idea to limit the mutation
 NOTE: this framework was developed for, but is certainly not limited to, single-cell RNA sequencing data. 
 
 -   Free software: MIT license
--   Documentation: <https://czbiohub.github.io/cerebra>
 
 Installation
 ------------
