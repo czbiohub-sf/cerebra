@@ -7,7 +7,16 @@ cerebra
 What is _cerebra_?
 -------------------------------------
 
-This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. If you're interested in learning what mutations are present in your DNA/RNA samples, variant callers like GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate variant calling format (.vcf) files following a sequencing experiment. However, a single sequencing run can generate on the order of 10^8 unique vcf entries, only a small portion of which contain meaningful biological signal. Thus drawing conclusions from .vcf files remains a substantial challange. _cerebra_ provides a fast and intuitive framework for summarizing vcf entries across samples. It is comprised of four modules that do the following: **1)** remove germline mutations from samples of interest, **2)** count the total number of mutations in a given sample, **3)** report amino acid level SNPs and indels for each sample, and **4)** report the ratio of total to variant reads to each mutation site. _cerebra_ gets its name from the eponymous X-men [character](https://en.wikipedia.org/wiki/Cerebra), who had the ability to detect mutant individuals among the general public. 
+This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. If you're interested in learning what mutations are present in your DNA/RNA samples, variant callers like GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate variant calling format (.vcf) files following a sequencing experiment. However, a single sequencing run can generate on the order of 10^8 unique vcf entries, only a small portion of which contain meaningful biological signal. Thus drawing conclusions from .vcf files remains a substantial challange. _cerebra_ provides a fast and intuitive framework for summarizing vcf entries across samples. It is comprised of four modules that do the following:      
+
+        1) remove germline mutations from samples of interest        
+        2) count the total number of mutations in a given sample           
+        3) report amino acid level SNPs and indels for each sample             
+        4) report the ratio of total to variant reads to each mutation site      
+        
+_cerebra_ gets its name from the eponymous X-men [character](https://en.wikipedia.org/wiki/Cerebra), who had the ability to detect mutant individuals among the general public. 
+
+If you're working with tumor data, it might be a good idea to limit the mutational search space to only known cancer variants. Therefore _cerebra_ implements an optional method for restricting to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database.  
 
 NOTE: this framework was developed for, but is certainly not limited to, single-cell RNA sequencing data. 
 
