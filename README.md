@@ -22,6 +22,23 @@ NOTE: this framework was developed for, but is certainly not limited to, single-
 
 -   Free software: MIT license
 
+
+What makes _cerebra_ different from traditional vcf parsers? 
+-------------------------------------
+Python libraries exist (_ie._ [PyVCF](https://pyvcf.readthedocs.io/en/latest/) and [vcfpy](https://vcfpy.readthedocs.io/en/stable/index.html)) for extracting information from vcf files, and GATK has its own tool for the [task](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_variantutils_VariantsToTable.php). What makes _cerebra_ different is that it reports the amino acid change associated with each variant. GATK _VariantsToTable_ produces a file that looks like: 
+ 
+    CHROM    POS ID      QUAL    AC
+     1        10  .       50      1
+     1        20  rs10    99      10
+
+Such a table contains only genomic (ie. DNA-level) coordinates. Often the next question is what specific gene and protein-level mutation is each variant associated with? _cerebra_ queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene and amino-acid level mutation. _cerebra_ produces a table that looks like the following: 
+                
+                geneA           geneB           geneC
+    sample1     Arg521Lys       -               -
+    sample2     -               -               Lys925Gln
+    sample3     -               Ala1158Val      -
+
+
 Installation
 ------------
 
