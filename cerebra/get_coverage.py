@@ -1,433 +1,274 @@
-""" report coverage to each SNP location contained within a set of genes """
+from collections import defaultdict
+import re
 
+import click
 import numpy as np
-import os
-from . import utils
-import csv
 import pandas as pd
-import sys
-import itertools
-import warnings
-import click 
+import vcfpy
+import hgvs.parser
+from hgvs.sequencevariant import SequenceVariant
 from tqdm import tqdm
-import multiprocessing as mp
-warnings.simplefilter(action='ignore', category=FutureWarning)
+from pathlib import Path
+from pyfaidx import Fasta
 
+from pathos.pools import _ProcessPool as Pool
 
-def count_comments(filename):
-	""" Count comment lines (those that start with "#") 
-		cribbed from slowko """
-	comments = 0
-	fn_open = gzip.open if filename.endswith('.gz') else open
-	with fn_open(filename) as fh:
-		for line in fh:
-			if line.startswith('#'):
-				comments += 1
-			else:
-				break
-	return comments
+from .protein_variant_predictor import ProteinVariantPredictor
+from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, \
+                   vcf_alt_affected_range, sequence_variants_are_equivalent
 
 
+class AminoAcidMutationFinder():
+    def __init__(self, cosmic_df, annotation_df, genome_faidx):
+        if cosmic_df is not None:
+            filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
 
-def vcf_to_dataframe(filename):
-	""" Open a VCF file and return a pandas.DataFrame with
-		each INFO field included as a column in the dataframe 
-		cribbed from slowko """
-	VCF_HEADER = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT', '20']
+            self._cosmic_genome_tree = GenomeIntervalTree(
+                lambda row: GenomePosition.from_str(
+                    str(row["Mutation genome position"])),
+                (row for _, row in filtered_cosmic_df.iterrows()))
+        else:
+            self._cosmic_genome_tree = None
 
-	# Count how many comment lines should be skipped.
-	comments = count_comments(filename)
-	tbl = pd.read_table(filename, compression=None, skiprows=comments,
-							names=VCF_HEADER, usecols=range(10))
-	
-	return(tbl)
+        self._annotation_genome_tree = GenomeIntervalTree(
+            lambda feat: feat.pos,
+            (GFFFeature(row) for _, row in annotation_df.iterrows()))
 
+        self._protein_variant_predictor = ProteinVariantPredictor(
+            self._annotation_genome_tree, genome_faidx)
 
+    @classmethod
+    def _make_filtered_cosmic_df(cls, cosmic_df):
+        """Return a view of the input `cosmic_df` filtered for
+        `Primary site` == `lung`."""
 
-def get_filenames():
-	""" get file names given path """
-	files = []
+        filtered_db = cosmic_df.loc[cosmic_df["Primary site"] == "lung"]
+        return filtered_db
 
-	for file in os.listdir(cwd):
-		if file.endswith(".vcf"):
-			fullPath = cwd + file 
+    hgvs_parser = hgvs.parser.Parser(expose_all_rules=True)
+    mutation_aa_silent_sub_fix_pattern = re.compile(
+        r"(p\.)([A-Z](?:[a-z]{2})?)(\d+)\2")
 
-			files.append(fullPath)
-    
-	return files
+    def _get_cosmic_record_protein_variant(self, cosmic_record):
+        mutation_aa = cosmic_record["Mutation AA"]
+        transcript_accession = cosmic_record["Accession Number"]
 
+        for tx_id, tx_record in self._protein_variant_predictor \
+            .transcript_records.items():
+            if tx_id.split('.')[0] == transcript_accession:
+                transcript_record = tx_record
+                break
+        else:
+            # If we can't find the transcript record, it probably is not
+            # protein-coding.
+            print(f"[{transcript_accession} -> N/A] {mutation_aa}")
+            return None
 
+        protein_accession = transcript_record.feat.attributes["protein_id"]
 
-def get_laud_db(gene_, db):
-    """ returns the COSMIC database after lung and fathmm filter  """
-    pSiteList = db.index[db['Primary site'] == 'lung'].tolist()
-    db_filter = db.iloc[pSiteList]
-    #keepRows = db_filter['FATHMM score'] >= 0.7
-    #db_fathmm_filter = dbfilter[keepRows]
-    #db_fathmm_filter = db_fathmm_filter.reset_index(drop=True)
+        # COSMIC incorrectly reports silent substitutions as `X{pos}X`, rather
+        # than `X{pos}=`.
+        mutation_aa = self.mutation_aa_silent_sub_fix_pattern.sub(
+            r"\1\2\3=", mutation_aa)
 
-    db_gene = pd.DataFrame([np.nan]) # init empty df
+        # COSMIC mutation CDS strings have uncertainty variants which are not HGVS-compliant.
+        # mutation_cds = self.mutation_cds_uncertain_ins_del_fix_pattern.sub(r"\1(\2)\3(\4)", mutation_cds)
 
-    keep = db_filter['Gene name'] == gene_
-    db_gene = db_filter[keep]
-    db_gene = db_gene.reset_index(drop=True)
+        cosmic_protein_posedit = (
+            self.hgvs_parser  # pylint: disable=no-member
+            .parse_p_typed_posedit(mutation_aa)).posedit
+
+        cosmic_protein_variant = SequenceVariant(
+            ac=protein_accession, type='p', posedit=cosmic_protein_posedit)
+
+        return cosmic_protein_variant
+
+    def _make_mutation_counts_df(self, cell_genemuts_pairs):
+        """Transform a list of tuples in the form
+        [(cell_name, {gene_name: {aa_mutation}})] into a `DataFrame`."""
+
+        cell_names, cell_gene_muts = list(zip(*cell_genemuts_pairs))
+        cell_names, cell_gene_muts = list(cell_names), list(cell_gene_muts)
+
+        # Aggregate all of the gene names into a 2D array
+        cell_gene_names = [
+            list(gene_muts.keys()) for gene_muts in cell_gene_muts
+        ]
+
+        # Flatten them into a set
+        all_gene_names = set([
+            gene_name for sublist in cell_gene_names for gene_name in sublist
+        ])
+
+        mutation_data = {}
+        for gene_name in all_gene_names:
+            aa_mutations = [list() for _ in range(len(cell_genemuts_pairs))]
+
+            for idx, gene_muts in enumerate(cell_gene_muts):
+                aa_mutations[idx] = list(gene_muts[gene_name])
+
+            mutation_data[gene_name] = aa_mutations
+
+        # TODO: cell_names index?
+        return pd.DataFrame(index=cell_names, data=mutation_data)
+
+    def find_cell_gene_aa_mutations(self, stream=None, path=None):
+        """Create a `dict` mapping gene names to amino acid-level mutations
+        found in that gene (filtered by COSMIC).
+        Accepts a `stream` or a `path` as input."""
+
+        vcf_reader = vcfpy.Reader.from_stream(
+            stream) if stream is not None else vcfpy.Reader.from_path(path)
+
+        gene_aa_mutations = defaultdict(set)
+
+        for record in vcf_reader:
+
+            call = record.calls[0] # LJH - 11.6.19
+            curr_AD = call.data.get('AD')
+
+            if len(curr_AD) != 1:
+                wt_count = curr_AD[0]
+                v_count = curr_AD[1] # need to account for > 1 alt allele
+            else:
+                wt_count = curr_AD[0]
+                v_count = 0
+
+            record_pos = GenomePosition.from_vcf_record(record)
+
+            # TODO: maybe clean this up into a method
+
+            protein_variant_results = self._protein_variant_predictor \
+                .predict_for_vcf_record(record)
+
+            if not protein_variant_results:
+                continue
+
+            target_variants = None
+            if self._cosmic_genome_tree:
+                overlaps = self._cosmic_genome_tree.get_all_overlaps(
+                    record_pos)
+
+                target_variants = (
+                    self._get_cosmic_record_protein_variant(overlap)
+                    for overlap in overlaps)
+
+                # Filter out variants which could not be correctly obtained for
+                # some reason.
+                target_variants = [
+                    variant for variant in target_variants if variant
+                ]
+
+                if not target_variants:
+                    continue
+
+            for result in protein_variant_results:
+                predicted_variant = result.predicted_variant
+
+                if target_variants is not None:
+                    for target_variant in target_variants:
+                        # `strict_silent` is enabled because silent mutations
+                        # have effects which are not discernable at the protein
+                        # level and could easily be different at the DNA level.
+                        if sequence_variants_are_equivalent(
+                                target_variant,
+                                predicted_variant,
+                                strict_unknown=False,
+                                strict_silent=True):
+                            break
+                    else:
+                        # This protein variant didn't match any of the target
+                        # variants; don't proceed.
+                        continue
+
+                # The predicted protein variant matches one or more target
+                # variants (if there are any).
+                gene_name = result.transcript_feat.attributes["gene_name"]
+                gene_aa_mutations[gene_name].add(str(predicted_variant))
+
+        print(gene_aa_mutations)
+        return gene_aa_mutations
+
+    def find_aa_mutations(self, paths, processes=1):
+        """Create a `DataFrame` of mutation counts, where the row indices are
+        cell names and the column indices are gene names."""
+        def init_process(aa_mutation_finder):
+            global current_process_aa_mutation_finder
+            current_process_aa_mutation_finder = aa_mutation_finder
+
+        def process_cell(path):
+            return (
+                Path(path).stem,
+                current_process_aa_mutation_finder \
+                    .find_cell_gene_aa_mutations(path=path)
+            )
+
+        if processes > 1:
+            with Pool(processes, initializer=init_process,
+                      initargs=(self, )) as pool:
+                results = list(
+                    tqdm(pool.imap(process_cell, paths),
+                         total=len(paths),
+                         smoothing=0.01))
+        else:
+            init_process(self)
+            results = list(map(process_cell, tqdm(paths)))
+
+        return self._make_mutation_counts_df(results)
 
-    if len(db_gene.index) == 0:
-    	print(' ')
-    	print("%s is not in the cosmic database" % gene_)
-    	print('   	are you using the official HGNC gene name? ')
-    	print('')
 
-    return db_gene
-    #return db_fathmm_filter
-
-
-
-def write_csv(dictObj, outFile):
-	""" writes dict to csv"""
-	with open(outFile, 'w') as csv_file:
-		writer = csv.writer(csv_file)
-		for key, value in dictObj.items():
-			writer.writerow([key, value])
-
-
-
-def generate_genome_pos_str(sample):
-	""" given vcf record, returns a genome position string"""
-	chr = sample[0]
-	chr = chr.replace("chr", "")
-	pos = int(sample[1])
-	ref = str(sample[3])
-	alt = str(sample[4])
-
-	genomePos = chr + ":" + str(pos) + '-'
-	altSplt = alt.split(',')
-	add = len(max(altSplt , key = len))
-
-	if add == 1: # for SNPs, start actually == end
-		add = 0
-
-	if len(ref) > 1: # deletion case
-		add = len(ref)
-
-	end = pos + add
-	genomePos = genomePos + str(end)
-
-	ret = [genomePos, ref, alt]
-	return(ret)
-
-
-
-def breakdown_by_mutation_type(currSet):
-	""" breaks down the mutations set into two categories: SNP and indel
-		returns seperate lists for each """
-
-	SNP_list = []
-	indel_list = []
-
-	for elm in currSet:
-		if len(elm[1]) > 1 or len(elm[2]) > 1: # indel
-			indel_list.append(elm)
-		else: # SNP
-			SNP_list.append(elm)
-
-	retSet = []
-	retSet.append(SNP_list)
-	retSet.append(indel_list)
-
-	return retSet
-
-
-
-def get_overlap(a, b):
-	""" return the len of overlap between two regions """
-	q_start = int(a[0])
-	q_end = int(a[1])
-	r_start = int(b[0])
-	r_end = int(b[1])
-
-	if q_start == q_end:
-		q_end += 1 		# otherwise it doesnt work for SNPs
-
-	ret = max(0, min(q_end, r_end) - max(q_start, r_start))
-	return(ret)
-
-
-
-def get_rev_comp(b):
-	""" return the reverse complement of a given base """
-	if b == 'A':
-		return('T')
-	if b == 'T':
-		return('A')
-	if b == 'C':
-		return('G')
-	if b == 'G':
-		return('C')
-
-
-
-def are_hits_in_cosmic(queryList, SNP_bool):
-	""" given a set of genome position strings, searches for the ones
-		that are in the COSMIC database. now supports SNPs and indels!! """
-	ret = []
-
-	if len(queryList) > 0:
-		if SNP_bool: # exact string match
-			curr_df = pd.DataFrame(queryList, columns=['posStr', 'ref', 'alt'])
-			overlap = set(curr_df['posStr']).intersection(set(genomePos_laud_db))
-			keep = curr_df.where(curr_df['posStr'].isin(overlap))
-			keep = keep.dropna()
-
-			ret = keep.values.tolist() # convert entire df to list
-
-		else: # indel case
-			ret = []
-			for i in range(0,len(queryList)):
-				pos_str = queryList[i]
-				pos_str_raw = pos_str[0]
-				curr_obj = utils.GenomePosition.from_str(pos_str_raw)
-				try:
-					b = cosmic_genome_tree.get_best_overlap(curr_obj)
-				
-					if b is not None:
-						ret.append(pos_str)
-				except AttributeError:
-					continue
-
-	return(ret)
-
-
-
-def build_genome_positions_dict(fileName):
-	""" creates dict with genome coords for cosmic filtered hits to specific GOI """
-
-	cell = fileName.replace(cwd, "")
-	cell = cell.replace(".vcf", "")	
-
-	df = vcf_to_dataframe(fileName)
-	genomePos_query = df.apply(generate_genome_pos_str, axis=1)
-	genomePos_query_breakdown = breakdown_by_mutation_type(genomePos_query)
-	
-	SNPs = genomePos_query_breakdown[0]
-	indels = genomePos_query_breakdown[1]
-
-	# get the entries shared between curr cells VCF and the cosmic filter set
-	shared_SNPs = are_hits_in_cosmic(SNPs, 1)
-	shared_indels = are_hits_in_cosmic(indels, 0)
-
-	all_shared_regions = shared_SNPs + shared_indels
-
-	ret = [cell, all_shared_regions]
-	return(ret)
-
-
-
-def GOI_df_subset(vcf_, chrom_, start_, end_):
-	""" subset a single vcf based on genomic coords"""
-	chrStr = 'chr' + str(chrom_)
-	start_ = int(start_)
-	end_ = int(end_)
-
-	keep0 = vcf_['CHROM'] == chrStr
-	vcf_sub0 = vcf_[keep0]
-
-	keep1 = vcf_sub0['POS'] >= start_
-	vcf_sub1 = vcf_sub0[keep1]
-
-	keep2 = vcf_sub1['POS'] <= end_
-	vcf_sub2 = vcf_sub1[keep2]
-    
-	return(vcf_sub2)
-
-
-
-def coverage_search_on_vcf(df):
-	""" given subset of vcf entries, search for AD (DepthPerAlleleBySample) col """ 
-	counts = ''
-	for i in range(0, len(df.index)):
-		row = df.iloc[i]
-		extra_col = str(row['20'])
-
-		try:
-			AD = extra_col.split(':')[1]
-			wt_count = int(AD.split(',')[0])
-			variant_count = int(AD.split(',')[1])
-			total_count = wt_count + variant_count
-
-			ratio = str(variant_count) + ':' + str(total_count)
-			counts = ratio
-
-		except: # picking up a wierd edge case -- '20' field is malformed
-			print(extra_col)
-			continue
-		
-	return(counts)
-
-
-
-def get_corresponding_aa_sub(position_sub_str):
-	""" for a given chromosomal position, searches the cosmic interval tree 
-		for that exact position, and returns the corresponding AA level substitution """
-
-	AA_sub = '?' # base case -- hits NOT in cosmic
-	posStr = position_sub_str[0]
-	ref = position_sub_str[1]
-	alt = position_sub_str[2]
-
-	curr_obj = utils.GenomePosition.from_str(posStr)
-
-	if len(ref) > 1 or len(alt) > 1: # indel case -- just return best overlap
-		b = cosmic_genome_tree.get_best_overlap(curr_obj)
-		if b is not None:
-			AA_sub = b["Mutation AA"]
-			AA_sub = AA_sub.replace("p.", "")
-
-	else: # SNP case -- specific CDS validation
-		overlaps = cosmic_genome_tree.get_all_overlaps(curr_obj)
-		nucSub = ref + '>' + alt
-
-		for o_df in overlaps:
-			cds = o_df['Mutation CDS']
-			strand = o_df['Mutation strand']
-			# taking into account cosmic's wierd strandedness field
-			if strand == '-':
-				nucSub = get_rev_comp(ref) + '>' + get_rev_comp(alt)
-
-			if nucSub in cds:
-				AA_sub = o_df["Mutation AA"]
-				AA_sub = AA_sub.replace("p.", "")
-
-	return(AA_sub)
-
-
-
-def evaluate_coverage_driver(ROI_hits_dict, gene_, cd):
-	""" takes a dict of ROI strings and converts to AA level muts, then
-		calls coverage_search_on_vcf() for each of those AA level hitsß """
-
-	for cell in ROI_hits_dict.keys():
-
-		vcf_path = cwd + cell + '.vcf'
-		vcf = vcf_to_dataframe(vcf_path)
-
-		ROIs = ROI_hits_dict.get(cell)
-		if len(ROIs) > 0:
-
-		 	for hit in ROIs:
-		 		aa_sub = get_corresponding_aa_sub(hit)
-		 		posStr = hit[0]
-		 		chrom = posStr.split(':')[0]
-		 		start = posStr.split('-')[0].split(':')[1]
-		 		end = posStr.split('-')[1]
-
-		 		vcf_sub = GOI_df_subset(vcf, chrom, start, end)
-		 		counts = coverage_search_on_vcf(vcf_sub)
-
-		 		if cell in cd:
-		 			curr_val = cd.get(cell)
-		 			curr_val.append([gene_ + '_' + aa_sub, counts])
-		 			cd.update({cell:curr_val})
-		 		else:
-		 			to_add = {cell:[[gene_ + '_' + aa_sub, counts]]}
-		 			cd.update(to_add)
-
-	return(cd)
-
-
-
-def convert_to_df(cd):
-	""" takes in a dictionary obj where keys are cells and values are loci and their
-		associated coverage ratios, and converts to a cell x mutation dataframe """
-
-	cells = list(cd.keys())
-	l = list(cd.values())
-	muts_list = []
-
-	for item in l:
-		for sub_item in item:
-			curr_mut = sub_item[0]
-			if '?' not in curr_mut:
-				muts_list.append(curr_mut)
-
-	muts_list = list(set(muts_list))
-	df = pd.DataFrame(columns=muts_list, index=cells)
-	df[:] = '0:0'
-
-	for cell in cd.keys(): # write to coverage_dataframe
-		values = cd.get(cell)
-		for val in values:
-			mut = val[0]
-			cov = val[1]
-			if '?' not in mut:
-				df.loc[cell,mut] = cov
-
-	# alphabetize rows and cols
-	df = df.reindex(sorted(df.columns), axis=1)
-	df = df.reindex(sorted(df.index), axis=0)
-	df.index.name = 'sample'
-
-	return(df)
- 
-
-
-""" get cmdline input """
 @click.command()
-@click.option('--genes_list', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/genesList.csv', prompt='path to csv file with genes of interest to evaluate coverage for', required=True, type=str)
-@click.option('--nthread', default = 2, prompt='number of threads', required=True, type=int)
-@click.option('--outprefix', default = 'sampleOut.csv', prompt='prefix to use for outfile', required=True, type=str)
-@click.option('--vcf_dir', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/vcf_test_set/', prompt='path to directory containing vcf files', required=True)
-@click.option('--cosmic_db', default = '/Users/lincoln.harris/code/cerebra/cerebra/wrkdir/CosmicGenomeScreensMutantExport.tsv', prompt='path to cosmic database', required=True)
- 
+@click.option("--processes",
+              "num_processes",
+              default=1,
+              help="number of processes to use for computation",
+              type=int)
+@click.option("--cosmicdb",
+              "cosmicdb_path",
+              help="optional path to cosmic db file (.tsv)",
+              default=None)
+@click.option("--annotation",
+              "annotation_path",
+              help="path to genome annotation (.gtf)",
+              required=True)
+@click.option("--genomefa",
+              "genomefa_path",
+              help="path to full genome sequences (.fasta)",
+              required=True)
+@click.option("--output",
+              "output_path",
+              help="path to output file (.csv)",
+              required=True)
+@click.argument("input_files", required=True, nargs=-1)
 
+def get_coverage(num_processes, cosmicdb_path, annotation_path,
+                      genomefa_path, output_path, input_files):
+    """ report coverage to each SNP location contained within a set of genes """ 
+    print("Beginning setup (this may take several minutes!)")
 
-def get_coverage(genes_list, nthread, outprefix, vcf_dir, cosmic_db):
-	""" report coverage to each SNP location contained within a set of genes """
-	global genomePos_laud_db
-	global cosmic_genome_tree
-	global cwd
+    if cosmicdb_path:
+        print("Loading COSMIC database...")
+        cosmic_df = pd.read_csv(cosmicdb_path, sep='\t')
+    else:
+        cosmic_df = None
 
-	cwd = vcf_dir
-	fNames = get_filenames()
-	GOI_df = pd.read_csv(genes_list, header=None, names=['gene'])
-	gene_names = list(GOI_df.gene)
-	database = pd.read_csv(cosmic_db, delimiter = '\t')
-	coverage_dict = {}
+    print("Loading genome annotation...")
+    annotation_df = pd.read_csv(annotation_path, sep='\t', skiprows=5)
 
-	# driver loop 
-	for gene in gene_names:
-		print(gene)
-		database_laud = get_laud_db(gene, database)
+    print("Loading genome sequences...")
+    genome_faidx = Fasta(genomefa_path)
 
-		if list(database_laud.isnull().all())[0]: # gene not found, empty df returned
-			continue
+    print("Building genome trees...")
+    aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df,
+                                                 genome_faidx)
+    print("Setup complete.")
 
-		genomePos_laud_db = pd.Series(database_laud['Mutation genome position'])
+    print("Finding mutations...")
+    result_df = aa_mutation_finder.find_aa_mutations(input_files,
+                                                     processes=num_processes)
 
-		# init interval tree
-		cosmic_genome_tree = utils.GenomeIntervalTree(
-            lambda row: utils.GenomePosition.from_str(str(row["Mutation genome position"])),
-            (record for idx, record in database_laud.iterrows()))
+    print("Writing file...")
+    output_path = Path(output_path)
+    result_df.to_csv(output_path)
 
-		p = mp.Pool(processes=nthread)
-			
-		try:  
-			goiList = list(p.imap(build_genome_positions_dict, fNames))
-		finally:
-			p.close()
-			p.join()
-
-		cells_dict_GOI_coords = {} # convert to dict
-
-		for item in goiList:
-			cell = item[0]
-			muts = item[1]
-			
-			toAdd = {cell:muts}
-			cells_dict_GOI_coords.update(toAdd)
-
-		coverage_dict = evaluate_coverage_driver(cells_dict_GOI_coords, gene, coverage_dict)
-	
-	coverage_df = convert_to_df(coverage_dict)
-	coverage_df.to_csv(outprefix)
-  
+    print("Done!")
