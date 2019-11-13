@@ -119,15 +119,9 @@ class AminoAcidMutationFinder():
         found in that gene (filtered by COSMIC).
         Accepts a `stream` or a `path` as input."""
 
-        vcf_reader = vcfpy.Reader.from_stream(
-            stream) if stream is not None else vcfpy.Reader.from_path(path)
-
-        gene_aa_mutations = defaultdict(set)
-
-        for record in vcf_reader:
-
-            # only relevant for coverage option. maybe should be its own method? 
-            call = record.calls[0] # LJH - 11.6.19
+        def extract_coverage(record_):
+            """ extracts coverage info from the INFO field of a vcf entry """
+            call = record_.calls[0]
             curr_AD = call.data.get('AD')
 
             if len(curr_AD) != 1:
@@ -136,10 +130,19 @@ class AminoAcidMutationFinder():
             else:
                 wt_count = curr_AD[0]
                 v_count = 0
-
             ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
+            return(ratio_str)
 
+
+        vcf_reader = vcfpy.Reader.from_stream(
+            stream) if stream is not None else vcfpy.Reader.from_path(path)
+
+        gene_aa_mutations = defaultdict(set)
+
+        for record in vcf_reader:
             record_pos = GenomePosition.from_vcf_record(record)
+
+            curr_cov = extract_coverage(record)
 
             # TODO: maybe clean this up into a method
             protein_variant_results = self._protein_variant_predictor \
@@ -188,7 +191,7 @@ class AminoAcidMutationFinder():
                 # The predicted protein variant matches one or more target
                 # variants (if there are any).
                 if self._coverage_bool == 1:
-                    pvr_str = str(predicted_variant) + ',' + ratio_str
+                    pvr_str = str(predicted_variant) + ',' + curr_cov
                     gene_name = result.transcript_feat.attributes["gene_name"]
                     gene_aa_mutations[gene_name].add(pvr_str)
                 else:
