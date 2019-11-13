@@ -63,11 +63,9 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
 @click.option("--cells", "cells_path", prompt="path to cell vcf files directory", required=True)
 @click.option("--metadata", "metadata_path", prompt="path to metadata csv file", required=True)
 @click.option("--outdir", "out_path", prompt="path to output vcf files directory", required=True)
-def germline_filter(processes, germline_path, cells_path, metadata_path, out_path):
-	"""Given a set of single-cell VCFs and bulk VCFs (peripheral blood), this
-	command removes variations from the single-cell VCFs which are shared
-	with corresponding bulk VCFs or part of dbSNP."""
 
+def germline_filter(processes, germline_path, cells_path, metadata_path, out_path):
+	""" filter out common SNPs/indels between germline samples and samples of interest """
 	germline_path = Path(germline_path)
 	cells_path = Path(cells_path)
 	metadata_path = Path(metadata_path)
