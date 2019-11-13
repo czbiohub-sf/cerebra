@@ -19,7 +19,7 @@ from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, \
 
 
 class AminoAcidMutationFinder():
-    def __init__(self, cosmic_df, annotation_df, genome_faidx):
+    def __init__(self, cosmic_df, annotation_df, genome_faidx, cov_bool):
         if cosmic_df is not None:
             filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
 
@@ -36,6 +36,8 @@ class AminoAcidMutationFinder():
 
         self._protein_variant_predictor = ProteinVariantPredictor(
             self._annotation_genome_tree, genome_faidx)
+
+        self._coverage_bool = cov_bool
 
     @classmethod
     def _make_filtered_cosmic_df(cls, cosmic_df):
@@ -117,6 +119,21 @@ class AminoAcidMutationFinder():
         found in that gene (filtered by COSMIC).
         Accepts a `stream` or a `path` as input."""
 
+        def extract_coverage(record_):
+            """ extracts coverage info from the INFO field of a vcf entry """
+            call = record_.calls[0]
+            curr_AD = call.data.get('AD')
+
+            if len(curr_AD) != 1:
+                wt_count = curr_AD[0]
+                v_count = curr_AD[1] # need to account for > 1 alt allele
+            else:
+                wt_count = curr_AD[0]
+                v_count = 0
+            ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
+            return(ratio_str)
+
+
         vcf_reader = vcfpy.Reader.from_stream(
             stream) if stream is not None else vcfpy.Reader.from_path(path)
 
@@ -125,8 +142,9 @@ class AminoAcidMutationFinder():
         for record in vcf_reader:
             record_pos = GenomePosition.from_vcf_record(record)
 
-            # TODO: maybe clean this up into a method
+            curr_cov = extract_coverage(record)
 
+            # TODO: maybe clean this up into a method
             protein_variant_results = self._protein_variant_predictor \
                 .predict_for_vcf_record(record)
 
@@ -172,8 +190,13 @@ class AminoAcidMutationFinder():
 
                 # The predicted protein variant matches one or more target
                 # variants (if there are any).
-                gene_name = result.transcript_feat.attributes["gene_name"]
-                gene_aa_mutations[gene_name].add(str(predicted_variant))
+                if self._coverage_bool == 1:
+                    pvr_str = str(predicted_variant) + ',' + curr_cov
+                    gene_name = result.transcript_feat.attributes["gene_name"]
+                    gene_aa_mutations[gene_name].add(pvr_str)
+                else:
+                    gene_name = result.transcript_feat.attributes["gene_name"]
+                    gene_aa_mutations[gene_name].add(str(predicted_variant))
 
         return gene_aa_mutations
 
@@ -223,6 +246,10 @@ class AminoAcidMutationFinder():
               "genomefa_path",
               help="path to full genome sequences (.fasta)",
               required=True)
+@click.option("--report_coverage",
+              "cov_bool",
+              help="do you want to report coverage information?",
+              required=True, type=int)
 @click.option("--output",
               "output_path",
               help="path to output file (.csv)",
@@ -230,8 +257,8 @@ class AminoAcidMutationFinder():
 @click.argument("input_files", required=True, nargs=-1)
 
 def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
-                      genomefa_path, output_path, input_files):
-    """ report amino-acid level SNPs and indels in each sample """ 
+                      genomefa_path, cov_bool, output_path, input_files):
+    """ report amino-acid level SNPs and indels in each sample, and associated coverage """ 
     print("Beginning setup (this may take several minutes!)")
 
     if cosmicdb_path:
@@ -248,7 +275,7 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
 
     print("Building genome trees...")
     aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df,
-                                                 genome_faidx)
+                                                 genome_faidx, cov_bool)
     print("Setup complete.")
 
     print("Finding mutations...")
