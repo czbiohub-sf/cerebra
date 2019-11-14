@@ -7,9 +7,9 @@ import pandas as pd
 import numpy as np
 import vcfpy
 import hgvs.parser
-from intervaltree import IntervalTree, Interval
+from cerebra.utils import GenomeIntervalTree
 
-from cerebra.mutation_counts import MutationCounter
+from cerebra.count_mutations import MutationCounter
 from cerebra.utils import GenomePosition
 
 class MutationCounterTestCase(unittest.TestCase):
@@ -31,7 +31,7 @@ class MutationCounterTestCase(unittest.TestCase):
             self.assertEqual("lung", row["Primary site"])
 
     def test_cosmic_genome_pos_filter(self):
-        lung_mut_interval_tree = IntervalTree()
+        lung_mut_interval_tree = GenomeIntervalTree(lambda row: GenomePosition.from_str(str(row["Mutation genome position"])), (record for idx, record in self.cosmic_df.iterrows()))
 
         # Test for positive matches.
         for _, row in self.cosmic_df.iterrows():
