@@ -5,7 +5,7 @@ help:
 	@echo "conda_install (recommended) - Install requirements "
 
 test:
-	py.test
+	py.test --ignore=test_mutation_counts.py
 
 coverage:
 	coverage run --source cerebra --omit="*/test*" --module py.test
