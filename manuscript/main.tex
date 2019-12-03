@@ -10,28 +10,37 @@
     $^1$Chan Zuckerberg Biohub, San Francisco, CA\\%
     December 2019}
 
-%\keywords{} TODO add this
+% Keywords command
+\providecommand{\keywords}[1]
+{
+  \small	
+  \textbf{\textit{Keywords ---}} #1
+}
 
 \begin{document}
 
 \maketitle
+\keywords{python, genomics, bioinformatics, variant calling, mutations}
 
 \section*{Summary}
 {Researchers are often interested in identifying the DNA mutations, or variants, present in a set of samples. Typically a DNA or RNA sequencing experiment (DNA-seq, RNA-seq) is performed, followed by variant calling with a tool such as GATK \href{https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php}{HaplotypeCaller} or  \href{https://github.com/ekg/freebayes}{FreeBayes}. Variant callers produce tab delimited text files (\href{https://samtools.github.io/hts-specs/VCFv4.2.pdf}{variant calling format}, \emph{.vcf}) for each processed sample, which encode the genomic position, reference vs. observed DNA sequence, and quality associated with each observed variant. Current methods for variant calling are incredibly useful and robust, however, a single sequencing run can generate on the order of 10\textsuperscript{8} unique vcf entries, only a small portion of which are of relevance to the researcher. In addition variant callers only report DNA level mutations and not the functional consequences of each mutation, \emph{ie}. peptide-level variants. We introduce \emph{cerebra}, a python package that provides fast and accurate peptide-level summarizing of vcf files.}
 
 \section*{Motivation}
 \section*{Functionality}
-{\emph{cerebra} comprises three modules: \textbf{germline-filter} removes variants that are common between germline samples and samples of interest, \textbf{count-mutations} reports total number of variants in each sample, and \textbf{find-aa-mutations} reports peptide-level variants in each sample. Here \emph{variants} refers to small nucleotide polymorphisms (SNPs), insertions, and deletions. \emph{cerebra} is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements. \emph{cerebra} utilizes a genome sequence (.fa) database, a genome annotation (.gtf) and a reference transcriptome to construct a \emph{genome interval tree}, a data structure that matches RNA transcripts and peptides to each CDS and exon in the genome. Interval trees have average-case O(log\emph{n}) and worst-case O(\emph{n}) time complexity for search operations, thus making them tractable for genome-scale operations (the bottleneck is tree construction, rather than search). }
+{\emph{cerebra} comprises three modules: \textbf{germline-filter} removes variants that are common between germline samples and samples of interest, \textbf{count-mutations} reports total number of variants in each sample, and \textbf{find-aa-mutations} reports peptide-level variants in each sample. Here \emph{variants} refers to small nucleotide polymorphisms (SNPs), insertions, and deletions. \emph{cerebra} is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements. \emph{cerebra} utilizes a genome sequence (.fa) database, a genome annotation (.gtf) and a reference transcriptome to construct a \emph{genome interval tree}, a data structure that matches RNA transcripts and peptides to each CDS and exon in the genome. Interval trees have average-case O(log\emph{n}) and worst-case O(\emph{n}) time complexity for search operations, thus making them tractable for genome-scale operations (the bottleneck is tree construction, rather than search).}
 
 \section*{Acknowledgments}
-{Funding for this work was provided by the \href{https://www.czbiohub.org/}{Chan Zuckerberg Biohub}}
+{Funding for this work was provided by the \href{https://www.czbiohub.org/}{Chan Zuckerberg Biohub}. The authors would like to thank Ashley Maynard, Angela Pisco and Daniel Le for helpful discussions.}
 
 \section*{Correspondence}
 {Please contact \texttt{lincoln.harris@czbiohub.org}}
 
 \section*{Code}
-{Available on GitHub at \texttt{https://github.com/czbiohub/cerebra}}
+{Available on GitHub at \texttt{https://github.com/czbiohub/cerebra} \newline
+I'd like to cite \cite{maynard2019lung}. I'd like to cite \cite{nclsPkg}. I'd like to cite \cite{gatk}. I'd like to cite \cite{freebayes}
+}
 
-\section*{References}
+\bibliographystyle{plain}
+\bibliography{references.bib}
 
 \end{document}
