@@ -40,6 +40,7 @@ Such a table contains only genomic (ie. DNA-level) coordinates. Often the next q
     sample2     -               -               Lys925Gln
     sample3     -               Ala1158Val      -
 
+_cerebra_ adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting peptide level variants
 
 Installation
 ------------
