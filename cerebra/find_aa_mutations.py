@@ -200,7 +200,7 @@ class AminoAcidMutationFinder():
 
         return gene_aa_mutations
 
-    def find_aa_mutations(self, paths, processes=1):
+    def find_transcript_mutations(self, paths, processes=1):
         """Create a `DataFrame` of mutation counts, where the row indices are
         cell names and the column indices are gene names."""
         def init_process(aa_mutation_finder):
@@ -208,6 +208,7 @@ class AminoAcidMutationFinder():
             current_process_aa_mutation_finder = aa_mutation_finder
 
         def process_cell(path):
+            print(path)
             return (
                 Path(path).stem,
                 current_process_aa_mutation_finder \
@@ -223,7 +224,8 @@ class AminoAcidMutationFinder():
                          smoothing=0.01))
         else:
             init_process(self)
-            results = list(map(process_cell, tqdm(paths)))
+            #results = list(map(process_cell, tqdm(paths)))
+            results = list(map(process_cell, paths)) # testing
 
         return self._make_mutation_counts_df(results)
 
@@ -279,7 +281,7 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
     print("Setup complete.")
 
     print("Finding mutations...")
-    result_df = aa_mutation_finder.find_aa_mutations(input_files,
+    result_df = aa_mutation_finder.find_transcript_mutations(input_files,
                                                      processes=num_processes)
 
     print("Writing file...")
