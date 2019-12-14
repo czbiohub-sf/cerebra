@@ -256,16 +256,16 @@ class ProteinVariantPredictor():
                 alt_coding_seq = (
                     'N' * n_term_padding) + alt_coding_seq[alt_trim_slice]
 
-                ref_aa_seq = ref_coding_seq.translate()
-                alt_aa_seq = alt_coding_seq.translate()
+                #ref_aa_seq = ref_coding_seq.translate()
+                #alt_aa_seq = alt_coding_seq.translate()
 
-                #try:           # maybe this block is needed in the case of a 
-                #    ref_aa_seq = ref_coding_seq.translate()    # malformed vcf?
-                #    alt_aa_seq = alt_coding_seq.translate()
-                #except TranslationError:
-                #    dummy = Seq("")
-                #    dummy_seq = dummy.translate()
-                #    ref_aa_seq, alt_aa_seq = dummy_seq, dummy_seq
+                try:           # maybe this block is needed in the case of a 
+                    ref_aa_seq = ref_coding_seq.translate()    # malformed vcf?
+                    alt_aa_seq = alt_coding_seq.translate()
+                except TranslationError:
+                    dummy = Seq("")
+                    dummy_seq = dummy.translate()
+                    ref_aa_seq, alt_aa_seq = dummy_seq, dummy_seq
 
                 protein_id = transcript.feat.attributes["protein_id"]
 
