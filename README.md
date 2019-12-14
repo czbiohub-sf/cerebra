@@ -74,8 +74,6 @@ Commands:
   count-mutations    count total number of mutations in each sample
   find-aa-mutations  report amino-acid level SNPs and indels in each sample
   germline-filter    filter out common SNPs/indels between germline samples...
-  get-coverage       report coverage to each SNP location contained within
-                     a...
 ```
 
 
@@ -84,7 +82,6 @@ Features
 ***count-mutations:*** count total number of mutations in each sample         
 ***find-aa-mutations:*** report amino-acid level SNPs and indels in each sample            
 ***germline-filter:*** filter out common SNPs/indels between germline samples and samples of interest          
-***get-coverage:*** report coverage to each SNP location contained within a set of genes  
 
 
 Authors
