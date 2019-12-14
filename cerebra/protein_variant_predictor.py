@@ -1,7 +1,8 @@
 from collections import defaultdict, namedtuple
 from itertools import tee
 
-from Bio import Alphabet
+import Bio
+#from Bio import Alphabet
 from Bio.Seq import Seq
 import hgvs.edit, hgvs.location, hgvs.posedit, hgvs.sequencevariant
 from hgvs.utils.altseq_to_hgvsp import AltSeqToHgvsp
@@ -262,8 +263,8 @@ class ProteinVariantPredictor():
                 try:           # maybe this block is needed in the case of a 
                     ref_aa_seq = ref_coding_seq.translate()    # malformed vcf?
                     alt_aa_seq = alt_coding_seq.translate()
-                except TranslationError:
-                    dummy = Seq("")
+                except (KeyError, Bio.Seq.CodonTable.TranslationError):
+                    dummy = Seq("") # is creating a blank Seq obj the way to go here? 
                     dummy_seq = dummy.translate()
                     ref_aa_seq, alt_aa_seq = dummy_seq, dummy_seq
 
