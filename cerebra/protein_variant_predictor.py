@@ -2,8 +2,8 @@ from collections import defaultdict, namedtuple
 from itertools import tee
 
 import Bio
-#from Bio import Alphabet
-from Bio.Seq import Seq
+from Bio import Alphabet
+from Bio.Seq import Seq # need to clean this up 
 import hgvs.edit, hgvs.location, hgvs.posedit, hgvs.sequencevariant
 from hgvs.utils.altseq_to_hgvsp import AltSeqToHgvsp
 
@@ -257,16 +257,19 @@ class ProteinVariantPredictor():
                 alt_coding_seq = (
                     'N' * n_term_padding) + alt_coding_seq[alt_trim_slice]
 
-                #ref_aa_seq = ref_coding_seq.translate()
-                #alt_aa_seq = alt_coding_seq.translate()
+                ref_aa_seq = ref_coding_seq.translate()
+                alt_aa_seq = alt_coding_seq.translate()
 
-                try:           # maybe this block is needed in the case of a 
-                    ref_aa_seq = ref_coding_seq.translate()    # malformed vcf?
-                    alt_aa_seq = alt_coding_seq.translate()
-                except (KeyError, Bio.Seq.CodonTable.TranslationError):
-                    dummy = Seq("") # is creating a blank Seq obj the way to go here? 
-                    dummy_seq = dummy.translate()
-                    ref_aa_seq, alt_aa_seq = dummy_seq, dummy_seq
+                # FIXME -- this is a spot fix and should NOT be included in 
+                #       the final version of the code
+                #try:
+                #    ref_aa_seq = ref_coding_seq.translate()
+                #    alt_aa_seq = alt_coding_seq.translate()
+                #except (KeyError, Bio.Seq.CodonTable.TranslationError):
+                #    print('in except')
+                #    dummy = Seq("")
+                #    dummy_seq = dummy.translate()
+                #    ref_aa_seq, alt_aa_seq = dummy_seq, dummy_seq
 
                 protein_id = transcript.feat.attributes["protein_id"]
 

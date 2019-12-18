@@ -208,7 +208,7 @@ class AminoAcidMutationFinder():
             current_process_aa_mutation_finder = aa_mutation_finder
 
         def process_cell(path):
-            #print(path)
+            print(path)
             return (
                 Path(path).stem,
                 current_process_aa_mutation_finder \
@@ -224,8 +224,8 @@ class AminoAcidMutationFinder():
                          smoothing=0.01))
         else:
             init_process(self)
-            results = list(map(process_cell, tqdm(paths)))
-            #results = list(map(process_cell, paths)) # testing
+            #results = list(map(process_cell, tqdm(paths)))
+            results = list(map(process_cell, paths)) # testing
 
         return self._make_mutation_counts_df(results)
 
