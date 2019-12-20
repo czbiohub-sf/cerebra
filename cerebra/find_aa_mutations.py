@@ -1,21 +1,19 @@
-from collections import defaultdict
 import re
+from collections import defaultdict
+from pathlib import Path
 
 import click
-import numpy as np
+import hgvs.parser
 import pandas as pd
 import vcfpy
-import hgvs.parser
 from hgvs.sequencevariant import SequenceVariant
-from tqdm import tqdm
-from pathlib import Path
-from pyfaidx import Fasta
-
 from pathos.pools import _ProcessPool as Pool
+from pyfaidx import Fasta
+from tqdm import tqdm
 
 from .protein_variant_predictor import ProteinVariantPredictor
 from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, \
-                   vcf_alt_affected_range, sequence_variants_are_equivalent
+    sequence_variants_are_equivalent
 
 
 class AminoAcidMutationFinder():
@@ -78,7 +76,7 @@ class AminoAcidMutationFinder():
 
         cosmic_protein_posedit = (
             self.hgvs_parser  # pylint: disable=no-member
-            .parse_p_typed_posedit(mutation_aa)).posedit
+                .parse_p_typed_posedit(mutation_aa)).posedit
 
         cosmic_protein_variant = SequenceVariant(
             ac=protein_accession, type='p', posedit=cosmic_protein_posedit)
@@ -126,13 +124,12 @@ class AminoAcidMutationFinder():
 
             if len(curr_AD) != 1:
                 wt_count = curr_AD[0]
-                v_count = curr_AD[1] # need to account for > 1 alt allele
+                v_count = curr_AD[1]  # need to account for > 1 alt allele
             else:
                 wt_count = curr_AD[0]
                 v_count = 0
             ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
-            return(ratio_str)
-
+            return (ratio_str)
 
         vcf_reader = vcfpy.Reader.from_stream(
             stream) if stream is not None else vcfpy.Reader.from_path(path)
@@ -178,10 +175,10 @@ class AminoAcidMutationFinder():
                         # have effects which are not discernable at the protein
                         # level and could easily be different at the DNA level.
                         if sequence_variants_are_equivalent(
-                                target_variant,
-                                predicted_variant,
-                                strict_unknown=False,
-                                strict_silent=True):
+                            target_variant,
+                            predicted_variant,
+                            strict_unknown=False,
+                            strict_silent=True):
                             break
                     else:
                         # This protein variant didn't match any of the target
@@ -203,6 +200,7 @@ class AminoAcidMutationFinder():
     def find_transcript_mutations(self, paths, processes=1):
         """Create a `DataFrame` of mutation counts, where the row indices are
         cell names and the column indices are gene names."""
+
         def init_process(aa_mutation_finder):
             global current_process_aa_mutation_finder
             current_process_aa_mutation_finder = aa_mutation_finder
@@ -217,15 +215,15 @@ class AminoAcidMutationFinder():
 
         if processes > 1:
             with Pool(processes, initializer=init_process,
-                      initargs=(self, )) as pool:
+                      initargs=(self,)) as pool:
                 results = list(
                     tqdm(pool.imap(process_cell, paths),
                          total=len(paths),
                          smoothing=0.01))
         else:
             init_process(self)
-            #results = list(map(process_cell, tqdm(paths)))
-            results = list(map(process_cell, paths)) # testing
+            # results = list(map(process_cell, tqdm(paths)))
+            results = list(map(process_cell, paths))  # testing
 
         return self._make_mutation_counts_df(results)
 
@@ -257,10 +255,9 @@ class AminoAcidMutationFinder():
               help="path to output file (.csv)",
               required=True)
 @click.argument("input_files", required=True, nargs=-1)
-
 def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
                       genomefa_path, cov_bool, output_path, input_files):
-    """ report amino-acid level SNPs and indels in each sample, and associated coverage """ 
+    """ report amino-acid level SNPs and indels in each sample, and associated coverage """
     print("Beginning setup (this may take several minutes!)")
 
     if cosmicdb_path:
@@ -282,7 +279,7 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
 
     print("Finding mutations...")
     result_df = aa_mutation_finder.find_transcript_mutations(input_files,
-                                                     processes=num_processes)
+                                                             processes=num_processes)
 
     print("Writing file...")
     output_path = Path(output_path)

@@ -1,7 +1,6 @@
 import os
 import subprocess
 
-
 # Set input language USA unicode encoding setting
 # Necessary because click assumes ascii input unless otherwise specified
 # https://click.palletsprojects.com/en/7.x/python3/

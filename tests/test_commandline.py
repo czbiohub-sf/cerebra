@@ -36,4 +36,3 @@ def test_cli_long_help():
     result = runner.invoke(cli, ["--help"])
 
     assert result.exit_code == 0
-

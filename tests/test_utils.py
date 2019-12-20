@@ -4,8 +4,9 @@ import pandas as pd
 import vcfpy
 import hgvs.parser
 
-#from cerebra.utils import GenomePosition, GenomeIntervalTree, sequence_variants_are_equivalent
+# from cerebra.utils import GenomePosition, GenomeIntervalTree, sequence_variants_are_equivalent
 from cerebra.utils import *
+
 
 class GenomePositionTestCase(unittest.TestCase):
     @classmethod

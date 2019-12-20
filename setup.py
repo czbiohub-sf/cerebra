@@ -7,7 +7,6 @@ try:
 except ImportError:
     from distutils.core import setup
 
-
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
@@ -33,7 +32,7 @@ setup(
         'cerebra',
     ],
     package_dir={'cerebra':
-                 'cerebra'},
+                     'cerebra'},
     include_package_data=True,
     install_requires=requirements,
     license="MIT",
