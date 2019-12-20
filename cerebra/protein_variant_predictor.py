@@ -1,10 +1,8 @@
 from collections import defaultdict, namedtuple
 from itertools import tee
 
-import Bio
 from Bio import Alphabet
-from Bio.Seq import Seq # need to clean this up 
-import hgvs.edit, hgvs.location, hgvs.posedit, hgvs.sequencevariant
+from Bio.Seq import Seq  # need to clean this up
 from hgvs.utils.altseq_to_hgvsp import AltSeqToHgvsp
 
 from .utils import GenomePosition, GenomeIntervalTree, vcf_alt_affected_range
@@ -55,7 +53,7 @@ class ProteinVariantPredictor():
 
             feature_type = feature.type
             if feature_type not in [
-                    "transcript", "CDS", "UTR", "start_codon", "stop_codon"
+                "transcript", "CDS", "UTR", "start_codon", "stop_codon"
             ]:
                 continue
 
@@ -93,10 +91,10 @@ class ProteinVariantPredictor():
 
             utr_filter_5p = is_before(
                 five_prime_cds_feat) if is_forward_stranded else is_after(
-                    five_prime_cds_feat)
+                five_prime_cds_feat)
             utr_filter_3p = is_after(
                 three_prime_cds_feat) if is_forward_stranded else is_before(
-                    three_prime_cds_feat)
+                three_prime_cds_feat)
 
             five_prime_utr_feats = filter(utr_filter_5p, utr_feats)
             three_prime_utr_feats = filter(utr_filter_3p, utr_feats)
@@ -108,7 +106,7 @@ class ProteinVariantPredictor():
                 five_prime_utr_feats=five_prime_utr_feats,
                 three_prime_utr_feats=three_prime_utr_feats,
                 translated_feats=features["start_codon"] + cds_feats +
-                features["stop_codon"])
+                                 features["stop_codon"])
 
             transcript_records[transcript_id] = transcript_record
 
@@ -199,8 +197,8 @@ class ProteinVariantPredictor():
                 alt_value = '' if alt.value == '*' else alt.value
 
                 alt_tx_seq = ref_tx_seq[:ref_slice.start] \
-                           + alt_value \
-                           + ref_tx_seq[ref_slice.stop:]
+                             + alt_value \
+                             + ref_tx_seq[ref_slice.stop:]
 
                 alt_tx_seq_len_delta = len(alt_tx_seq) - len(ref_tx_seq)
 
@@ -253,19 +251,21 @@ class ProteinVariantPredictor():
                                        len(alt_coding_seq) - alt_c_term_trim)
 
                 ref_coding_seq = (
-                    'N' * n_term_padding) + ref_coding_seq[ref_trim_slice]
+                                     'N' * n_term_padding) + ref_coding_seq[
+                                     ref_trim_slice]
                 alt_coding_seq = (
-                    'N' * n_term_padding) + alt_coding_seq[alt_trim_slice]
+                                     'N' * n_term_padding) + alt_coding_seq[
+                                     alt_trim_slice]
 
                 ref_aa_seq = ref_coding_seq.translate()
                 alt_aa_seq = alt_coding_seq.translate()
 
-                # FIXME -- this is a spot fix and should NOT be included in 
+                # FIXME -- this is a spot fix and should NOT be included in
                 #       the final version of the code
-                #try:
+                # try:
                 #    ref_aa_seq = ref_coding_seq.translate()
                 #    alt_aa_seq = alt_coding_seq.translate()
-                #except (KeyError, Bio.Seq.CodonTable.TranslationError):
+                # except (KeyError, Bio.Seq.CodonTable.TranslationError):
                 #    print('in except')
                 #    dummy = Seq("")
                 #    dummy_seq = dummy.translate()
