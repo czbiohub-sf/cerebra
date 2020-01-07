@@ -37,7 +37,6 @@ def test_get_stdout_from_command():
     stdout = get_stdout_from_command(command)
     assert stdout == ['asdf']
 
-
 # def test_get_stdout_stderr_from_command():
 #     from cerebra.os_utils import get_stdout_stderr_from_command
 
@@ -45,4 +44,3 @@ def test_get_stdout_from_command():
 #     stdout, stderr = get_stdout_stderr_from_command(command)
 #     assert stdout == []
 #     assert stderr == ['sed: 1: "asdf": command a expects \\ followed by text']
-

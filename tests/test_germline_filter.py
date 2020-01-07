@@ -8,14 +8,14 @@ import vcfpy
 from cerebra.germline_filter import write_filtered_vcf
 from cerebra.utils import GenomePosition, GenomeIntervalTree
 
+
 class GermlineFilterTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        self.data_path = Path(__file__).parent / "data" / "test_germline_filter"
+        self.data_path = Path(
+            __file__).parent / "data" / "test_germline_filter"
 
     def test_germline_filter(self):
-
-
         filtered_cell_vcf_paths = self.data_path.glob("GF_*.vcf")
 
         for filtered_cell_vcf_path in filtered_cell_vcf_paths:
@@ -25,12 +25,14 @@ class GermlineFilterTestCase(unittest.TestCase):
 
             # Create germline genome tree
 
-            germline_vcf_records = [list(vcfpy.Reader.from_path(path)) for path in germline_vcf_paths]
+            germline_vcf_records = [list(vcfpy.Reader.from_path(path)) for path
+                                    in germline_vcf_paths]
 
             # Flatten records
             germline_vcf_records = sum(germline_vcf_records, [])
 
-            germline_genome_tree = GenomeIntervalTree(GenomePosition.from_vcf_record, germline_vcf_records)
+            germline_genome_tree = GenomeIntervalTree(
+                GenomePosition.from_vcf_record, germline_vcf_records)
 
             # Test writing VCF
 
@@ -45,7 +47,8 @@ class GermlineFilterTestCase(unittest.TestCase):
                     expected_reader = vcfpy.Reader.from_stream(expected_file)
                     out_reader = vcfpy.Reader.from_stream(out_file)
 
-                    expected_records, out_records = list(expected_reader), list(out_reader)
+                    expected_records, out_records = list(
+                        expected_reader), list(out_reader)
 
                     self.assertEqual(expected_records, out_records)
 
