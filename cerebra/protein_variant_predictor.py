@@ -43,8 +43,9 @@ class ProteinVariantPredictor():
     # TODO: Now I think it would be nice if this was written to use GFF3
     # instead of GTF because of the hierarchic feature structure GFF3 provides,
     # which is is already being emulated (to an extent) below.
-    def __init__(self, annotation_genome_tree, genome_faidx):
+    def __init__(self, annotation_genome_tree, genome_faidx, lock):
         self.genome_fasta = genome_faidx
+        self._lock = lock
 
         transcript_feats_dict = defaultdict(lambda: defaultdict(list))
         for feature in annotation_genome_tree.records:
@@ -185,9 +186,11 @@ class ProteinVariantPredictor():
                     min(0, ref_pos.start - tx_pos.start),
                     max(0, ref_pos.end - tx_pos.end))
 
-                ref_tx_seq = Seq(self.genome_fasta["chr" + tx_pos.chrom]
+                self._lock.acquire()
+                ref_tx_seq = Seq(self.genome_fasta["chr" + tx_pos.chrom] # right here
                                  [tx_pos.start:tx_pos.end].seq,
                                  alphabet=Alphabet.generic_dna)
+                self._lock.release()
 
                 ref_slice = ref_pos.slice_within(tx_pos)
 
@@ -259,6 +262,7 @@ class ProteinVariantPredictor():
 
                 ref_aa_seq = ref_coding_seq.translate()
                 alt_aa_seq = alt_coding_seq.translate()
+                # print(ref_aa_seq)
 
                 # FIXME -- this is a spot fix and should NOT be included in
                 #       the final version of the code
@@ -266,7 +270,10 @@ class ProteinVariantPredictor():
                 #    ref_aa_seq = ref_coding_seq.translate()
                 #    alt_aa_seq = alt_coding_seq.translate()
                 # except (KeyError, Bio.Seq.CodonTable.TranslationError):
-                #    print('in except')
+                # except Exception as e:
+                #    print(e)
+                #    print(ref_coding_seq)
+                #    print(alt_coding_seq)
                 #    dummy = Seq("")
                 #    dummy_seq = dummy.translate()
                 #    ref_aa_seq, alt_aa_seq = dummy_seq, dummy_seq

@@ -1,6 +1,6 @@
 import re
-import numpy as np
 
+import numpy as np
 import vcfpy
 from hgvs import edit
 from ncls import NCLS
@@ -60,7 +60,10 @@ class GenomePosition():
         return self.end - self.start
 
     def __contains__(self, other):
-        return other.chrom == self.chrom and other.start >= self.start and other.end <= self.end
+        same_chrom = other.chrom == self.chrom
+        same_start = other.start >= self.start
+        same_end = other.end <= self.end
+        return same_chrom and same_start and same_end
 
     def __and__(self, other):
         if self.chrom != other.chrom:
@@ -108,7 +111,7 @@ class GenomeIntervalTree():
 
             chrom = genome_pos.chrom
 
-            if not chrom in working_tree_map:
+            if chrom not in working_tree_map:
                 # (starts, ends, ids)
                 working_tree_map[chrom] = ([], [], [])
 
@@ -164,8 +167,8 @@ class GenomeIntervalTree():
         if not intersection:
             return 0
 
-        # The following is equivalent to |A ∩ B| / |A ∪ B|, but avoids computing
-        # a union.
+        # The following is equivalent to |A ∩ B| / |A ∪ B|, but avoids
+        # computing a union.
         # |A ∩ B| / (|A| + |B| - |A ∩ B|)
         return len(intersection) / (len(pos_a) + len(pos_b) -
                                     len(intersection))

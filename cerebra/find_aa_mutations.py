@@ -1,6 +1,7 @@
 import re
 from collections import defaultdict
 from pathlib import Path
+import multiprocessing
 
 import click
 import hgvs.parser
@@ -17,7 +18,7 @@ from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, \
 
 
 class AminoAcidMutationFinder():
-    def __init__(self, cosmic_df, annotation_df, genome_faidx, cov_bool):
+    def __init__(self, cosmic_df, annotation_df, genome_faidx, cov_bool, lock):
         if cosmic_df is not None:
             filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
 
@@ -33,9 +34,11 @@ class AminoAcidMutationFinder():
             (GFFFeature(row) for _, row in annotation_df.iterrows()))
 
         self._protein_variant_predictor = ProteinVariantPredictor(
-            self._annotation_genome_tree, genome_faidx)
+            self._annotation_genome_tree, genome_faidx, lock)
 
         self._coverage_bool = cov_bool
+
+        #self._lock = lock
 
     @classmethod
     def _make_filtered_cosmic_df(cls, cosmic_df):
@@ -206,7 +209,7 @@ class AminoAcidMutationFinder():
             current_process_aa_mutation_finder = aa_mutation_finder
 
         def process_cell(path):
-            print(path)
+            # print(path)
             return (
                 Path(path).stem,
                 current_process_aa_mutation_finder \
@@ -216,14 +219,17 @@ class AminoAcidMutationFinder():
         if processes > 1:
             with Pool(processes, initializer=init_process,
                       initargs=(self,)) as pool:
+                #results = tqdm(pool.map(process_cell, paths), 
+                #    total=len(paths), smoothing=0.01)
                 results = list(
                     tqdm(pool.imap(process_cell, paths),
                          total=len(paths),
                          smoothing=0.01))
+    
         else:
             init_process(self)
-            # results = list(map(process_cell, tqdm(paths)))
-            results = list(map(process_cell, paths))  # testing
+            results = list(map(process_cell, tqdm(paths)))
+            #results = list(map(process_cell, paths))  # testing
 
         return self._make_mutation_counts_df(results)
 
@@ -258,6 +264,9 @@ class AminoAcidMutationFinder():
 def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
                       genomefa_path, cov_bool, output_path, input_files):
     """ report amino-acid level SNPs and indels in each sample, and associated coverage """
+    global l # not sure if i need this
+    l = multiprocessing.Lock()
+
     print("Beginning setup (this may take several minutes!)")
 
     if cosmicdb_path:
@@ -271,10 +280,11 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
 
     print("Loading genome sequences...")
     genome_faidx = Fasta(genomefa_path)
+    
 
     print("Building genome trees...")
     aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df,
-                                                 genome_faidx, cov_bool)
+                                                 genome_faidx, cov_bool, l)
     print("Setup complete.")
 
     print("Finding mutations...")
