@@ -120,6 +120,8 @@ class ProteinVariantPredictor():
         self.tree = GenomeIntervalTree(lambda record: record.feat.pos,
                                        cds_records)
 
+        #print('ProteinVariantPredictor init')
+
     @classmethod
     def _merged_and_sorted_intersecting_intervals(cls, intervals):
         current_interval = None

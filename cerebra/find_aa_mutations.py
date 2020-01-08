@@ -38,7 +38,7 @@ class AminoAcidMutationFinder():
 
         self._coverage_bool = cov_bool
 
-        #self._lock = lock
+        #print('AminoAcidMutationFinder init')
 
     @classmethod
     def _make_filtered_cosmic_df(cls, cosmic_df):
@@ -119,6 +119,7 @@ class AminoAcidMutationFinder():
         """Create a `dict` mapping gene names to amino acid-level mutations
         found in that gene (filtered by COSMIC).
         Accepts a `stream` or a `path` as input."""
+        #print('in find_cell_gene_aa_mutations')
 
         def extract_coverage(record_):
             """ extracts coverage info from the INFO field of a vcf entry """
@@ -264,7 +265,7 @@ class AminoAcidMutationFinder():
 def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
                       genomefa_path, cov_bool, output_path, input_files):
     """ report amino-acid level SNPs and indels in each sample, and associated coverage """
-    global l # not sure if i need this
+    #global l # not sure if i need this
     l = multiprocessing.Lock()
 
     print("Beginning setup (this may take several minutes!)")
