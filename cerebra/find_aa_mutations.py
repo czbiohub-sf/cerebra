@@ -38,8 +38,6 @@ class AminoAcidMutationFinder():
 
         self._coverage_bool = cov_bool
 
-        #print('AminoAcidMutationFinder init')
-
     @classmethod
     def _make_filtered_cosmic_df(cls, cosmic_df):
         """Return a view of the input `cosmic_df` filtered for
@@ -57,7 +55,7 @@ class AminoAcidMutationFinder():
         transcript_accession = cosmic_record["Accession Number"]
 
         for tx_id, tx_record in self._protein_variant_predictor \
-            .transcript_records.items():
+        .transcript_records.items():
             if tx_id.split('.')[0] == transcript_accession:
                 transcript_record = tx_record
                 break
@@ -74,8 +72,8 @@ class AminoAcidMutationFinder():
         mutation_aa = self.mutation_aa_silent_sub_fix_pattern.sub(
             r"\1\2\3=", mutation_aa)
 
-        # COSMIC mutation CDS strings have uncertainty variants which are not HGVS-compliant.
-        # mutation_cds = self.mutation_cds_uncertain_ins_del_fix_pattern.sub(r"\1(\2)\3(\4)", mutation_cds)
+        # COSMIC mutation CDS strings have uncertainty variants which are 
+        # not HGVS-compliant.
 
         cosmic_protein_posedit = (
             self.hgvs_parser  # pylint: disable=no-member
@@ -119,7 +117,6 @@ class AminoAcidMutationFinder():
         """Create a `dict` mapping gene names to amino acid-level mutations
         found in that gene (filtered by COSMIC).
         Accepts a `stream` or a `path` as input."""
-        #print('in find_cell_gene_aa_mutations')
 
         def extract_coverage(record_):
             """ extracts coverage info from the INFO field of a vcf entry """
@@ -213,9 +210,9 @@ class AminoAcidMutationFinder():
             # print(path)
             return (
                 Path(path).stem,
-                current_process_aa_mutation_finder \
+                current_process_aa_mutation_finder
                     .find_cell_gene_aa_mutations(path=path)
-            )
+                    )
 
         if processes > 1:
             with Pool(processes, initializer=init_process,
@@ -230,8 +227,8 @@ class AminoAcidMutationFinder():
         else:
             init_process(self)
             results = list(map(process_cell, tqdm(paths)))
-            #results = list(map(process_cell, paths))  # testing
-
+            # results = list(map(process_cell, paths))  # testing
+                    
         return self._make_mutation_counts_df(results)
 
 
@@ -295,5 +292,6 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
     print("Writing file...")
     output_path = Path(output_path)
     result_df.to_csv(output_path)
+    #result_df.to_json(output_path)
 
     print("Done!")
