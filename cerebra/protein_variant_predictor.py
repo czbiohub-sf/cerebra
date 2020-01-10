@@ -262,21 +262,6 @@ class ProteinVariantPredictor():
 
                 ref_aa_seq = ref_coding_seq.translate()
                 alt_aa_seq = alt_coding_seq.translate()
-                # print(ref_aa_seq)
-
-                # FIXME -- this is a spot fix and should NOT be included in
-                #       the final version of the code
-                # try:
-                #    ref_aa_seq = ref_coding_seq.translate()
-                #    alt_aa_seq = alt_coding_seq.translate()
-                # except (KeyError, Bio.Seq.CodonTable.TranslationError):
-                # except Exception as e:
-                #    print(e)
-                #    print(ref_coding_seq)
-                #    print(alt_coding_seq)
-                #    dummy = Seq("")
-                #    dummy_seq = dummy.translate()
-                #    ref_aa_seq, alt_aa_seq = dummy_seq, dummy_seq
 
                 protein_id = transcript.feat.attributes["protein_id"]
 
