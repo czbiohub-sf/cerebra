@@ -217,7 +217,7 @@ class AminoAcidMutationFinder():
         if processes > 1:
             with Pool(processes, initializer=init_process,
                       initargs=(self,)) as pool:
-                # results = tqdm(pool.map(process_cell, paths), 
+                # results = tqdm(pool.map(process_cell, paths),
                 # total=len(paths), smoothing=0.01)
                 results = list(
                     tqdm(pool.imap(process_cell, paths),
@@ -292,5 +292,5 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
     output_path = Path(output_path)
     result_df.to_csv(output_path)
     # result_df.to_json(output_path)
-    
+
     print("Done!")

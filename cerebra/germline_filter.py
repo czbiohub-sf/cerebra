@@ -5,7 +5,6 @@ import vcfpy
 from pathlib import Path
 from tqdm import tqdm
 from pathos.multiprocessing import _ProcessPool as Pool, ThreadPool
-from multiprocessing import current_process, Process
 
 from .utils import GenomePosition, GenomeIntervalTree
 
@@ -32,11 +31,12 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
     out_vcf = vcfpy.Writer.from_stream(out_stream, header=cell_vcf.header)
 
     for record in cell_vcf:
-        # If a record's ID field is `.`, that means that the calling software
-        # did not find an ID for it in the associated database, typically dbSNP.
-        # This is represented as an empty array (`[]`) in VCFPy.
-        if record.ID:
-            # This record is in dbSNP; skip it.
+        # If a record's ID field is `.`, that means that the calling
+        # software did not find an ID for it in the associated database, 
+        # typically dbSNP. This is represented as an empty array (`[]`) 
+        # in VCFPy.
+
+        if record.ID: # This record is in dbSNP; skip it.
             continue
 
         genome_pos = GenomePosition.from_vcf_record(record)
@@ -77,7 +77,8 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
               prompt="path to output vcf files directory", required=True)
 def germline_filter(processes, germline_path, cells_path, metadata_path,
                     out_path):
-    """ filter out common SNPs/indels between germline samples and samples of interest """
+    """ filter out common SNPs/indels between germline samples and samples 
+        of interest """
     germline_path = Path(germline_path)
     cells_path = Path(cells_path)
     metadata_path = Path(metadata_path)
@@ -97,7 +98,8 @@ def germline_filter(processes, germline_path, cells_path, metadata_path,
         cell_ids = metadata_df.loc[metadata_df["patient_id"] == patient_id][
             "cell_id"]
 
-        # Use the cell IDs to create a list of all single-cell VCF files for the patient.
+        # Use the cell IDs to create a list of all single-cell VCF files 
+        # for the patient.
         cell_vcf_paths = [(cells_path / cell_id).with_suffix(".vcf") for
                           cell_id in cell_ids]
 

@@ -120,8 +120,6 @@ class ProteinVariantPredictor():
         self.tree = GenomeIntervalTree(lambda record: record.feat.pos,
                                        cds_records)
 
-        #print('ProteinVariantPredictor init')
-
     @classmethod
     def _merged_and_sorted_intersecting_intervals(cls, intervals):
         current_interval = None
@@ -189,7 +187,7 @@ class ProteinVariantPredictor():
                     max(0, ref_pos.end - tx_pos.end))
 
                 self._lock.acquire()
-                ref_tx_seq = Seq(self.genome_fasta["chr" + tx_pos.chrom] # right here
+                ref_tx_seq = Seq(self.genome_fasta["chr" + tx_pos.chrom]
                                  [tx_pos.start:tx_pos.end].seq,
                                  alphabet=Alphabet.generic_dna)
                 self._lock.release()

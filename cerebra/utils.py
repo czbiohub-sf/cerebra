@@ -48,7 +48,8 @@ class GenomePosition():
                    int(record[3]) - 1, int(record[4]))
 
     def __eq__(self, other):
-        return self.chrom == other.chrom and self.start == other.start and self.end == other.end
+        return self.chrom == other.chrom and self.start == other.start and \
+        self.end == other.end
 
     def __repr__(self):
         return "%s:%d-%d" % (self.chrom, self.start + 1, self.end)
