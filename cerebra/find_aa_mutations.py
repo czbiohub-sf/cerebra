@@ -55,7 +55,7 @@ class AminoAcidMutationFinder():
         transcript_accession = cosmic_record["Accession Number"]
 
         for tx_id, tx_record in self._protein_variant_predictor \
-        .transcript_records.items():
+            .transcript_records.items():
             if tx_id.split('.')[0] == transcript_accession:
                 transcript_record = tx_record
                 break
@@ -72,7 +72,7 @@ class AminoAcidMutationFinder():
         mutation_aa = self.mutation_aa_silent_sub_fix_pattern.sub(
             r"\1\2\3=", mutation_aa)
 
-        # COSMIC mutation CDS strings have uncertainty variants which are 
+        # COSMIC mutation CDS strings have uncertainty variants which are
         # not HGVS-compliant.
 
         cosmic_protein_posedit = (
@@ -217,18 +217,18 @@ class AminoAcidMutationFinder():
         if processes > 1:
             with Pool(processes, initializer=init_process,
                       initargs=(self,)) as pool:
-                #results = tqdm(pool.map(process_cell, paths), 
-                #    total=len(paths), smoothing=0.01)
+                # results = tqdm(pool.map(process_cell, paths), 
+                # total=len(paths), smoothing=0.01)
                 results = list(
                     tqdm(pool.imap(process_cell, paths),
                          total=len(paths),
                          smoothing=0.01))
-    
+
         else:
             init_process(self)
             results = list(map(process_cell, tqdm(paths)))
             # results = list(map(process_cell, paths))  # testing
-                    
+
         return self._make_mutation_counts_df(results)
 
 
@@ -261,9 +261,10 @@ class AminoAcidMutationFinder():
 @click.argument("input_files", required=True, nargs=-1)
 def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
                       genomefa_path, cov_bool, output_path, input_files):
-    """ report amino-acid level SNPs and indels in each sample, and associated coverage """
-    #global l # not sure if i need this
-    l = multiprocessing.Lock()
+    """ report amino-acid level SNPs and indels in each sample, and
+        associated coverage """
+
+    plock = multiprocessing.Lock()
 
     print("Beginning setup (this may take several minutes!)")
 
@@ -278,20 +279,18 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
 
     print("Loading genome sequences...")
     genome_faidx = Fasta(genomefa_path)
-    
 
     print("Building genome trees...")
     aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df,
-                                                 genome_faidx, cov_bool, l)
+                                                 genome_faidx, cov_bool, plock)
     print("Setup complete.")
 
     print("Finding mutations...")
     result_df = aa_mutation_finder.find_transcript_mutations(input_files,
-                                                             processes=num_processes)
-
+                                                processes=num_processes)
     print("Writing file...")
     output_path = Path(output_path)
     result_df.to_csv(output_path)
-    #result_df.to_json(output_path)
-
+    # result_df.to_json(output_path)
+    
     print("Done!")
