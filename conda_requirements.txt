@@ -8,3 +8,4 @@ colorama
 ncls
 numpy
 pyfaidx
+biopython==1.74

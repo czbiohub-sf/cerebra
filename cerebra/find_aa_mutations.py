@@ -18,7 +18,7 @@ from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, \
 
 
 class AminoAcidMutationFinder():
-    def __init__(self, cosmic_df, annotation_df, genome_faidx, cov_bool, lock):
+    def __init__(self, cosmic_df, annotation_df, genome_faidx, cov_bool):
         if cosmic_df is not None:
             filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
 
@@ -34,7 +34,7 @@ class AminoAcidMutationFinder():
             (GFFFeature(row) for _, row in annotation_df.iterrows()))
 
         self._protein_variant_predictor = ProteinVariantPredictor(
-            self._annotation_genome_tree, genome_faidx, lock)
+            self._annotation_genome_tree, genome_faidx)
 
         self._coverage_bool = cov_bool
 
@@ -264,8 +264,6 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
     """ report amino-acid level SNPs and indels in each sample, and
         associated coverage """
 
-    plock = multiprocessing.Lock()
-
     print("Beginning setup (this may take several minutes!)")
 
     if cosmicdb_path:
@@ -282,7 +280,7 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
 
     print("Building genome trees...")
     aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df,
-                                                 genome_faidx, cov_bool, plock)
+                                                 genome_faidx, cov_bool)
     print("Setup complete.")
 
     print("Finding mutations...")

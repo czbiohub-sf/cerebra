@@ -13,3 +13,4 @@ pathos
 ncls
 hgvs
 pyfaidx
+biopython==1.74
