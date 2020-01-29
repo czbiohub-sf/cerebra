@@ -34,9 +34,10 @@ class AminoAcidMutationFinder():
             (GFFFeature(row) for _, row in annotation_df.iterrows()))
 
         self._protein_variant_predictor = ProteinVariantPredictor(
-            self._annotation_genome_tree, genome_faidx)
+            self._annotation_genome_tree)
 
         self._coverage_bool = cov_bool
+        self._genome_faidx = genome_faidx
 
     @classmethod
     def _make_filtered_cosmic_df(cls, cosmic_df):
@@ -144,7 +145,7 @@ class AminoAcidMutationFinder():
 
             # TODO: maybe clean this up into a method
             protein_variant_results = self._protein_variant_predictor \
-                .predict_for_vcf_record(record)
+                .predict_for_vcf_record(record, self._genome_faidx)
 
             if not protein_variant_results:
                 continue
@@ -207,7 +208,6 @@ class AminoAcidMutationFinder():
             current_process_aa_mutation_finder = aa_mutation_finder
 
         def process_cell(path):
-            # print(path)
             return (
                 Path(path).stem,
                 current_process_aa_mutation_finder
@@ -217,17 +217,13 @@ class AminoAcidMutationFinder():
         if processes > 1:
             with Pool(processes, initializer=init_process,
                       initargs=(self,)) as pool:
-                # results = tqdm(pool.map(process_cell, paths),
-                # total=len(paths), smoothing=0.01)
-                results = list(
-                    tqdm(pool.imap(process_cell, paths),
+                results = list(tqdm(pool.imap(process_cell, paths),
                          total=len(paths),
                          smoothing=0.01))
 
         else:
             init_process(self)
             results = list(map(process_cell, tqdm(paths)))
-            # results = list(map(process_cell, paths))  # testing
 
         return self._make_mutation_counts_df(results)
 

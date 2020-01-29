@@ -43,8 +43,7 @@ class ProteinVariantPredictor():
     # TODO: Now I think it would be nice if this was written to use GFF3
     # instead of GTF because of the hierarchic feature structure GFF3 provides,
     # which is is already being emulated (to an extent) below.
-    def __init__(self, annotation_genome_tree, genome_faidx):
-        self.genome_fasta = genome_faidx
+    def __init__(self, annotation_genome_tree):
 
         transcript_feats_dict = defaultdict(lambda: defaultdict(list))
         for feature in annotation_genome_tree.records:
@@ -156,7 +155,7 @@ class ProteinVariantPredictor():
 
         return spliced_seq
 
-    def predict_for_vcf_record(self, vcf_record):
+    def predict_for_vcf_record(self, vcf_record, genome_fasta):
         variant_results = []
 
         record_pos = GenomePosition.from_vcf_record_pos(vcf_record)
@@ -185,9 +184,11 @@ class ProteinVariantPredictor():
                     min(0, ref_pos.start - tx_pos.start),
                     max(0, ref_pos.end - tx_pos.end))
 
-                ref_tx_seq = Seq(self.genome_fasta["chr" + tx_pos.chrom]
+                ref_tx_seq = Seq(genome_fasta["chr" + tx_pos.chrom]
                                  [tx_pos.start:tx_pos.end].seq,
                                  alphabet=Alphabet.generic_dna)
+
+                assert '>' not in ref_tx_seq, ref_tx_seq
 
                 ref_slice = ref_pos.slice_within(tx_pos)
 
