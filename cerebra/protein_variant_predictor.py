@@ -188,7 +188,11 @@ class ProteinVariantPredictor():
                                  [tx_pos.start:tx_pos.end].seq,
                                  alphabet=Alphabet.generic_dna)
 
-                assert '>' not in ref_tx_seq, ref_tx_seq
+                if '>' in ref_tx_seq:
+                    print('bugger')
+                    break
+                
+                #assert '>' not in ref_tx_seq, break
 
                 ref_slice = ref_pos.slice_within(tx_pos)
 
