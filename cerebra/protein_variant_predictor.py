@@ -1,5 +1,6 @@
 from collections import defaultdict, namedtuple
 from itertools import tee
+from time import sleep 
 
 from Bio import Alphabet
 from Bio.Seq import Seq  # need to clean this up
@@ -173,26 +174,29 @@ class ProteinVariantPredictor():
                 for record in coding_overlaps)
 
             for tx_id in transcript_ids:
-                transcript = self.transcript_records[tx_id]
-                tx_pos = transcript.feat.pos
-                ref_pos = record_pos.shifted_by(0, len(ref) - 1)
+                successful = False
 
-                # We want to make sure that the transcript sequence we pull
-                # includes the REF so that we can cleanly replace it with the
-                # ALT later.
-                tx_pos = tx_pos.shifted_by(
-                    min(0, ref_pos.start - tx_pos.start),
-                    max(0, ref_pos.end - tx_pos.end))
+                while not successful: 
+                    transcript = self.transcript_records[tx_id]
+                    tx_pos = transcript.feat.pos
+                    ref_pos = record_pos.shifted_by(0, len(ref) - 1)
 
-                ref_tx_seq = Seq(genome_fasta["chr" + tx_pos.chrom]
-                                 [tx_pos.start:tx_pos.end].seq,
-                                 alphabet=Alphabet.generic_dna)
+                    # We want to make sure that the transcript sequence 
+                    # we pull includes the REF so that we can cleanly
+                    # replace it with the ALT later.
+                    tx_pos = tx_pos.shifted_by(
+                        min(0, ref_pos.start - tx_pos.start),
+                        max(0, ref_pos.end - tx_pos.end))
 
-                if '>' in ref_tx_seq:
-                    print('bugger')
-                    break
-                
-                #assert '>' not in ref_tx_seq, break
+                    ref_tx_seq = Seq(genome_fasta["chr" + tx_pos.chrom]
+                                        [tx_pos.start:tx_pos.end].seq, 
+                                        alphabet=Alphabet.generic_dna)
+
+                    if '>' in ref_tx_seq: # this shouldnt be happening
+                        print('bugger')
+                        sleep(1)
+                    else:
+                        successful = True
 
                 ref_slice = ref_pos.slice_within(tx_pos)
 
@@ -261,9 +265,11 @@ class ProteinVariantPredictor():
                 alt_coding_seq = (
                                      'N' * n_term_padding) + alt_coding_seq[
                                      alt_trim_slice]
-
-                ref_aa_seq = ref_coding_seq.translate()
-                alt_aa_seq = alt_coding_seq.translate()
+                try:
+                    ref_aa_seq = ref_coding_seq.translate()
+                    alt_aa_seq = alt_coding_seq.translate()
+                except:
+                    print(ref_tx_seq)
 
                 protein_id = transcript.feat.attributes["protein_id"]
 
