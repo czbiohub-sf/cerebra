@@ -206,10 +206,7 @@ class ProteinVariantPredictor():
                         successful = True   # to avoid infinite loop 
                         print('bugger')
                     else:
-                        #print('bugger')
-                        #print(ref_tx_seq)
-                        #print(' ')
-                        sleep(1)
+                        sleep(1)   # try again tomorrow, buddy 
                         iters += 1
 
                 ref_slice = ref_pos.slice_within(tx_pos)
@@ -280,11 +277,8 @@ class ProteinVariantPredictor():
                                      'N' * n_term_padding) + alt_coding_seq[
                                      alt_trim_slice]
 
-                try:   # ideally would get rid of this try/except block
-                    ref_aa_seq = ref_coding_seq.translate()
-                    alt_aa_seq = alt_coding_seq.translate()
-                except:
-                    print(ref_tx_seq)
+                ref_aa_seq = ref_coding_seq.translate()
+                alt_aa_seq = alt_coding_seq.translate()
 
                 protein_id = transcript.feat.attributes["protein_id"]
 
