@@ -182,6 +182,7 @@ class ProteinVariantPredictor():
 
             for tx_id in transcript_ids:
                 successful = False
+                buggered = False
                 iters = 0
 
                 while not successful: 
@@ -205,9 +206,13 @@ class ProteinVariantPredictor():
                     elif iters > 9:   # artifically exit while loop, 
                         successful = True   # to avoid infinite loop 
                         print('bugger')
+                        buggered = True
                     else:
                         sleep(1)   # try again tomorrow, buddy 
                         iters += 1
+
+                if buggered: # nap time didn't help 
+                    break 
 
                 ref_slice = ref_pos.slice_within(tx_pos)
 
