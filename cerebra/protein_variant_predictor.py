@@ -1,3 +1,4 @@
+import re 
 from collections import defaultdict, namedtuple
 from itertools import tee
 from time import sleep 
@@ -157,8 +158,14 @@ class ProteinVariantPredictor():
         return spliced_seq
 
     def predict_for_vcf_record(self, vcf_record, genome_fasta):
-        variant_results = []
 
+        def check_str(s):
+            ''' check a string to see if it has non-sequence 
+                characters '''
+            match = re.match("^[AGCT]*$", s)
+            return match is not None
+        
+        variant_results = []
         record_pos = GenomePosition.from_vcf_record_pos(vcf_record)
 
         ref = vcf_record.REF
@@ -175,6 +182,7 @@ class ProteinVariantPredictor():
 
             for tx_id in transcript_ids:
                 successful = False
+                iters = 0
 
                 while not successful: 
                     transcript = self.transcript_records[tx_id]
@@ -192,11 +200,14 @@ class ProteinVariantPredictor():
                                         [tx_pos.start:tx_pos.end].seq, 
                                         alphabet=Alphabet.generic_dna)
 
-                    if '>' in ref_tx_seq: # this shouldnt be happening
+                    if check_str(str(ref_tx_seq)):
+                        successful = True
+                    elif iters > 9:   # artifically exit while loop 
+                        successful = True
+                    else:
                         print('bugger')
                         sleep(1)
-                    else:
-                        successful = True
+                        iters += 1
 
                 ref_slice = ref_pos.slice_within(tx_pos)
 
