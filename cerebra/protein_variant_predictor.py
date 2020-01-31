@@ -206,13 +206,15 @@ class ProteinVariantPredictor():
                     elif iters > 9:   # artifically exit while loop, 
                         successful = True   # to avoid infinite loop 
                         buggered = True
-                        print('bugger')
+                        print('buggered')
+                        print(ref_tx_seq)
+                        print(' ')
                     else:
                         sleep(1)   # try again tomorrow, buddy 
                         iters += 1
 
                 if buggered: # nap time didn't help 
-                    continue
+                    continue    # skip this iteration of the loop 
 
                 ref_slice = ref_pos.slice_within(tx_pos)
 
