@@ -162,7 +162,7 @@ class ProteinVariantPredictor():
         def check_str(s):
             ''' check a string to see if it has non-sequence 
                 characters '''
-            match = re.match("^[AGCT]*$", s)
+            match = re.match("^[AGCTN]*$", s)
             return match is not None
         
         variant_results = []
@@ -202,10 +202,13 @@ class ProteinVariantPredictor():
 
                     if check_str(str(ref_tx_seq)):
                         successful = True
-                    elif iters > 9:   # artifically exit while loop 
-                        successful = True
-                    else:
+                    elif iters > 9:   # artifically exit while loop, 
+                        successful = True   # to avoid infinite loop 
                         print('bugger')
+                    else:
+                        #print('bugger')
+                        #print(ref_tx_seq)
+                        #print(' ')
                         sleep(1)
                         iters += 1
 
@@ -276,7 +279,8 @@ class ProteinVariantPredictor():
                 alt_coding_seq = (
                                      'N' * n_term_padding) + alt_coding_seq[
                                      alt_trim_slice]
-                try:
+
+                try:   # ideally would get rid of this try/except block
                     ref_aa_seq = ref_coding_seq.translate()
                     alt_aa_seq = alt_coding_seq.translate()
                 except:
