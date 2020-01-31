@@ -46,7 +46,6 @@ class ProteinVariantPredictor():
     # which is is already being emulated (to an extent) below.
     def __init__(self, annotation_genome_tree, genome_faidx):
         self.genome_fasta = genome_faidx
-        self.genome_fasta_mito = genome_faidx["chrM"][:]
 
         transcript_feats_dict = defaultdict(lambda: defaultdict(list))
         for feature in annotation_genome_tree.records:
@@ -121,6 +120,11 @@ class ProteinVariantPredictor():
         self.tree = GenomeIntervalTree(lambda record: record.feat.pos,
                                        cds_records)
 
+        if 'chrM' in self.genome_fasta.keys():
+            self.genome_fasta_mito = genome_faidx["chrM"][:]
+        else:
+            self.genome_fasta_mito = None
+
     @classmethod
     def _merged_and_sorted_intersecting_intervals(cls, intervals):
         current_interval = None
@@ -161,17 +165,19 @@ class ProteinVariantPredictor():
     def predict_for_vcf_record(self, vcf_record):
 
         def check_str(s):
-            ''' check a string to see if it has non-sequence 
-                characters '''
+            ''' check a string to see if it has non-sequence characters '''
             match = re.match("^[AGCTN]*$", s)
             return match is not None
 
 
         def handle_mito(_tx_pos):
             ''' handles this chrM wierdness '''
-            mito_seq = Seq(self.genome_fasta_mito.seq[_tx_pos.start:_tx_pos.end], 
+            mito_seq = None
+            if self.genome_fasta_mito:
+                mito_seq = Seq(self.genome_fasta_mito.seq[_tx_pos.start:_tx_pos.end], 
                             alphabet=Alphabet.generic_dna)
             return mito_seq
+
 
         variant_results = []
         record_pos = GenomePosition.from_vcf_record_pos(vcf_record)
@@ -204,11 +210,13 @@ class ProteinVariantPredictor():
                                  [tx_pos.start:tx_pos.end].seq,
                                  alphabet=Alphabet.generic_dna)
 
-                if not check_str(str(ref_tx_seq)):
+                if not check_str(str(ref_tx_seq)): # non-DNA seq chars
                     if tx_pos.chrom == 'M':
                         ref_tx_seq = handle_mito(tx_pos)
-                    else:
-                        continue # dont know how to handle this, skip iter
+                        if not ref_tx_seq:
+                            continue
+                    else:   # this shouldn't happen; skip iter
+                        continue 
 
                 ref_slice = ref_pos.slice_within(tx_pos)
 
