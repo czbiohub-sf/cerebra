@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os 
-
 try:
     from setuptools import setup
 except ImportError:
@@ -11,9 +9,6 @@ except ImportError:
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.md') as history_file:
-    history = history_file.read().replace('.. :changelog:', '')
-
 with open('requirements.txt') as requirements_file:
     requirements = requirements_file.read()
 
@@ -21,15 +16,14 @@ test_requirements = [
     'pytest', 'coverage', "flake8"
 ]
 
-def read_file(filename):
-    with open(os.path.join(os.path.dirname(__file__), filename)) as file:
-        return file.read()
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setup(
     name='cerebra',
-    version='1.0.2',
+    version='1.0.7',
     description="finds mutants in your scRNA-seq experiment",
-    long_description=read_file('README.md'),
+    long_description=long_description,
     long_description_content_type='text/markdown',
     author="Lincoln Harris",
     author_email='lincoln.harris@czbiohub.org',
@@ -40,12 +34,26 @@ setup(
     package_dir={'cerebra':
                      'cerebra'},
     include_package_data=True,
-    install_requires=requirements,
+    install_requires=["cython>=0.29.1",
+                        "pytest", 
+                        "flake8",
+                        "coverage",
+                        "click",
+                        "setuptools>=38.6.0",
+                        "tqdm",
+                        "colorama",
+                        "numpy",
+                        "pandas",
+                        "vcfpy",
+                        "pathos",
+                        "ncls",
+                        "hgvs",
+                        "pyfaidx"],
     license="MIT",
     zip_safe=False,
     keywords='cerebra',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
