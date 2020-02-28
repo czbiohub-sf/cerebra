@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os 
 
 try:
     from setuptools import setup
@@ -20,11 +21,16 @@ test_requirements = [
     'pytest', 'coverage', "flake8"
 ]
 
+def read_file(filename):
+    with open(os.path.join(os.path.dirname(__file__), filename)) as file:
+        return file.read()
+
 setup(
     name='cerebra',
-    version='0.1.0',
+    version='1.0.2',
     description="finds mutants in your scRNA-seq experiment",
-    long_description=readme + '\n\n' + history,
+    long_description=read_file('README.md'),
+    long_description_content_type='text/markdown',
     author="Lincoln Harris",
     author_email='lincoln.harris@czbiohub.org',
     url='https://github.com/czbiohub/cerebra',
