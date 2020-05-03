@@ -69,7 +69,7 @@ The output is a single hierarchically ordered output file (.json or .csv) that r
 with each sample as well as the coresponding gene. 
 
 We tested *cerebra* on a set of high-quality reference-grade vcf files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle). 
-Each of the seven vcf files was quite large, ~2GB and *cerebra* was run on standard hardware (Mac laptop, 2.5GHz quad-core processor, 16 GB RAM). *cerebra* processed the seven files in 44 minutes, see *Figure 2*. 
+Each of the seven vcf files was quite large, (~2GB) and *cerebra* was run on standard hardware (Mac laptop, 2.5GHz quad-core processor, 16 GB RAM). *cerebra* processed the seven files in 44 minutes, see *Figure 2*. 
 The Genome in a Bottle vcfs are quite large and are perhaps not comparable to those generated in a typical sequencing experiment. Thus we assessed performance on an independent set of vcf files. This vcf set comes from a single-cell RNA-seq experiment conducted on lung adenocarcinoma patient samples. Alignment was done with STAR and variant calling performed with GATK HaplotypeCaller. The carcinoma vcfs are much smaller, on the order of megabytes rather than gigabytes. The results are shown in *Figure 2* -- *cerebra* clocks in at 34 minutes for the set of 100 vcfs.
 
 One interesting observation is that the first ~10 minutes of the *cerebra* timecourse appear flat, that is, no vcfs are processed. This can be attributed to the genome interval tree construction phase. After the tree is built, files are 
