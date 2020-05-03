@@ -78,3 +78,7 @@ Please contact `lincoln.harris@czbiohub.org`
 # References
 todo: add
 
+# Workflow
+
+![checkout](workflow.jpg)
+
