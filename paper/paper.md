@@ -38,7 +38,7 @@ Researchers are often interested in identifying the DNA mutations, or variants, 
 Typically a DNA or RNA sequencing experiment (DNA-seq, RNA-seq) is performed, followed by alignment to the 
 reference genome with tools like [STAR](https://github.com/alexdobin/STAR) and 
 [BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
-and [freeBayes](https://github.com/ekg/freebayes). Variant callers produce tab
+and [freebayes](https://github.com/ekg/freebayes). Variant callers produce tab
 delimited text files ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), *.vcf*)
 for each processed sample, which encode the genomic position, reference vs. observed DNA sequence, and quality
 associated with each observed variant. Current methods for variant calling are incredibly powerful and robust, 
