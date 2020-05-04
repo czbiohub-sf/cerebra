@@ -99,7 +99,7 @@ to thank Ashley Maynard, Angela Pisco and Daniel Le for helpful discussions and 
 Please contact `lincoln.harris@czbiohub.org`
 
 # Code
-*cerebra* is written in python. Code and detailed installation instructions can be found at https://github.com/czbiohub/cerebra. In addition *cerebra* can be found on [PyPi](https://pypi.org/project/cerebra/)
+*cerebra* is written in python. Code and detailed installation instructions can be found at https://github.com/czbiohub/cerebra. In addition *cerebra* can be found on [PyPi](https://pypi.org/project/cerebra/).
 
 # References
 todo: add?
