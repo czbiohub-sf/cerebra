@@ -57,16 +57,24 @@ bottleneck for small vcf sets. [todo: say something about memory footprint]
 
 ![checkout](workflow.jpg)
 
-If the researcher has access to non-neoplastic (ie. healthy) or another sort of 'control' tissue then **germline-filter** is 
-the proper starting point. This module will remove 'germline' variants that are common between the control and the experimental tissue so as to not bias the results by including non disease causing variants. [todo: more about the method]. The output is a set of trimmed-down vcf files. 
+If the researcher has access to non-neoplastic (*ie.* healthy) or another sort of 'control' tissue then **germline-filter** is 
+the proper starting point. This module removes 'germline' variants that are common between the control and the experimental tissue so as to not bias the results by including non disease causing variants. We initiate a thread pool then use the 
+[vcfpy](https://pypi.org/project/vcfpy/) library to quickly identify shared variants across vcf files, then write new ones
+that only contain unique variants. The output is a set of trimmed-down vcf files. 
 
-**count-mutations** reports the raw number of variants found in each sample. [todo: more about the method]
-[todo: what is the output?]
+**count-mutations** builds a genome interval tree from the reference gtf, reads in a vcf file and converts it to a 
+[vcfpy](https://pypi.org/project/vcfpy/) object and then processes vcf entries in parallel. Each variant is matched to its
+corresponding gene and gene-wise counts are stored in shared memory. We then report the raw number of variants found in 
+each sample. The output is a csv file that contains counts for each sample versus every gene in the genome. 
 
-**find-aa-mutations** implements an interval tree to quickly match genomic coordinates from vcf entries to RNA transcripts 
-and peptide-level mutations. It utilizes python's multiprocessing and thus processes multiple vcf entries in parallel. 
-The output is a single hierarchically ordered output file (.json or .csv) that reports the peptide-level mutations associated 
-with each sample as well as the coresponding gene. 
+**find-aa-mutations** loads the reference .gtf, indexes the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) for memory efficient access and then constructes a genome interval tree 
+that can quickly match genomic coordinates from vcf entries to peptide-level mutations. In addition, if working 
+with cancer samples, the user has to option of filtering out all mutations not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and therefore unlikely to be pathogenic. vcf files are split 
+chunk-wise and queried against the genome interval tree in parallel; results are stored in a shared memory 
+object. We then convert variant hits to [Ensemble](https://uswest.ensembl.org/index.html) translation IDs, 
+in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. The output is a 
+heirarchically ordered text file (csv or json) that reports the the Ensemble protein ID of each variant along 
+with its associated gene, for each sample. 
 
 We tested *cerebra* on a set of high-quality reference-grade vcf files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle). 
 Each of the seven vcf files was quite large, (~2GB) and *cerebra* was run on standard hardware (Mac laptop, 2.5GHz quad-core processor, 16 GB RAM). *cerebra* processed the seven files in 44 minutes, see *Figure 2*. 
