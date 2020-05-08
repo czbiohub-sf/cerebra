@@ -1,0 +1,17 @@
+cython>=0.29.1
+pytest
+flake8
+coverage
+click
+setuptools>=38.6.0
+tqdm
+colorama
+numpy
+pandas
+vcfpy
+pathos
+ncls
+hgvs
+pyfaidx
+biopython
+pysam
