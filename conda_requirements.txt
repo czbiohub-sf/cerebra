@@ -1,0 +1,10 @@
+cython>=0.29.1
+pytest
+coverage
+flake8
+click
+tqdm
+colorama
+ncls
+numpy
+pyfaidx
