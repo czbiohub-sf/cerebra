@@ -40,10 +40,7 @@ _cerebra_ adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.
 Installation
 ------------
 
-The latest version can be installed from PyPi:       
-```pip install cerebra```
-
-Before running that you'll need to install a few dependencies. 
+To install the latest version from PyPi you'll first need to install a few system-specific dependencies.     
 
 For OSX:     
 ```
@@ -53,13 +50,22 @@ brew install openssl
 brew install zlib
 ```
 
-For Linux:     
+For Debian/Ubuntu:     
 ```
-apt-get install libbz2-dev
-apt-get install zlib1g-dev
-apt-get install libssl-dev
+sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev
 ```
 
+Following that, you can install directly from PyPi.        
+```pip install cerebra```
+
+If you prefer working with virtual environments you can clone from github and install with `pip`. 
+``` 
+git clone https://github.com/czbiohub/cerebra.git
+cd cerebra
+conda create -n cerebra python=3.7
+conda activate cerebra
+pip install -e . 
+````
 
 Usage
 -----
