@@ -13,3 +13,5 @@ pathos
 ncls
 hgvs
 pyfaidx
+biopython
+pysam
