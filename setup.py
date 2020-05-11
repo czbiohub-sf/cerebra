@@ -21,7 +21,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='cerebra',
-    version='1.0.7',
+    version='1.0.8',
     description="finds mutants in your scRNA-seq experiment",
     long_description=long_description,
     long_description_content_type='text/markdown',
