@@ -290,5 +290,7 @@ tmp/
 wrkdir/*
 tmp/*
 
-# rohan's utilities library
-utils.py
+# writing tests!! - one at a time
+#tests/test_oop.py
+#tests/test_oop_alt.py
+#tests/test_scratch.py
