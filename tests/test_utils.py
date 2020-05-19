@@ -359,18 +359,18 @@ class GenomeIntervalTreeTestCase(unittest.TestCase):
 #         assertSequenceVariantsEqual(*(["FAUX1.1:p.Ala2Lys"] * 2))
 
 #         # Insertions
-#         assertSequenceVariantsEqual(*(["FAUX1.1:p.Ala2_Arg3insLysGluThr"] * 2))
+#         #assertSequenceVariantsEqual(*(["FAUX1.1:p.Ala2_Arg3insLysGluThr"] * 2))
 
-#         assertSequenceVariantsNotEqual(*([
-#             "FAUX1.1:p.Ala2_Arg3insLysGluThr",
-#             "FAUX1.1:p.Ala2_Arg3insXaaXaaXaa"
-#         ]))
+#         #assertSequenceVariantsNotEqual(*([
+#         #    "FAUX1.1:p.Ala2_Arg3insLysGluThr",
+#         #    "FAUX1.1:p.Ala2_Arg3insXaaXaaXaa"
+#         #]))
 
-#         assertSequenceVariantsEqual(*([
-#             "FAUX1.1:p.Ala2_Arg3insLysGluThr",
-#             "FAUX1.1:p.Ala2_Arg3insXaaXaaXaa"
-#         ]),
-#                                     strict_unknown=False)
+#         #assertSequenceVariantsEqual(*([
+#         #    "FAUX1.1:p.Ala2_Arg3insLysGluThr",
+#         #    "FAUX1.1:p.Ala2_Arg3insXaaXaaXaa"
+#         #]),
+#         #                            strict_unknown=False)
 
 #         # Deletions
 #         assertSequenceVariantsEqual(*(["FAUX1.1:p.Ala2_Ile10del"] * 2))

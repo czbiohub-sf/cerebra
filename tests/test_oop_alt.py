@@ -25,14 +25,18 @@ class MyNewTestCase(unittest.TestCase):
 		data_path = os.path.abspath(__file__ + '/../' + 'data/test_find_aa_mutations/')
 		cosmicdb_path =  data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
-		genomefa_path = data_path + '/GRCh38.p13.genome.fa'
+		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 
 		input_path = data_path + '/vcf/'
 		input_paths = [input_path + x for x in os.listdir(input_path)]
 
+		cmd = 'gunzip ' + genomefa_path
+		os.system(cmd)
+		genome_gunzip_path = str(genomefa_path).strip('.gz')
+
 		self.cosmic_df = pd.read_csv(cosmicdb_path, sep='\t')
 		self.annotation_df = pd.read_csv(annotation_path, sep='\t', skiprows=5)
-		self.genome_faidx = Fasta(genomefa_path)
+		self.genome_faidx = Fasta(genome_gunzip_path)
 
 
 	def test_aa_mutation_finder_setup(self):

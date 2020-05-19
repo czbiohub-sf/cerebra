@@ -19,12 +19,17 @@ def test_basic():
 
 	data_path = os.path.abspath(__file__ + '/../' + 'data/test_find_aa_mutations/')
 	vcf_path = data_path + '/vcf/A1.vcf'
+	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+
+	cmd = 'gunzip ' + genomefa_path
+	os.system(cmd)
+	genome_gunzip_path = str(genomefa_path).strip('.gz')
 
 	runner = CliRunner()
 	result = runner.invoke(find_aa_mutations, ["--processes", 2, "--annotation", 
 							data_path  + "/hg38-plus.min.gtf",  
 							"--report_coverage", 1, 
-							"--genomefa", data_path + "/GRCh38.p13.genome.fa",  
+							"--genomefa", genome_gunzip_path,  
 							"--output", data_path + "/test_out.csv", 
 							vcf_path])
 
@@ -42,12 +47,17 @@ def test_larger():
 	from cerebra.find_aa_mutations import AminoAcidMutationFinder
 
 	data_path = os.path.abspath(__file__ + '/../' + 'data/test_find_aa_mutations/')
+	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+
+	cmd = 'gunzip ' + genomefa_path
+	os.system(cmd)
+	genome_gunzip_path = str(genomefa_path).strip('.gz')
 
 	cosmicdb_path =  data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
 	#annotation_path = data_path + '/hg38-plus.min.gtf'
 	annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
 	
-	genomefa_path = data_path + '/GRCh38.p13.genome.fa'
+	genomefa_path = genome_gunzip_path
 	cov_bool = 1
 	num_processes = 2
 	outpath = data_path + '/test_out.csv'

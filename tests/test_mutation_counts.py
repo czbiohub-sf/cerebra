@@ -38,7 +38,7 @@ class MutationCounterTestCase(unittest.TestCase):
             GenomePosition("X", 100, 200),
         ]
 
-        self.tree = GenomeIntervalTree(lambda row: row, self.tree_positions)
+        self.tree = GenomeIntervalTree(lambda row: row, self.tree_positions)    
 
     def test_cosmic_subset(self):
         filtered_cosmic_df = self.mutation_counter._make_filtered_cosmic_df(
@@ -46,6 +46,7 @@ class MutationCounterTestCase(unittest.TestCase):
 
         for _, row in filtered_cosmic_df.iterrows():
             self.assertEqual("lung", row["Primary site"])
+
 
     def test_cosmic_genome_pos_filter(self):
         # lung_mut_interval_tree = GenomeIntervalTree()

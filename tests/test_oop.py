@@ -24,7 +24,7 @@ class BigOlTestCase(unittest.TestCase):
 		#self.annotation_path = self.data_path + '/hg38-plus.min.gtf'
 		self.annotation_path = self.data_path + '/gencode.v33.greatestHits.annotation.gtf'
 	
-		self.genomefa_path = self.data_path + '/GRCh38.p13.genome.fa'
+		self.genomefa_path = self.data_path + '/GRCh38_limited.fa.gz'
 		self.cov_bool = 1
 		self.num_processes = 2
 		self.outpath = self.data_path + '/test_out.csv'
@@ -35,7 +35,12 @@ class BigOlTestCase(unittest.TestCase):
 
 		cosmic_df = None
 		annotation_df = pd.read_csv(self.annotation_path, sep='\t', skiprows=5)
-		genome_faidx = Fasta(self.genomefa_path)
+
+		cmd = 'gunzip ' + self.genomefa_path
+		os.system(cmd)
+		genome_gunzip_path = str(self.genomefa_path).strip('.gz')
+		genome_faidx = Fasta(genome_gunzip_path)
+
 		self.aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df, 
 													genome_faidx, self.cov_bool)
 
