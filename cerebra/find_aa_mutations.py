@@ -287,6 +287,8 @@ def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
     print("Setup complete.")
 
     print("Finding mutations...")
+    print(' ')
+    print(input_files)
     result_df = aa_mutation_finder.find_transcript_mutations(input_files,
                                                 processes=num_processes)
     print("Writing file...")
