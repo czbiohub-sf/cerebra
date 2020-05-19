@@ -53,7 +53,29 @@ class MyNewTestCase(unittest.TestCase):
 		assert len(protein_variant_predictor.tree.tree_map) == 2
 		assert True == True
 
+
 	def test_assert(self):
+		assert True == True
+
+
+	def test_cosmic_filter(self):
+		''' what can we do here? '''
+		aa_mutation_finder_bare = AminoAcidMutationFinder.__new__(AminoAcidMutationFinder)
+
+		# this is what we want to do!
+		filtered_cosmic_df = aa_mutation_finder_bare._make_filtered_cosmic_df(self.cosmic_df)
+
+		cosmic_genome_tree = GenomeIntervalTree(
+                lambda row: GenomePosition.from_str(
+                    str(row["Mutation genome position"])),
+                (row for _, row in filtered_cosmic_df.iterrows()))
+
+		assert len(filtered_cosmic_df.index) == 93
+		assert len(filtered_cosmic_df.columns) == 34
+
+		assert len(cosmic_genome_tree.records) == 93
+		assert len(cosmic_genome_tree.tree_map) == 1
+
 		assert True == True
 
 
