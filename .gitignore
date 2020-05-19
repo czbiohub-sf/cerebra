@@ -291,6 +291,6 @@ wrkdir/*
 tmp/*
 
 # writing tests!! - one at a time
-tests/test_oop.py
-tests/test_oop_alt.py
-tests/test_scratch.py
+#tests/test_oop.py
+#tests/test_oop_alt.py
+#tests/test_scratch.py

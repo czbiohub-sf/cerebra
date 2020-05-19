@@ -21,15 +21,15 @@ def test_basic():
 	vcf_path = data_path + '/vcf/A1.vcf'
 	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 
-	cmd = 'gunzip ' + genomefa_path
-	os.system(cmd)
-	genome_gunzip_path = str(genomefa_path).strip('.gz')
+	#cmd = 'gunzip ' + genomefa_path
+	#os.system(cmd)
+	#genome_gunzip_path = str(genomefa_path).strip('.gz')
 
 	runner = CliRunner()
 	result = runner.invoke(find_aa_mutations, ["--processes", 2, "--annotation", 
 							data_path  + "/hg38-plus.min.gtf",  
 							"--report_coverage", 1, 
-							"--genomefa", genome_gunzip_path,  
+							"--genomefa", genomefa_path,  
 							"--output", data_path + "/test_out.csv", 
 							vcf_path])
 
