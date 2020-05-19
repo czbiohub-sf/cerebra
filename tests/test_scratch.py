@@ -21,10 +21,6 @@ def test_basic():
 	vcf_path = data_path + '/vcf/A1.vcf'
 	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 
-	#cmd = 'gunzip ' + genomefa_path
-	#os.system(cmd)
-	#genome_gunzip_path = str(genomefa_path).strip('.gz')
-
 	runner = CliRunner()
 	result = runner.invoke(find_aa_mutations, ["--processes", 2, "--annotation", 
 							data_path  + "/hg38-plus.min.gtf",  
@@ -49,20 +45,12 @@ def test_larger():
 	data_path = os.path.abspath(__file__ + '/../' + 'data/test_find_aa_mutations/')
 	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 
-	cmd = 'gunzip ' + genomefa_path
-	os.system(cmd)
-	genome_gunzip_path = str(genomefa_path).strip('.gz')
-
 	cosmicdb_path =  data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
-	#annotation_path = data_path + '/hg38-plus.min.gtf'
 	annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
-	
-	genomefa_path = genome_gunzip_path
 	cov_bool = 1
 	num_processes = 2
 	outpath = data_path + '/test_out.csv'
 	
-	#input_path = '/Users/lincoln.harris/code/cerebra/cerebra/tmp/vcf/' # hard coding this in 
 	input_path = data_path + '/vcf/'
 	input_paths = [input_path + x for x in os.listdir(input_path)]
 

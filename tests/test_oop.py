@@ -36,13 +36,9 @@ class BigOlTestCase(unittest.TestCase):
 		cosmic_df = None
 		annotation_df = pd.read_csv(self.annotation_path, sep='\t', skiprows=5)
 
-		cmd = 'gunzip ' + self.genomefa_path
-		os.system(cmd)
-		genome_gunzip_path = str(self.genomefa_path).strip('.gz')
-		genome_faidx = Fasta(genome_gunzip_path)
+		genome_faidx = Fasta(self.genomefa_path)
 
-		self.aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df, 
-													genome_faidx, self.cov_bool)
+		self.aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df, genome_faidx, self.cov_bool)
 
 
 	def test_out_basic(self):
