@@ -1,4 +1,4 @@
-''' basic tests for find_aa_mutations '''
+  ''' basic tests for find_aa_mutations '''
 
 import shutil 
 from click.testing import CliRunner
