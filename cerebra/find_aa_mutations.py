@@ -22,7 +22,8 @@ class AminoAcidMutationFinder():
     def __init__(self, cosmic_df, annotation_df, genome_faidx, cov_bool):
 
         if cosmic_df is not None:
-            filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
+            filtered_cosmic_df = cosmic_df # dont want to limit to lung
+            #filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
 
             self._cosmic_genome_tree = GenomeIntervalTree(
                 lambda row: GenomePosition.from_str(
@@ -209,7 +210,6 @@ class AminoAcidMutationFinder():
             current_process_aa_mutation_finder = aa_mutation_finder
 
         def process_cell(path):
-            # print(path)
             return (
                 Path(path).stem,
                 current_process_aa_mutation_finder
@@ -219,8 +219,6 @@ class AminoAcidMutationFinder():
         if processes > 1:
             with Pool(processes, initializer=init_process,
                       initargs=(self,)) as pool:
-                # results = tqdm(pool.map(process_cell, paths),
-                # total=len(paths), smoothing=0.01)
                 results = list(
                     tqdm(pool.imap(process_cell, paths),
                          total=len(paths),
@@ -229,7 +227,6 @@ class AminoAcidMutationFinder():
         else:
             init_process(self)
             results = list(map(process_cell, tqdm(paths)))
-            # results = list(map(process_cell, paths))  # testing
 
         return self._make_mutation_counts_df(results)
 
