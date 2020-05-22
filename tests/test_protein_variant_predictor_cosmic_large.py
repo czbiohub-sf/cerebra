@@ -23,7 +23,7 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 		''' __init__ method for class obj '''
 
 		data_path = os.path.abspath(__file__ + '/../' + 'data/test_find_aa_mutations/')
-		cosmicdb_path =  data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
+		cosmicdb_path =  data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
 		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 
@@ -40,31 +40,13 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 		self.protein_variant_predictor = ProteinVariantPredictor(
 									self.annotation_genome_tree, genome_faidx)
 
-
-	def test_protein_variant_predictor_setup(self):
-		''' todo: add description '''
-		trans_rec = self.protein_variant_predictor.transcript_records
-		tree = self.protein_variant_predictor.tree.tree_map
-
-		assert len(trans_rec) == 17
-		assert len(tree) == 2
-
-		enst_list = ['ENST00000275493.7', 'ENST00000455089.5', 'ENST00000342916.7', 
-					'ENST00000454757.6', 'ENST00000344576.6', 'ENST00000420316.6', 
-					'ENST00000450046.1', 'ENST00000638463.1', 'ENST00000496384.7', 
-					'ENST00000644969.1', 'ENST00000646891.1', 'ENST00000288602.11', 
-					'ENST00000469930.2', 'ENST00000311936.8', 'ENST00000256078.9', 
-					'ENST00000557334.5', 'ENST00000556131.1']
-
-		for tx_id, tx_record in self.protein_variant_predictor \
-									.transcript_records.items():
-			assert tx_id in enst_list
-
-		assert True == True
+		self.aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df, 
+															genome_faidx, cov_bool=0)
 
 
 	def test_predict_for_vcf_record(self):
 		''' todo: add description '''
+		target_count = 0
 		potential_variants = ['ENSP00000415559.1:p.(Leu813Arg)', 
 								'ENSP00000395243.3:p.(Leu813Arg)', 
 								'ENSP00000275493.2:p.(Leu858Arg)', 
@@ -93,10 +75,35 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 				if not protein_variant_results:
 					continue
 
+				overlaps = self.aa_mutation_finder._cosmic_genome_tree.get_all_overlaps(record_pos)
+
+				target_variants = (
+					self.aa_mutation_finder._get_cosmic_record_protein_variant(overlap)
+					for overlap in overlaps)
+
+				# Filter out variants which could not be correctly obtained for
+				# some reason.
+				target_variants = [variant for variant in target_variants if variant]
+
+				if not target_variants:
+					continue
+
 				for result in protein_variant_results:
 					predicted_variant = result.predicted_variant
 					assert str(predicted_variant) in potential_variants
 
+					if target_variants is not None:
+						for target_variant in target_variants:
+							
+							if sequence_variants_are_equivalent(
+								target_variant,	
+								predicted_variant,
+								strict_unknown=False,
+								strict_silent=True):
+								target_count += 1
+								break
+
+		assert target_count == 3
 		assert True == True
 
 
