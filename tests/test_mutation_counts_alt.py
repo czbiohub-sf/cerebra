@@ -79,6 +79,41 @@ class TestMutationCounter(unittest.TestCase):
 		assert True == True
 
 
+	def test_parse(self):
+		''' todo '''
+		mutation_counter = MutationCounter.__new__(MutationCounter)
+
+		mutation_counter._hg38_genome_tree = GenomeIntervalTree(
+									GenomePosition.from_gtf_record,
+									(record for idx, record in self.refgenome_df.iterrows()))
+
+		A1_gene_names = ['KRAS','EGFR']
+		A2_gene_names = []
+		A3_gene_names = []
+		A4_gene_names = []
+		A5_gene_names = []
+
+		for vcf in self.input_paths:
+			curr_vcf = vcf.strip(self.input_path)
+			vcf_reader = vcfpy.Reader.from_path(vcf)
+
+			for record in vcf_reader:
+				genome_pos = GenomePosition.from_vcf_record(record)
+				gene_row = mutation_counter._find_containing_gene_record(genome_pos)
+
+				if gene_row is None:
+					continue
+
+				gene_name = mutation_counter._parse_gene_name(gene_row[8])
+
+				if curr_vcf == 'A1':
+					assert gene_name in A1_gene_names
+				else:
+					assert gene_name == ''
+
+		assert True == True
+
+
 	def test_assert(self):
 		assert True == True
 
