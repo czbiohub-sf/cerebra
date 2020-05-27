@@ -65,14 +65,18 @@ class TestMutationCounter(unittest.TestCase):
 									GenomePosition.from_gtf_record,
 									(record for idx, record in self.refgenome_df.iterrows()))
 
+		a1_expect = {'EGFR': 2, 'KRAS': 2}
 
 		for vcf in self.input_paths:
-			# do something
 			curr_vcf = vcf.strip(self.input_path)
 			counts = mutation_counter.find_cell_gene_mut_counts(path=vcf)
-			print(counts)
 
-		#assert True == False
+			if curr_vcf == 'A1':
+				assert counts[0] == a1_expect
+			else:
+				assert counts[0] == {}
+
+		assert True == True
 
 
 	def test_assert(self):
