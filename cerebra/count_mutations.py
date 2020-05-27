@@ -134,6 +134,7 @@ class MutationCounter():
                     tqdm(pool.imap(process_cell, paths), total=len(paths),
                          smoothing=0.01))
         else:
+            init_process(self)
             results = list(map(process_cell, tqdm(paths)))
 
         cell_genemuts_pairs, filtered_cell_genmuts_pairs = [], []
