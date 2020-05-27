@@ -71,7 +71,7 @@ class TestMutationCounter(unittest.TestCase):
 			curr_vcf = vcf.strip(self.input_path)
 			counts = mutation_counter.find_cell_gene_mut_counts(path=vcf)
 
-			if curr_vcf == 'A1':
+			if 'A1' in curr_vcf:
 				assert counts[0] == a1_expect
 			else:
 				assert counts[0] == {}
@@ -106,7 +106,7 @@ class TestMutationCounter(unittest.TestCase):
 
 				gene_name = mutation_counter._parse_gene_name(gene_row[8])
 
-				if curr_vcf == 'A1':
+				if 'A1' in curr_vcf:
 					assert gene_name in A1_gene_names
 				else:
 					assert gene_name == ''
