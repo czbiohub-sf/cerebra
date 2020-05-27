@@ -13,7 +13,8 @@ from .utils import GenomePosition, GenomeIntervalTree
 
 class MutationCounter():
     def __init__(self, cosmic_df, hg38_df):
-        filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
+        #filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
+        filtered_cosmic_df = cosmic_df
 
         self._cosmic_genome_tree = GenomeIntervalTree(
             lambda row: GenomePosition.from_str(
