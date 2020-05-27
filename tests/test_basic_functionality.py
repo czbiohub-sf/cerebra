@@ -22,7 +22,7 @@ def test_basic():
 	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 
 	runner = CliRunner()
-	result = runner.invoke(find_aa_mutations, ["--processes", 2, "--annotation", 
+	result = runner.invoke(find_aa_mutations, ["--processes", 1, "--annotation", 
 							data_path  + "/hg38-plus.min.gtf",  
 							"--report_coverage", 1, 
 							"--genomefa", genomefa_path,  

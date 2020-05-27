@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import vcfpy
 import hgvs.parser
+from click.testing import CliRunner
 
 from cerebra.count_mutations import MutationCounter
 from cerebra.utils import *
@@ -18,14 +19,14 @@ class TestMutationCounter(unittest.TestCase):
 	def setUpClass(self):
 		''' __init__ method for class obj '''
 		self.data_path = os.path.abspath(__file__ + '/../' + 'data/test_find_aa_mutations/')
-		cosmicdb_path =  self.data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
-		annotation_path = self.data_path + '/hg38-plus.sub.gtf'
+		self.cosmicdb_path =  self.data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
+		self.annotation_path = self.data_path + '/hg38-plus.sub.gtf'
 
 		self.input_path = self.data_path + '/vcf/'
 		self.input_paths = [self.input_path + x for x in os.listdir(self.input_path)]
 
-		self.cosmic_df = pd.read_csv(cosmicdb_path, delimiter='\t')
-		self.refgenome_df = pd.read_csv(annotation_path, delimiter='\t', header=None)
+		self.cosmic_df = pd.read_csv(self.cosmicdb_path, delimiter='\t')
+		self.refgenome_df = pd.read_csv(self.annotation_path, delimiter='\t', header=None)
 
 		
 	def test_init(self):
@@ -116,6 +117,25 @@ class TestMutationCounter(unittest.TestCase):
 
 	def test_assert(self):
 		assert True == True
+
+
+	def test_run(self):
+		''' does count_mutations returns w/o error? '''
+		from cerebra.count_mutations import count_mutations
+
+		runner = CliRunner()
+		result = runner.invoke(count_mutations, ["--processes", 1, 
+										"--cosmicdb", self.cosmicdb_path, 
+										"--refgenome", self.annotation_path, 
+										"--outfile", self.data_path + '/test_out.csv', 
+										self.input_path + 'A1.vcf'])
+
+		assert True == True
+		assert result.exit_code == 0
+		assert os.path.isfile(self.data_path + "/test_out.csv")
+
+		# teardown
+		os.remove(self.data_path + "/test_out.csv")
 
 
 if __name__ == "__main__":
