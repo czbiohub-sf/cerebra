@@ -13,6 +13,7 @@ from click.testing import CliRunner
 from cerebra.count_mutations import MutationCounter
 from cerebra.utils import *
 
+print('helloworld')
 
 class TestMutationCounter(unittest.TestCase):
 	@classmethod
