@@ -17,13 +17,20 @@ class GermlineFilterTestCase(unittest.TestCase):
         self.data_path = Path(
             __file__).parent / "data" / "test_germline_filter"
 
+        self.vcf_path = Path(
+            __file__).parent / "data" / "test_germline_filter" / "experimental"
+        self.filt_path = Path(
+            __file__).parent / "data" / "test_germline_filter" / "gl_out"
+        self.germ_path = Path(
+            __file__).parent / "data" / "test_germline_filter" / "germline"
+
     def test_germline_filter(self):
-        filtered_cell_vcf_paths = self.data_path.glob("GF_*.vcf")
+        filtered_cell_vcf_paths = self.filt_path.glob("GF_*.vcf")
 
         for filtered_cell_vcf_path in filtered_cell_vcf_paths:
             cell_name = filtered_cell_vcf_path.stem.replace("GF_", '')
-            cell_vcf_path = self.data_path / (cell_name + ".vcf")
-            germline_vcf_paths = self.data_path.glob(cell_name + "_GL*.vcf")
+            cell_vcf_path = self.vcf_path / (cell_name + ".vcf")
+            germline_vcf_paths = self.germ_path.glob(cell_name + "_GL*.vcf")
 
             # Create germline genome tree
 

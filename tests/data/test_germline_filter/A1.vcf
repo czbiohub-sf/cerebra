@@ -1,6 +1,0 @@
-##fileformat=VCFv4.2
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-chr1	1	.	A	T,AT	0	.	.
-chr1	5	.	C	G,T	0	.	.
-chr1	12	faux_rs2938	A	C	0	.	.
-chr1	18	.	GG	G,GC,TAC	0	.	.
