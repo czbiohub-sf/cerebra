@@ -1,15 +1,15 @@
-import unittest
-import math
-import io
-from click.testing import CliRunner
-import click
-import os
-from pathlib import Path
+''' all tests for the germline_filter module '''
 
+import unittest
+import io
+import os
 import vcfpy
+from pathlib import Path
+from click.testing import CliRunner
 
 from cerebra.germline_filter import write_filtered_vcf
 from cerebra.utils import GenomePosition, GenomeIntervalTree
+
 
 class GermlineFilterTestCase(unittest.TestCase):
     @classmethod
@@ -17,13 +17,21 @@ class GermlineFilterTestCase(unittest.TestCase):
         self.data_path = Path(
             __file__).parent / "data" / "test_germline_filter"
 
+        self.vcf_path = Path(
+            __file__).parent / "data" / "test_germline_filter" / "experimental"
+        self.filt_path = Path(
+            __file__).parent / "data" / "test_germline_filter" / "gl_out"
+        self.germ_path = Path(
+            __file__).parent / "data" / "test_germline_filter" / "germline"
+
+
     def test_germline_filter(self):
-        filtered_cell_vcf_paths = self.data_path.glob("GF_*.vcf")
+        filtered_cell_vcf_paths = self.filt_path.glob("GF_*.vcf")
 
         for filtered_cell_vcf_path in filtered_cell_vcf_paths:
             cell_name = filtered_cell_vcf_path.stem.replace("GF_", '')
-            cell_vcf_path = self.data_path / (cell_name + ".vcf")
-            germline_vcf_paths = self.data_path.glob(cell_name + "_GL*.vcf")
+            cell_vcf_path = self.vcf_path / (cell_name + ".vcf")
+            germline_vcf_paths = self.germ_path.glob(cell_name + "_GL*.vcf")
 
             # Create germline genome tree
 
@@ -59,20 +67,20 @@ class GermlineFilterTestCase(unittest.TestCase):
         ''' does germline-filter return w/o error? '''
         from cerebra.germline_filter import germline_filter
 
-        data_path = os.path.abspath(__file__ + '/../' + 'data/test_germline_filter/')
+        data_path = os.path.abspath(__file__ + '/../' +
+                                    'data/test_germline_filter/')
         gl_path = data_path + '/germline/'
         experimental_path = data_path + '/experimental/'
         meta_path = data_path + '/meta.csv'
         out_path = data_path + '/gl_out/'
 
         runner = CliRunner()
-        result = runner.invoke(germline_filter, ["--processes", 1, 
-                                            "--germline", gl_path, 
-                                            "--cells", experimental_path, 
-                                            "--metadata", meta_path, 
+        result = runner.invoke(germline_filter, ["--processes", 1,
+                                            "--germline", gl_path,
+                                            "--cells", experimental_path,
+                                            "--metadata", meta_path,
                                             "--outdir", out_path])
 
-        assert True == True
         assert result.exit_code == 0
         assert os.path.isfile(out_path + "A1.vcf")
 

@@ -12,7 +12,7 @@ coverage:
 	coverage report --show-missing
 
 lint:
-	flake8 --exclude docs cerebra --exit-zero # need to get rid of this
+	flake8 --exclude docs cerebra --exit-zero
 
 conda_install:
 	conda install --file conda_requirements.txt
