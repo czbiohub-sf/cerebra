@@ -74,7 +74,9 @@ class GermlineFilterTestCase(unittest.TestCase):
 
         assert True == True
         assert result.exit_code == 0
-        assert os.path.isfile(out_path + "/A1.vcf")
+        assert os.path.isfile(out_path + "A1.vcf")
+
+        os.remove(out_path + 'A1.vcf')
 
 
 if __name__ == "__main__":
