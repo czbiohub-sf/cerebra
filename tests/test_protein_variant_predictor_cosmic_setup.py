@@ -1,4 +1,5 @@
-''' want to increase test cov in protein_variant_predictor '''
+''' want to test protein_variant_predictor with a larger version of 
+	the cosmic dataframe '''
 
 import shutil 
 from click.testing import CliRunner
@@ -17,13 +18,13 @@ from cerebra.find_aa_mutations import AminoAcidMutationFinder
 from cerebra.utils import *
 
 
-class ProteinVariantPredictorTester(unittest.TestCase):
+class ProteinVariantPredictorTesterCos(unittest.TestCase):
 	@classmethod
 	def setUpClass(self):
 		''' __init__ method for class obj '''
 
 		data_path = os.path.abspath(__file__ + '/../' + 'data/test_find_aa_mutations/')
-		cosmicdb_path =  data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
+		cosmicdb_path =  data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'   # larger
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
 		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 
@@ -45,8 +46,14 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 
 
 	def test_predict_for_vcf_record(self):
-		''' todo: add description '''
+		''' tests predict_for_vcf_record, get_all_overlaps and
+			sequence_variants_are_equivalent methods for our test vcf set '''
 		target_count = 0
+
+		# these are all possible ensembl translation ids that should be predicted 
+			# given our test vcfs
+			
+				# (Leu813Arg) one is wierd? 
 		potential_variants = ['ENSP00000415559.1:p.(Leu813Arg)', 
 								'ENSP00000395243.3:p.(Leu813Arg)', 
 								'ENSP00000275493.2:p.(Leu858Arg)', 

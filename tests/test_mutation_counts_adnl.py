@@ -1,3 +1,5 @@
+''' adnl tests for mutation_counts '''
+
 import io
 from pathlib import Path
 import random
@@ -28,8 +30,9 @@ class TestMutationCounter(unittest.TestCase):
 		self.refgenome_df = pd.read_csv(self.annotation_path, delimiter='\t', header=None)
 
 		
-	def test_init(self):
-		'''todo'''
+	def test_mutation_counter_init(self):
+		''' make a bare MutationCounter object and make sure basic attributes 
+			set up correctly '''
 
 		mutation_counter = MutationCounter.__new__(MutationCounter)
 		filtered_cosmic_df = mutation_counter._make_filtered_cosmic_df(self.cosmic_df)
@@ -50,8 +53,10 @@ class TestMutationCounter(unittest.TestCase):
 		assert True == True
 
 
-	def test_functional(self):
-		'''todo'''
+	def test_find_cell_gene_mut_counts(self):
+		''' set up a bare MutationCounter object with all of the correct attributes, 
+			then test to see if find_cell_gene_mut_counts returns correctly, for
+			our test vcf set '''
 
 		mutation_counter = MutationCounter.__new__(MutationCounter)
 		
@@ -80,7 +85,10 @@ class TestMutationCounter(unittest.TestCase):
 
 
 	def test_parse(self):
-		''' todo '''
+		''' set up a bare MutationCounter object with all of the correct attributes, 
+			then test to see if _parse_gene_names returns correctly, for our test 
+			vcf set '''
+
 		mutation_counter = MutationCounter.__new__(MutationCounter)
 
 		mutation_counter._hg38_genome_tree = GenomeIntervalTree(
@@ -114,12 +122,9 @@ class TestMutationCounter(unittest.TestCase):
 		assert True == True
 
 
-	def test_assert(self):
-		assert True == True
-
-
-	def test_run(self):
-		''' does count_mutations returns w/o error? '''
+	def test_runtime(self):
+		''' full runtime test
+			does count_mutations returns w/o error? '''
 		from cerebra.count_mutations import count_mutations
 
 		runner = CliRunner()
@@ -135,6 +140,10 @@ class TestMutationCounter(unittest.TestCase):
 
 		# teardown
 		os.remove(self.data_path + "/test_out.csv")
+
+
+	def test_assert(self):
+		assert True == True
 
 
 if __name__ == "__main__":

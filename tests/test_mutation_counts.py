@@ -1,3 +1,5 @@
+''' tests for mutation_counts module '''
+
 import io
 from pathlib import Path
 import random

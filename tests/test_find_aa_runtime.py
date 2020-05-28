@@ -1,4 +1,4 @@
-''' very simple tests for basic functionality '''
+''' very simple tests for find_aa_mutations runtime functionality '''
 
 import shutil 
 from click.testing import CliRunner
@@ -16,7 +16,6 @@ from cerebra.utils import *
 
 def test_basic():
 	''' does find_all_mutations returns w/o error? '''
-
 	data_path = os.path.abspath(__file__ + '/../' + 'data/test_find_aa_mutations/')
 	vcf_path = data_path + '/vcf/A1.vcf'
 	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
@@ -38,8 +37,9 @@ def test_basic():
 
 
 
-def test_basic1():
-	''' does find_all_mutations return w/o error, redux '''
+def test_basic_cmp():
+	''' does find_all_mutations return w/o error, redux
+		this one has a expected / actual file compare step '''
 	from cerebra.find_aa_mutations import AminoAcidMutationFinder
 
 	data_path = os.path.abspath(__file__ + '/../' + 'data/test_find_aa_mutations/')

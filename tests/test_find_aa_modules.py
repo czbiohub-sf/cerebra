@@ -1,4 +1,4 @@
-''' very similar tests for find_aa_mutations '''
+''' testing some of the key modules of find_aa_mutations '''
 
 import shutil 
 from click.testing import CliRunner
@@ -17,7 +17,7 @@ from cerebra.find_aa_mutations import AminoAcidMutationFinder
 from cerebra.utils import *
 
 
-class FindAAMutationsTesterAdv(unittest.TestCase):
+class FindAAMutationsTesterMod(unittest.TestCase):
 	@classmethod
 	def setUpClass(self):
 		''' __init__ method for class obj '''
@@ -57,8 +57,7 @@ class FindAAMutationsTesterAdv(unittest.TestCase):
 		''' make a BARE AminoAcidMutationFinder, then setup the cosmic_genome_tree
 			obj and evalutate  '''
 		aa_mutation_finder_bare = AminoAcidMutationFinder.__new__(AminoAcidMutationFinder)
-
-		# this is what we want to do!
+		
 		filtered_cosmic_df = aa_mutation_finder_bare._make_filtered_cosmic_df(self.cosmic_df)
 
 		cosmic_genome_tree = GenomeIntervalTree(

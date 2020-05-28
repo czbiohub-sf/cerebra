@@ -1,4 +1,4 @@
-''' want to increase test cov in protein_variant_predictor '''
+''' tests for protein_variant_predictor '''
 
 import shutil 
 from click.testing import CliRunner
@@ -42,13 +42,15 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 
 
 	def test_protein_variant_predictor_setup(self):
-		''' todo: add description '''
+		''' tests for the protein_variant_predictor class object '''
 		trans_rec = self.protein_variant_predictor.transcript_records
 		tree = self.protein_variant_predictor.tree.tree_map
 
 		assert len(trans_rec) == 17
 		assert len(tree) == 2
 
+		# these are the ensembl transcript IDs that should be contained within
+			# our limited version of the cosmic db
 		enst_list = ['ENST00000275493.7', 'ENST00000455089.5', 'ENST00000342916.7', 
 					'ENST00000454757.6', 'ENST00000344576.6', 'ENST00000420316.6', 
 					'ENST00000450046.1', 'ENST00000638463.1', 'ENST00000496384.7', 
@@ -64,7 +66,12 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 
 
 	def test_predict_for_vcf_record(self):
-		''' todo: add description '''
+		''' tests for predict_for_vcf_record, given our test vcf set '''
+
+		# these are all possible ensembl translation ids that should be predicted 
+			# given our test vcfs
+			
+				# (Leu813Arg) one is wierd? 
 		potential_variants = ['ENSP00000415559.1:p.(Leu813Arg)', 
 								'ENSP00000395243.3:p.(Leu813Arg)', 
 								'ENSP00000275493.2:p.(Leu858Arg)', 

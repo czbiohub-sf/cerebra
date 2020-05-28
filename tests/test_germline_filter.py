@@ -1,3 +1,5 @@
+''' all tests for the germline_filter module '''
+
 import unittest
 import math
 import io
@@ -5,7 +7,6 @@ from click.testing import CliRunner
 import click
 import os
 from pathlib import Path
-
 import vcfpy
 
 from cerebra.germline_filter import write_filtered_vcf

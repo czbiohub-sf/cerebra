@@ -1,4 +1,5 @@
-''' really just want to run things on a big version of the cosmic df '''
+''' running some of the same modules, but for a larger version of 
+	the cosmic dataframe this time '''
 
 import shutil 
 from click.testing import CliRunner
@@ -17,7 +18,7 @@ from cerebra.find_aa_mutations import AminoAcidMutationFinder
 from cerebra.utils import *
 
 
-class FindAAMutationsTester(unittest.TestCase):
+class FindAAMutationsTesterCos(unittest.TestCase):
 	@classmethod
 	def setUpClass(self):
 		''' __init__ method for class obj '''
@@ -39,7 +40,6 @@ class FindAAMutationsTester(unittest.TestCase):
 			obj and evalutate  '''
 		aa_mutation_finder_bare = AminoAcidMutationFinder.__new__(AminoAcidMutationFinder)
 
-		# this is what we want to do!
 		filtered_cosmic_df = aa_mutation_finder_bare._make_filtered_cosmic_df(self.cosmic_df)
 
 		cosmic_genome_tree = GenomeIntervalTree(

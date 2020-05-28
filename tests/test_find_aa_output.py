@@ -1,4 +1,5 @@
-''' basic tests for find_aa_mutations '''
+''' some adnl basic tests for find_aa_mutations
+	this time looking at specific attributes of the results csv / dataframe '''
 
 import shutil 
 from click.testing import CliRunner
@@ -29,7 +30,6 @@ class FindAAMutationsTester(unittest.TestCase):
 		self.num_processes = 2
 		self.outpath = self.data_path + '/test_out.csv'
 	
-		#self.input_path = '/Users/lincoln.harris/code/cerebra/cerebra/tmp/vcf/'
 		self.input_path = self.data_path + '/vcf/'
 		self.input_paths = [self.input_path + x for x in os.listdir(self.input_path)]
 
@@ -41,7 +41,7 @@ class FindAAMutationsTester(unittest.TestCase):
 		self.aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df, genome_faidx, self.cov_bool)
 
 
-	def test_out_basic(self):
+	def test_out(self):
 		''' make sure we return a results_df '''
 		results_df = self.aa_mutation_finder.find_transcript_mutations(paths=self.input_paths,
 															processes=self.num_processes)
@@ -53,7 +53,7 @@ class FindAAMutationsTester(unittest.TestCase):
 		assert os.path.isfile(self.outpath)
 
 
-	def test_out_in_depth(self):
+	def test_out_attr(self):
 		''' check specific attributes of results_df '''
 		outfile = pd.read_csv(self.outpath, index_col=0)
 
