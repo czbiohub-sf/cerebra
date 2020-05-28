@@ -1,13 +1,15 @@
 import unittest
 import math
 import io
+from click.testing import CliRunner
+import click
+import os
 from pathlib import Path
 
 import vcfpy
 
 from cerebra.germline_filter import write_filtered_vcf
 from cerebra.utils import GenomePosition, GenomeIntervalTree
-
 
 class GermlineFilterTestCase(unittest.TestCase):
     @classmethod
@@ -51,6 +53,28 @@ class GermlineFilterTestCase(unittest.TestCase):
                         expected_reader), list(out_reader)
 
                     self.assertEqual(expected_records, out_records)
+
+
+    def test_basic(self):
+        ''' does germline-filter return w/o error? '''
+        from cerebra.germline_filter import germline_filter
+
+        data_path = os.path.abspath(__file__ + '/../' + 'data/test_germline_filter/')
+        gl_path = data_path + '/germline/'
+        experimental_path = data_path + '/experimental/'
+        meta_path = data_path + '/meta.csv'
+        out_path = data_path + '/gl_out/'
+
+        runner = CliRunner()
+        result = runner.invoke(germline_filter, ["--processes", 1, 
+                                            "--germline", gl_path, 
+                                            "--cells", experimental_path, 
+                                            "--metadata", meta_path, 
+                                            "--outdir", out_path])
+
+        assert True == True
+        assert result.exit_code == 0
+        assert os.path.isfile(out_path + "/A1.vcf")
 
 
 if __name__ == "__main__":
