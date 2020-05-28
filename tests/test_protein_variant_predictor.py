@@ -17,7 +17,6 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 
 		data_path = os.path.abspath(__file__ + '/../' + \
 									'data/test_find_aa_mutations/')
-		cosmicdb_path = data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
 		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 
