@@ -17,7 +17,7 @@ class TestMutationCounter(unittest.TestCase):
 	@classmethod
 	def setUpClass(self):
 		''' __init__ method for class obj '''
-		self.data_path = os.path.abspath(__file__ + '/../' + 'data/test_find_aa_mutations/')
+		self.data_path = os.path.abspath(__file__ + '/../' + 'data/test_mutation_counts/')
 		self.cosmicdb_path =  self.data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
 		self.annotation_path = self.data_path + '/hg38-plus.sub.gtf'
 
