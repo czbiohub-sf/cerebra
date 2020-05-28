@@ -1,74 +1,77 @@
 ''' adnl tests for mutation_counts '''
-
-import io
-from pathlib import Path
-import random
 import unittest
 import os
-
 import pandas as pd
-import numpy as np
 import vcfpy
-import hgvs.parser
 from click.testing import CliRunner
 
 from cerebra.count_mutations import MutationCounter
 from cerebra.utils import *
 
+
 class TestMutationCounter(unittest.TestCase):
 	@classmethod
 	def setUpClass(self):
 		''' __init__ method for class obj '''
-		self.data_path = os.path.abspath(__file__ + '/../' + 'data/test_mutation_counts/')
-		self.cosmicdb_path =  self.data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
+		self.data_path = os.path.abspath(__file__ + '/../' + \
+											'data/test_mutation_counts/')
+		self.cosmicdb_path = self.data_path + \
+										'/cosmic_kras_egfr_braf_only.tsv.gz'
 		self.annotation_path = self.data_path + '/hg38-plus.sub.gtf'
 
 		self.input_path = self.data_path + '/vcf/'
-		self.input_paths = [self.input_path + x for x in os.listdir(self.input_path)]
+		self.input_paths = [self.input_path + \
+								x for x in os.listdir(self.input_path)]
 
 		self.cosmic_df = pd.read_csv(self.cosmicdb_path, delimiter='\t')
-		self.refgenome_df = pd.read_csv(self.annotation_path, delimiter='\t', header=None)
+		self.refgenome_df = pd.read_csv(self.annotation_path,
+											delimiter='\t', header=None)
 
-		
+
 	def test_mutation_counter_init(self):
-		''' make a bare MutationCounter object and make sure basic attributes 
+		''' make a bare MutationCounter object and make sure basic attributes
 			set up correctly '''
 
 		mutation_counter = MutationCounter.__new__(MutationCounter)
-		filtered_cosmic_df = mutation_counter._make_filtered_cosmic_df(self.cosmic_df)
+		filtered_cosmic_df = mutation_counter. \
+								_make_filtered_cosmic_df(self.cosmic_df)
 		cosmic_genome_tree = GenomeIntervalTree(
 								lambda row: GenomePosition.from_str(
 								str(row["Mutation genome position"])),
-								(record for idx, record in filtered_cosmic_df.iterrows()))
-        
+								(record for idx, record in
+									filtered_cosmic_df.iterrows()))
+
 		hg38_genome_tree = GenomeIntervalTree(
-									GenomePosition.from_gtf_record,
-									(record for idx, record in self.refgenome_df.iterrows()))
+								GenomePosition.from_gtf_record,
+								(record for idx, record in
+									self.refgenome_df.iterrows()))
 
 		assert len(cosmic_genome_tree.tree_map) == 2
 		assert len(cosmic_genome_tree.records) == 544
 
 		assert len(hg38_genome_tree.tree_map) == 2
 		assert len(hg38_genome_tree.records) == 211
-		assert True == True
 
 
 	def test_find_cell_gene_mut_counts(self):
-		''' set up a bare MutationCounter object with all of the correct attributes, 
-			then test to see if find_cell_gene_mut_counts returns correctly, for
-			our test vcf set '''
+		''' set up a bare MutationCounter object with all of the correct
+			attributes, then test to see if find_cell_gene_mut_counts returns
+			correctly, for our test vcf set '''
 
 		mutation_counter = MutationCounter.__new__(MutationCounter)
-		
-		filtered_cosmic_df = mutation_counter._make_filtered_cosmic_df(self.cosmic_df)
+
+		filtered_cosmic_df = mutation_counter. \
+								_make_filtered_cosmic_df(self.cosmic_df)
 		mutation_counter._cosmic_genome_tree = GenomeIntervalTree(
 								lambda row: GenomePosition.from_str(
 								str(row["Mutation genome position"])),
-								(record for idx, record in filtered_cosmic_df.iterrows()))
-        
+								(record for idx,
+									record in filtered_cosmic_df.iterrows()))
+  
 		mutation_counter._hg38_genome_tree = GenomeIntervalTree(
 									GenomePosition.from_gtf_record,
-									(record for idx, record in self.refgenome_df.iterrows()))
+									(record for idx,
+										record in self.refgenome_df.iterrows()))
 
 		a1_expect = {'EGFR': 2, 'KRAS': 2}
 
@@ -81,25 +84,20 @@ class TestMutationCounter(unittest.TestCase):
 			else:
 				assert counts[0] == {}
 
-		assert True == True
-
 
 	def test_parse(self):
-		''' set up a bare MutationCounter object with all of the correct attributes, 
-			then test to see if _parse_gene_names returns correctly, for our test 
-			vcf set '''
+		''' set up a bare MutationCounter object with all of the correct
+			attributes, then test to see if _parse_gene_names returns
+			correctly, for our test vcf set '''
 
 		mutation_counter = MutationCounter.__new__(MutationCounter)
 
 		mutation_counter._hg38_genome_tree = GenomeIntervalTree(
 									GenomePosition.from_gtf_record,
-									(record for idx, record in self.refgenome_df.iterrows()))
+									(record for idx,
+										record in self.refgenome_df.iterrows()))
 
-		A1_gene_names = ['KRAS','EGFR']
-		A2_gene_names = []
-		A3_gene_names = []
-		A4_gene_names = []
-		A5_gene_names = []
+		A1_gene_names = ['KRAS', 'EGFR']
 
 		for vcf in self.input_paths:
 			curr_vcf = vcf.strip(self.input_path)
@@ -107,7 +105,8 @@ class TestMutationCounter(unittest.TestCase):
 
 			for record in vcf_reader:
 				genome_pos = GenomePosition.from_vcf_record(record)
-				gene_row = mutation_counter._find_containing_gene_record(genome_pos)
+				gene_row = mutation_counter. \
+								_find_containing_gene_record(genome_pos)
 
 				if gene_row is None:
 					continue
@@ -119,8 +118,6 @@ class TestMutationCounter(unittest.TestCase):
 				else:
 					assert gene_name == ''
 
-		assert True == True
-
 
 	def test_runtime(self):
 		''' full runtime test
@@ -128,13 +125,13 @@ class TestMutationCounter(unittest.TestCase):
 		from cerebra.count_mutations import count_mutations
 
 		runner = CliRunner()
-		result = runner.invoke(count_mutations, ["--processes", 1, 
-										"--cosmicdb", self.cosmicdb_path, 
-										"--refgenome", self.annotation_path, 
-										"--outfile", self.data_path + '/test_out.csv', 
+		result = runner.invoke(count_mutations, ["--processes", 1,
+										"--cosmicdb", self.cosmicdb_path,
+										"--refgenome", self.annotation_path,
+										"--outfile", self.data_path +
+										'/test_out.csv',
 										self.input_path + 'A1.vcf'])
 
-		assert True == True
 		assert result.exit_code == 0
 		assert os.path.isfile(self.data_path + "/test_out.csv")
 
@@ -142,11 +139,5 @@ class TestMutationCounter(unittest.TestCase):
 		os.remove(self.data_path + "/test_out.csv")
 
 
-	def test_assert(self):
-		assert True == True
-
-
 if __name__ == "__main__":
-    unittest.main()
-
-
+	unittest.main()
