@@ -34,29 +34,29 @@ affiliations:
 
 # Motivation
 
-Researchers are often interested in identifying the DNA mutations, or variants, present in a set of experimental 
-samples. 
-Typically a DNA or RNA sequencing experiment (DNA-seq, RNA-seq) is performed, followed by alignment to the 
-reference genome with tools like [STAR](https://github.com/alexdobin/STAR) and 
-[BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
-and [freebayes](https://github.com/ekg/freebayes). 
-Variant callers produce tab
-delimited text files ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), *.vcf*)
+A single "typo" in the genome can have massive consequences in the resulting organismal biology, and identifying the functional consequences of DNA mutations, or variants, is a fundamental problem in bioinformatics. 
+While tools to identify the variants already exist, and there are tools to interpret the results of *individual* samples, *cerebra* fills the gap of wrangling the variant calling files across thousands of samples, and summarizing the functional outcomes of the genomic "typos."
+
+To find variants in the genome, researchers often begin with a [DNA-sequencing](https://en.wikipedia.org/wiki/DNA_sequencing) (DNA-seq) or [RNA-sequencing](https://en.wikipedia.org/wiki/RNA-Seq) (RNA-seq) experiment on their samples of interest.
+After sequencing, the next step is alignment to the reference genome with tools like [STAR](https://github.com/alexdobin/STAR) or [BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
+or [freebayes](https://github.com/ekg/freebayes). 
+Variant callers produce tab delimited text files in the ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), *.vcf*)
 for each processed sample, which encode the genomic position, reference vs. observed DNA sequence, and quality
-associated with each observed variant. Current methods for variant calling are incredibly powerful and robust, 
-however, a single sequencing run can generate on the order of 10^8 unique vcf entries, only a 
-small portion of which are of relevance to the researcher. In addition variant callers only report DNA level 
-mutations and not the functional consequences of each mutation, *ie.* peptide-level variants. We introduce
-*cerebra*, a python package that provides fast and accurate peptide-level summarizing of vcf files.
+associated with each observed variant. [OBB: Add a `head` output of an example vcf file]
+
+Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique vcf entries, only a small portion of which are of relevance to the researcher. 
+In addition, variant callers report only the variant itself, and not the functional consequences of each mutation, *i.e.* the effect the mutation has on the translated protein sequence, termed "peptide-level variants." 
+We introduce *cerebra*, a python package that provides fast and accurate peptide-level summarizing of vcf files.
 
 # Functionality
 *cerebra* comprises three modules: **germline-filter** removes variants that are common between germline samples 
-and samples of interest, **count-mutations** reports total number of variants in each sample, and **find-aa-mutations** reports likely peptide-level variants in each sample. Here *variants* refers to single nucleotide polymorphisms (SNPs)
-and short insertions and deletions. *cerebra* is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements. *cerebra* utilizes a reference genome sequence (.fa), a genome annotation 
+and samples of interest, **count-mutations** reports total number of variants in each sample, and **find-aa-mutations** reports likely peptide-level variants in each sample. 
+Here *variants* refers to single nucleotide polymorphisms (SNPs) and short insertions and deletions. 
+*cerebra* is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements. *cerebra* utilizes a reference genome sequence (.fa), a genome annotation 
 (.gtf) and a reference transcriptome to construct a *genome interval tree*, a data structure that matches RNA transcripts
 and peptides to each feature in the genome (*Figure 1*). Interval trees are self-balancing binary search trees that store numeric intervals and can quickly find every such interval that overlaps a given query interval. They have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations. [todo: do i need a source for this?] Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for small vcf sets. [todo: say something about memory footprint]
 
-![checkout](workflow.jpg)
+![checkout OBB: Add more description here](workflow.jpg)
 
 If the researcher has access to non-neoplastic (*ie.* healthy) or another sort of 'control' tissue then **germline-filter** is the proper starting point. This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non disease causing variants. The user provides a 
 metadata file that indicates which experimental samples correspond to which control samples. We initiate a 
