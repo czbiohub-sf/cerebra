@@ -87,21 +87,23 @@ def germline_filter(processes, germline_path, cells_path, metadata_path,
     metadata_df = pd.read_csv(metadata_path)
 
     # Create a set of all patient IDs from the metadata file.
-    all_patient_ids = set(metadata_df["patient_id"])
+    all_germline_sample_ids = set(metadata_df["germline_sample_id"])
 
-    def process_patient(patient_id):
+    def process_patient(germline_sample_id):
         # Find all non-tumor bulk VCF files for the patient ID.
         germline_wb_vcf_paths = list(
-            germline_path.glob(patient_id + "_*_*.vcf"))
+            germline_path.glob(germline_sample_id + "_*_*.vcf"))
 
         # Fetch all cell IDs associated with the patient ID.
-        cell_ids = metadata_df.loc[metadata_df["patient_id"] == patient_id][
-            "cell_id"]
+        experimental_sample_ids = metadata_df.loc[
+                                metadata_df["germline_sample_id"] == 
+                                germline_sample_id]["experimental_sample_id"]
 
         # Use the cell IDs to create a list of all single-cell VCF files
         # for the patient.
-        cell_vcf_paths = [(cells_path / cell_id).with_suffix(".vcf") for
-                          cell_id in cell_ids]
+        cell_vcf_paths = [(cells_path / experimental_sample_id). \
+                            with_suffix(".vcf") for experimental_sample_id 
+                            in experimental_sample_ids]
 
         # Create a genome interval tree for the patient's germline bulk VCF
         # data. Only selects one germline VCF to avoid over-filtering for
@@ -132,9 +134,9 @@ def germline_filter(processes, germline_path, cells_path, metadata_path,
     print("Running germline filter...")
     if processes > 1:
         with Pool(processes) as pool:
-            list(tqdm(pool.imap(process_patient, all_patient_ids),
-                      total=len(all_patient_ids), smoothing=0.01))
+            list(tqdm(pool.imap(process_patient, all_germline_sample_ids),
+                      total=len(all_germline_sample_ids), smoothing=0.01))
     else:
-        list(map(process_patient, tqdm(all_patient_ids, smoothing=0.1)))
+        list(map(process_patient, tqdm(all_germline_sample_ids, smoothing=0.1)))
 
     print("Done!")

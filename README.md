@@ -97,14 +97,14 @@ Features
 
 If you have access to germline vcfs for each of you samples, then the place to start is `germline-filter`. You'll have to give it a simple metadata file (.csv) that maps germline sample names to experimental sample names. For example, if you have five experimental samples and two germline your metadata csv might look like:
 ```
-cell_id,patient_id
+experimental_sample_id,germline_sample_id
 sample1,gl_sample1
 sample2,gl_sample1
 sample3,gl_sample2
 sample4,gl_sample2
 sample5,gl_sample2
 ```
-Note the two headers, `cell_id` and `patient_id`. **germline-filter** will produce a set of germline filtered vcfs, which you can then use for **count-mutations** or **find-aa-mutations**. If you do not have access to germline vcfs, then just proceed directly to **count-mutations** or **find-aa-mutations**.
+Note the two headers, `experimental_sample_id` and `germline_sample_id`. **germline-filter** will produce a set of germline filtered vcfs, which you can then use for **count-mutations** or **find-aa-mutations**. If you do not have access to germline vcfs, then just proceed directly to **count-mutations** or **find-aa-mutations**.
 
 Authors
 --------
