@@ -69,11 +69,13 @@ Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and sho
 
 A data structure crucial to `cerebra` is the *genome interval tree*, which matches RNA transcripts
 and peptides to each feature in the genome (*Figure 1*). 
-Interval trees are self-balancing binary search trees that store numeric intervals and can quickly find every such interval that overlaps a given query interval. 
+[Interval trees](https://en.wikipedia.org/wiki/Interval_tree) are self-balancing binary search trees that store numeric intervals and can quickly find every such interval that overlaps a given query interval. 
 They have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations. [todo: add source for this] 
-Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for small VCF sets. 
+Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets. 
 The genome interval tree is constructed with a reference genome sequence ([FASTA format](https://en.wikipedia.org/wiki/FASTA_format), often with a `.fa` extension), and a genome annotation 
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html) `.gtf` extension).
+We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast interval tree construction and lookup operations. 
+
 [todo: more description here]
 
 ![checkout](fig1.jpg)
@@ -85,7 +87,7 @@ If the research project is centered around a "tumor/pathogenic vs control" quest
 This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non disease causing variants. 
 The user provides a very simple metadata file that indicates which experimental samples correspond to which control samples.
 Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants. 
-These steps are performed by a subprocess pool so that we can quickly process "chunks" of input in a parallel manner. 
+These steps are performed by a [subprocess pool](https://en.wikipedia.org/wiki/Multiprocessing) so that we can quickly process "chunks" of input in a parallel manner. 
 There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases. 
 This option is designed to give the user a higher degree of confidence in the pathogenic nature of each variant -- if independent experiments have reported a given variant in human tissue, there is a higher likilihood that it is pathogenic. 
 The output of `germline-filter` is a set of trimmed-down VCF files. 
@@ -99,15 +101,14 @@ Then show example commands/workflows for these questions.]
 
 
 ### `count-mutations`
-[todo: better topic sentence]
-For building interval trees we rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast construction and lookup. 
-The `count-mutations` module creates a genome interval tree from the reference GTF, reads in a VCF file and converts it to a [vcfpy](https://pypi.org/project/vcfpy/) object and then processes VCF entries in parallel. 
+The `count-mutations` module reports the raw variant counts for every gene across every sample.
+We first create a genome interval tree from the reference GTF, then read in a VCF file and convert it to a [vcfpy](https://pypi.org/project/vcfpy/) object, then processes VCF entries in [parallel](https://en.wikipedia.org/wiki/Multiprocessing). 
 Each variant is matched to its corresponding gene, and gene-wise counts are stored in shared memory. 
 We then report the raw number of variants found in each sample. 
 The output is a CSV file that contains counts for each sample versus every gene in the genome. 
 
 ### `find-aa-mutations`
-The `find-aa-mutations` module identifies the peptide-level consequence of variants in the genome.
+The `find-aa-mutations` module reports the peptide-level consequence of variants in the genome.
 First we load the reference GTF, then construct an index of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) for memory efficient access.
 We then create a genome interval tree that can quickly match genomic coordinates from VCF entries to peptide-level mutations. 
 If working  with cancer samples, the user has the option to filter out all mutations that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic. 
