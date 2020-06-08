@@ -77,7 +77,7 @@ The genome interval tree is constructed with a reference genome sequence ([FASTA
 [todo: more description here]
 
 ![checkout](fig1.jpg)
-[todo: add figure legend]
+***Figure 1.*** Workflow for constructing a genome interval tree from a genome annotation (`.gtf`) and a reference genome sequence (`.fa`), then processing VCF files in parallel to create a single tabular output file.
 
 ### `germline-filter`
 
