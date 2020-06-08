@@ -58,7 +58,7 @@ chr1	1309460	.	G	A	245.98	.	AC=2;AF=1.00;AN=2;DP=7;ExcessHet=3.0103;FS=0.000;MLE
 
 Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which are relevant to the researcher. 
 In addition, variant callers report only the variant itself, and not the functional consequences of each mutation, _i.e._ the effect the mutation has on the translated protein sequence, refered to as "peptide-level variants." 
-We introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
+We introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files..
 
 ## Functionality
 
