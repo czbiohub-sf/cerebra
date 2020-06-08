@@ -44,8 +44,17 @@ After sequencing, the next step is alignment to the reference genome with tools 
 or [freebayes](https://github.com/ekg/freebayes). 
 Variant callers produce tab delimited text files in the ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), VCF)
 for each processed sample, which encode the genomic position, reference vs. observed DNA sequence, and quality
-associated with each observed variant. [todo: Add a `head` output of an example VCF file]       
-![checkout](vcf_head.png)
+associated with each observed variant.  
+
+```
+##fileformat=VCFv4.2
+##source=HaplotypeCaller
+#CHROM  POS ID	REF	ALT	QUAL	FILTER	INFO	FORMAT
+chr1	631391	.	C	T	72.28	.	AC=2;AF=1.00;AN=2;DP=2;ExcessHet=3.0103;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=NaN;QD=25.36;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
+chr1	631862	.	G	A	286	.	AC=2;AF=1.00;AN=2;DP=24;ExcessHet=3.0103;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=3.00;QD=28.73;SOR=0.693	GT:AD:DP:GQ:PL	1/1:0,8:8:24:300,24,0
+chr1	1014274	rs8997	A	G	72.28	.	AC=2;AF=1.00;AN=2;DB;DP=2;ExcessHet=3.0103;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=NaN;QD=30.97;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
+chr1	1309460	.	G	A	245.98	.	AC=2;AF=1.00;AN=2;DP=7;ExcessHet=3.0103;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=NaN;QD=27.24;SOR=4.174	GT:AD:DP:GQ:PL	1/1:0,7:7:21:260,21,0
+```
 
 Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which are relevant to the researcher. 
 In addition, variant callers report only the variant itself, and not the functional consequences of each mutation, _i.e._ the effect the mutation has on the translated protein sequence, refered to as "peptide-level variants." 
