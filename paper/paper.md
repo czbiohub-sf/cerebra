@@ -66,7 +66,7 @@ The genome interval tree is constructed with a reference genome sequence ([FASTA
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html)`.gtf` extension).
 [todo: more description here]
 
-![checkout](workflow.jpg)
+![checkout](fig1.jpg)
 [todo: add figure legend]
 
 ### `germline-filter`
