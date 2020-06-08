@@ -58,7 +58,7 @@ chr1	1309460	.	G	A	245.98	.	AC=2;AF=1.00;AN=2;DP=7;ExcessHet=3.0103;FS=0.000;MLE
 
 Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which are relevant to the researcher. 
 In addition, variant callers report only the variant itself, and not the functional consequences of each mutation, _i.e._ the effect the mutation has on the translated protein sequence, refered to as "peptide-level variants." 
-We introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files..
+We introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
 
 ## Functionality
 
@@ -92,12 +92,9 @@ There is also the option to limit the reported variants to those found in NCBI's
 This option is designed to give the user a higher degree of confidence in the pathogenic nature of each variant -- if independent experiments have reported a given variant in human tissue, there is a higher likilihood that it is pathogenic. 
 The output of `germline-filter` is a set of trimmed-down VCF files. 
 
-[OBB: Suggest to partition based on use cases, e.g.:
-
-1. Starting data is tumor-vs-control
-2. I have a lot of VCFs
-
-Then show example commands/workflows for these questions.]
+If you have access to "control" tissue and your experimental question is concerned with differences between tumor/pathogenic tissue and control tissue, then `germline-filter` is the right place to start.
+This will produce a new set of VCFs, which you'll use for the next two steps.
+If you do not have access to "control" tissue, then proceed directly to `count-mutations` or `find-aa-mutations`.
 
 
 ### `count-mutations`
