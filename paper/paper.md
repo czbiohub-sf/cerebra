@@ -100,7 +100,8 @@ Then show example commands/workflows for these questions.]
 
 ### `count-mutations`
 [todo: better topic sentence]
-The `count-mutations` module builds a genome interval tree from the reference GTF, reads in a VCF file and converts it to a [vcfpy](https://pypi.org/project/vcfpy/) object and then processes VCF entries in parallel. 
+For building interval trees we rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast construction and lookup. 
+The `count-mutations` module creates a genome interval tree from the reference GTF, reads in a VCF file and converts it to a [vcfpy](https://pypi.org/project/vcfpy/) object and then processes VCF entries in parallel. 
 Each variant is matched to its corresponding gene, and gene-wise counts are stored in shared memory. 
 We then report the raw number of variants found in each sample. 
 The output is a CSV file that contains counts for each sample versus every gene in the genome. 
