@@ -93,7 +93,7 @@ This option is designed to give the user a higher degree of confidence in the pa
 The output of `germline-filter` is a set of trimmed-down VCF files. 
 
 If you have access to "control" tissue and your experimental question is concerned with differences between tumor/pathogenic tissue and control tissue, then `germline-filter` is the right place to start.
-This will produce a new set of VCFs, which you'll use for the next two steps.
+`germline-filter` will produce a new set of VCFs, which you'll use for the next two steps.
 If you do not have access to "control" tissue, then proceed directly to `count-mutations` or `find-aa-mutations`.
 
 
@@ -163,8 +163,3 @@ Code and detailed installation instructions can be found at https://github.com/c
 In addition `cerebra` can be found on [PyPi](https://pypi.org/project/cerebra/).
 
 ## References
-
-[todo: add?]
-
-
-
