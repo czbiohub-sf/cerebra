@@ -44,7 +44,8 @@ After sequencing, the next step is alignment to the reference genome with tools 
 or [freebayes](https://github.com/ekg/freebayes). 
 Variant callers produce tab delimited text files in the ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), VCF)
 for each processed sample, which encode the genomic position, reference vs. observed DNA sequence, and quality
-associated with each observed variant.  
+associated with each observed variant. 
+An example VCF file:
 
 ```
 ##fileformat=VCFv4.2
@@ -56,8 +57,10 @@ chr1	1014274	rs8997	A	G	72.28	.	AC=2;AF=1.00;AN=2;DB;DP=2;ExcessHet=3.0103;FS=0.
 chr1	1309460	.	G	A	245.98	.	AC=2;AF=1.00;AN=2;DP=7;ExcessHet=3.0103;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=NaN;QD=27.24;SOR=4.174	GT:AD:DP:GQ:PL	1/1:0,7:7:21:260,21,0
 ```
 
-Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which are relevant to the researcher. 
-In addition, variant callers report only the variant itself, and not the functional consequences of each mutation, _i.e._ the effect the mutation has on the translated protein sequence, refered to as "peptide-level variants." 
+Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which are relevant to the researcher.
+
+In addition, variant callers report only the genomic location of the variant, and not the _functional_ consequences of the variant, _i.e._ the effect the mutation has on the translated protein sequence.
+We refer to these functional variants as "peptide-level variants." 
 We introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
 
 ## Functionality
