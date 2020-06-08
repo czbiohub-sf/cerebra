@@ -110,7 +110,7 @@ The output is a CSV file that contains counts for each sample versus every gene 
 
 ### `find-aa-mutations`
 The `find-aa-mutations` module reports the peptide-level consequence of variants in the genome.
-First we load the reference GTF, then construct an index of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) for memory efficient access.
+First we load the reference GTF, then construct an index (.fai) of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) to enable fast random memory access. 
 We then create a genome interval tree that can quickly match genomic coordinates from VCF records to peptide-level variants. 
 If working  with cancer samples, the user has the option to filter out all mutations that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic. 
 VCF files are read in simultaneously and queried against the genome interval tree. 
