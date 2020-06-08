@@ -73,7 +73,7 @@ Interval trees are self-balancing binary search trees that store numeric interva
 They have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations. [todo: add source for this] 
 Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for small VCF sets. 
 The genome interval tree is constructed with a reference genome sequence ([FASTA format](https://en.wikipedia.org/wiki/FASTA_format), often with a `.fa` extension), and a genome annotation 
-([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html)`.gtf` extension).
+([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html) `.gtf` extension).
 [todo: more description here]
 
 ![checkout](fig1.jpg)
@@ -100,14 +100,14 @@ Then show example commands/workflows for these questions.]
 
 ### `count-mutations`
 [todo: better topic sentence]
-The `count-mutations` module builds a genome interval tree from the reference gtf, reads in a VCF file and converts it to a [vcfpy](https://pypi.org/project/vcfpy/) object and then processes VCF entries in parallel. 
+The `count-mutations` module builds a genome interval tree from the reference GTF, reads in a VCF file and converts it to a [vcfpy](https://pypi.org/project/vcfpy/) object and then processes VCF entries in parallel. 
 Each variant is matched to its corresponding gene, and gene-wise counts are stored in shared memory. 
 We then report the raw number of variants found in each sample. 
 The output is a CSV file that contains counts for each sample versus every gene in the genome. 
 
 ### `find-aa-mutations`
 The `find-aa-mutations` module identifies the peptide-level consequence of variants in the genome.
-First we load the reference gtf, then construct an index of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) for memory efficient access.
+First we load the reference GTF, then construct an index of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) for memory efficient access.
 We then create a genome interval tree that can quickly match genomic coordinates from VCF entries to peptide-level mutations. 
 If working  with cancer samples, the user has the option to filter out all mutations that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic. 
 The VCF files are split chunk-wise and queried against the genome interval tree in parallel. 
