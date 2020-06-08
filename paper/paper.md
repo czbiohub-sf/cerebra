@@ -69,9 +69,9 @@ Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and sho
 
 A data structure crucial to `cerebra` is the *genome interval tree*, which matches RNA transcripts
 and peptides to each feature in the genome (*Figure 1*). 
-[Interval trees](https://en.wikipedia.org/wiki/Interval_tree) are self-balancing binary search trees that store numeric intervals and can quickly find every such interval that overlaps a given query interval. 
-They have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations. [todo: add source for this] 
-Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets. 
+[Interval trees](https://en.wikipedia.org/wiki/Interval_tree) are self-balancing binary search trees that store numeric intervals and can quickly find every such interval that overlaps a given query interval (_see [also](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_). 
+Given _n_ nodes, interval trees have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations [Cormen:2009, _see [also](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_].
+Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets [Alekseyenko:2007]. 
 The genome interval tree is constructed with a reference genome sequence ([FASTA format](https://en.wikipedia.org/wiki/FASTA_format), often with a `.fa` extension), and a genome annotation 
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html) `.gtf` extension).
 We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast interval tree construction and lookup operations. 
