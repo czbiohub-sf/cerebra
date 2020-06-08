@@ -83,11 +83,11 @@ The genome interval tree is constructed with a reference genome sequence ([FASTA
 
 If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
 This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non disease causing variants. 
-The user provides a very simple metadata file that indicates which experimental samples correspond to which control samples. 
-We initiate a thread pool [todo: define this] then use the [vcfpy](https://pypi.org/project/vcfpy/) library to quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants. 
+The user provides a very simple metadata file that indicates which experimental samples correspond to which control samples.
+Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants. 
+These steps are performed by a subprocess pool so that we can quickly process "chunks" of input in a parallel manner. 
 There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases. 
-This option is designed to give the user a higher
-degree of confidence in the pathogenic nature of each variant -- if independent experiments have reported a given variant in human tissue, there is a higher likilihood that it is pathogenic. 
+This option is designed to give the user a higher degree of confidence in the pathogenic nature of each variant -- if independent experiments have reported a given variant in human tissue, there is a higher likilihood that it is pathogenic. 
 The output of `germline-filter` is a set of trimmed-down VCF files. 
 
 [OBB: Suggest to partition based on use cases, e.g.:
