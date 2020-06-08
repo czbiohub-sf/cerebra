@@ -57,7 +57,7 @@ chr1	1014274	rs8997	A	G	72.28	.	AC=2;AF=1.00;AN=2;DB;DP=2;ExcessHet=3.0103;FS=0.
 chr1	1309460	.	G	A	245.98	.	AC=2;AF=1.00;AN=2;DP=7;ExcessHet=3.0103;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=NaN;QD=27.24;SOR=4.174	GT:AD:DP:GQ:PL	1/1:0,7:7:21:260,21,0
 ```
 
-Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which are relevant to the researcher.
+Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF records, only a small portion of which are relevant to the researcher.
 
 In addition, variant callers report only the genomic location and not the _functional_ consequences of the variant, _i.e._ the effect the mutation has on the translated protein sequence.
 We refer to these functional variants as "peptide-level variants." 
@@ -79,7 +79,7 @@ The genome interval tree is constructed with a reference genome sequence ([FASTA
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html) `.gtf` extension).
 We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast interval tree construction and lookup operations.
 
-We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once, then convert them to indicies [todo: add index ref] for memory-efficient lookups. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-mutations` variants are simply matched to whichever gene they came from. In `find-aa-mutations` variants are queried against our genome interval tree -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Eventually peptide-level variants from across all VCF are reported in tabular format. 
+We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-mutations` variants are simply matched to whichever gene they came from. In `find-aa-mutations` variants are queried against our genome interval tree -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Eventually peptide-level variants from across all VCF are reported in tabular format. 
 
 ![checkout](fig1.jpg)
 ***Figure 1.*** Workflow describing the `find-aa-mutations` module.
@@ -103,7 +103,7 @@ If you do not have access to "control" tissue, then proceed directly to `count-m
 
 ### `count-mutations`
 The `count-mutations` module reports the raw variant counts for every gene across every sample.
-We first create a genome interval tree from the reference GTF, then read in a VCF file and convert it to a [vcfpy](https://pypi.org/project/vcfpy/) object, then processes VCF entries in [parallel](https://en.wikipedia.org/wiki/Multiprocessing). 
+We first create a genome interval tree from the reference GTF, then read in a VCF file and convert it to a [vcfpy](https://pypi.org/project/vcfpy/) object, then processes VCF records in [parallel](https://en.wikipedia.org/wiki/Multiprocessing). 
 Each variant is matched to its corresponding gene, and gene-wise counts are stored in shared memory. 
 We then report the raw number of variants found in each sample. 
 The output is a CSV file that contains counts for each sample versus every gene in the genome. 
@@ -111,9 +111,9 @@ The output is a CSV file that contains counts for each sample versus every gene 
 ### `find-aa-mutations`
 The `find-aa-mutations` module reports the peptide-level consequence of variants in the genome.
 First we load the reference GTF, then construct an index of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) for memory efficient access.
-We then create a genome interval tree that can quickly match genomic coordinates from VCF entries to peptide-level mutations. 
+We then create a genome interval tree that can quickly match genomic coordinates from VCF records to peptide-level variants. 
 If working  with cancer samples, the user has the option to filter out all mutations that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic. 
-The VCF files are split chunk-wise and queried against the genome interval tree in parallel. 
+VCF files are read in simultaneously and queried against the genome interval tree. 
 Results are stored in a shared memory object. 
 We then convert variant hits to [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
