@@ -44,7 +44,8 @@ After sequencing, the next step is alignment to the reference genome with tools 
 or [freebayes](https://github.com/ekg/freebayes). 
 Variant callers produce tab delimited text files in the ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), VCF)
 for each processed sample, which encode the genomic position, reference vs. observed DNA sequence, and quality
-associated with each observed variant. [todo: Add a `head` output of an example VCF file]
+associated with each observed variant. [todo: Add a `head` output of an example VCF file]       
+![checkout](vcf_head.png)
 
 Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which are relevant to the researcher. 
 In addition, variant callers report only the variant itself, and not the functional consequences of each mutation, _i.e._ the effect the mutation has on the translated protein sequence, refered to as "peptide-level variants." 
