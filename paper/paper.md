@@ -43,7 +43,7 @@ To find variants in the genome, researchers often begin with a [DNA-sequencing](
 After sequencing, the next step is alignment to the reference genome with tools like [STAR](https://github.com/alexdobin/STAR) or [BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
 or [freebayes](https://github.com/ekg/freebayes). 
 Variant callers produce tab delimited text files in the ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), VCF)
-for each processed sample, which encode the genomic position, reference vs. observed DNA sequence, and quality
+for each processed sample, which encode the _genomic position_, _reference_ vs. _observed DNA sequence_, and _quality_
 associated with each observed variant. 
 An example VCF file:
 
@@ -59,7 +59,7 @@ chr1	1309460	.	G	A	245.98	.	AC=2;AF=1.00;AN=2;DP=7;ExcessHet=3.0103;FS=0.000;MLE
 
 Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which are relevant to the researcher.
 
-In addition, variant callers report only the genomic location of the variant, and not the _functional_ consequences of the variant, _i.e._ the effect the mutation has on the translated protein sequence.
+In addition, variant callers report only the genomic location and not the _functional_ consequences of the variant, _i.e._ the effect the mutation has on the translated protein sequence.
 We refer to these functional variants as "peptide-level variants." 
 We introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
 
@@ -77,12 +77,13 @@ Given _n_ nodes, interval trees have theoretical average-case O(log*n*) and wors
 Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets [Alekseyenko:2007]. 
 The genome interval tree is constructed with a reference genome sequence ([FASTA format](https://en.wikipedia.org/wiki/FASTA_format), often with a `.fa` extension), and a genome annotation 
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html) `.gtf` extension).
-We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast interval tree construction and lookup operations. 
+We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast interval tree construction and lookup operations.
 
-[todo: more description here]
+We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once, then convert them to indicies [todo: add index ref] for memory-efficient lookups. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-mutations` variants are simply matched to whichever gene they came from. In `find-aa-mutations` variants are queried against our genome interval tree -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Eventually peptide-level variants from across all VCF are reported in tabular format. 
 
 ![checkout](fig1.jpg)
-***Figure 1.*** Workflow for constructing a genome interval tree from a genome annotation (`.gtf`) and a reference genome sequence (`.fa`), then processing VCF files in parallel to create a single tabular output file.
+***Figure 1.*** Workflow describing the `find-aa-mutations` module.
+We construct a _genome interval tree_ from a genome annotation (`.gtf`) and a reference genome sequence (`.fa`), then processing VCF files in parallel to create a single tabular output file.
 
 ### `germline-filter`
 
@@ -90,7 +91,7 @@ If the research project is centered around a "tumor/pathogenic vs control" quest
 This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non disease causing variants. 
 The user provides a very simple metadata file that indicates which experimental samples correspond to which control samples.
 Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants. 
-These steps are performed by a [subprocess pool](https://en.wikipedia.org/wiki/Multiprocessing) so that we can quickly process "chunks" of input in a parallel manner. 
+These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can quickly process "chunks" of input in a [parallel](https://en.wikipedia.org/wiki/Multiprocessing) manner. 
 There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases. 
 This option is designed to give the user a higher degree of confidence in the pathogenic nature of each variant -- if independent experiments have reported a given variant in human tissue, there is a higher likilihood that it is pathogenic. 
 The output of `germline-filter` is a set of trimmed-down VCF files. 
