@@ -96,7 +96,7 @@ We then report the raw number of variants found in each sample.
 The output is a CSV file that contains counts for each sample versus every gene in the genome. 
 
 ### `find-aa-mutations`
-The `find-aa-mutations` module identifies the peptide-level consequence of variants in the genome.  
+The `find-aa-mutations` module identifies the peptide-level consequence of variants in the genome.
 First we load the reference gtf, then construct an index of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) for memory efficient access.
 We then create a genome interval tree that can quickly match genomic coordinates from VCF entries to peptide-level mutations. 
 If working  with cancer samples, the user has the option to filter out all mutations that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic. 
@@ -113,7 +113,7 @@ Definitively reporting protein variants requires knowledge of alternate splicing
 For example, if a read picks up a mutation in exon 2 of geneA, we can report each of the potential spliceforms of geneA that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
 Thus we report all possible spliceforms; determining the spliceform landscape of an individual cell from scRNA-seq is outside the scope of this project. 
 
-We tested `cerebra` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle). 
+We tested `cerebra find-aa-mutations` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle). 
 Each of the seven VCF files was quite large, (~2GB) and `cerebra` was run on standard hardware (Mac laptop, 2.5GHz quad-core processor, 16 GB RAM). 
 `cerebra` processed the seven files in 44 minutes, see *Figure 2*. 
 The Genome in a Bottle VCFs are quite large and are perhaps not comparable to those generated in a typical sequencing experiment. 
