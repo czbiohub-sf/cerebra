@@ -46,7 +46,8 @@ An example VCF file:
 ##fileformat=VCFv4.2
 ##source=HaplotypeCaller
 #CHROM  POS ID	REF	ALT	QUAL	FILTER	INFO	FORMAT
-chr1	631391	.	C	T	72.28	.	AC=2;AF=1.00;AN=2;DP=2;ExcessHet=3.0103;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=NaN;QD=25.36;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
+chr1	631391	.	C	T	72.28	.	AC=2;AF=1.00;AN=2;DP=2;ExcessHet=3.0103;FS=0.000;
+        MLEAC=1;MLEAF=0.500;MQ=NaN;QD=25.36;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
 ```
 
 Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF records, only a small portion of which are relevant to the researcher.
