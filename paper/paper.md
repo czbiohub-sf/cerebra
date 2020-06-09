@@ -1,5 +1,5 @@
 ---
-title: 'cerebra: A tool for fast and accurate summarizing of variant calling format (.vcf) files'
+title: '`cerebra`: A tool for fast and accurate summarizing of variant calling format (VCF) files'
 tags:
     - python
     - genomics
