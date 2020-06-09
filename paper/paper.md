@@ -36,7 +36,7 @@ There exist tools for identifying variants and predicting their functional conse
 
 To find variants in the genome, researchers often begin with a [DNA-sequencing](https://en.wikipedia.org/wiki/DNA_sequencing) (DNA-seq) or [RNA-sequencing](https://en.wikipedia.org/wiki/RNA-Seq) (RNA-seq) experiment on their samples of interest.
 After sequencing, the next step is alignment to the reference genome with tools like [STAR](https://github.com/alexdobin/STAR) or [BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
-or [freebayes](https://github.com/ekg/freebayes) [@star, @bwa, @haplocaller, @freebayes]. 
+or [freebayes](https://github.com/ekg/freebayes) [@star @bwa @haplocaller @freebayes]. 
 Variant callers produce tab delimited text files in the ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), VCF)
 for each processed sample, which encode the _genomic position_, _reference_ vs. _observed DNA sequence_, and _quality_
 associated with each observed variant. 
@@ -66,7 +66,7 @@ Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and sho
 `cerebra` is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements.
 
 A data structure crucial to `cerebra` is the *genome interval tree*, which matches RNA transcripts
-and peptides to each feature in the genome \autoref{workflow}. 
+and peptides to each feature in the genome (\autoref{workflow}). 
 [Interval trees](https://en.wikipedia.org/wiki/Interval_tree) are self-balancing binary search trees that store numeric intervals and can quickly find every such interval that overlaps a given query interval (_[also see](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_). 
 Given _n_ nodes, interval trees have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations [@Cormen:2009, _[also see](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_].
 Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets [@Alekseyenko:2007]. 
