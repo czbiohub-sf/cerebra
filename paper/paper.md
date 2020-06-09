@@ -59,7 +59,7 @@ chr1	1309460	.	G	A	245.98	.	AC=2;AF=1.00;AN=2;DP=7;ExcessHet=3.0103;FS=0.000;MLE
 
 Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF records, only a small portion of which are relevant to the researcher.
 
-In addition, variant callers report only the genomic location and not the _functional_ consequences of the variant, _i.e._ the effect the mutation has on the translated protein sequence.
+In addition, variant callers report only the genomic location and not the _functional_ consequences of the variant, _i.e._ the effect the variant has on the translated protein sequence.
 We refer to these functional variants as "peptide-level variants." 
 We introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
 
@@ -112,7 +112,7 @@ The output is a CSV file that contains counts for each sample versus every gene 
 The `find-aa-mutations` module reports the peptide-level consequence of variants in the genome.
 First we load the reference GTF, then construct an index (.fai) of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) to enable fast random memory access. 
 We then create a _genome interval tree_ that will be used to quickly match genomic coordinates from VCF records to peptide-level variants. 
-If working  with cancer samples, the user has the option to filter out all mutations that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic.
+If working  with cancer samples, the user has the option to filter out all variants that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic.
 
 VCF files are read in simultaneously; individual records are converted to _GenomePosition_ objects to keep track of their genomic intervals and observed DNA bases.
 _GenomePositions_ are then queried against the _genome interval tree_. 
@@ -124,7 +124,7 @@ The output is a heirarchically ordered text file (CSV or JSON) that reports the 
 We should stress that `find-aa-mutations` does not *definitively* report peptide-level variants but rather the *likely*
 set of peptide variants. 
 Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in scRNA-seq [Huang:2017]. 
-For example, if a read picks up a mutation in exon 2 of geneA, we can report each of the potential spliceforms of geneA that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
+For example, if a read picks up a variant in exon 2 of geneA, we can report each of the potential spliceforms of geneA that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
 Thus we report all possible spliceforms; determining the spliceform landscape of an individual cell from scRNA-seq is outside the scope of this project. 
 
 We tested `cerebra find-aa-mutations` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle). 
