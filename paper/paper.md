@@ -72,7 +72,7 @@ Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and sho
 `cerebra` is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements.
 
 A data structure crucial to `cerebra` is the *genome interval tree*, which matches RNA transcripts
-and peptides to each feature in the genome (*Figure 1*). 
+and peptides to each feature in the genome \autoref{fig1}. 
 [Interval trees](https://en.wikipedia.org/wiki/Interval_tree) are self-balancing binary search trees that store numeric intervals and can quickly find every such interval that overlaps a given query interval (_[also see](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_). 
 Given _n_ nodes, interval trees have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations [@Cormen:2009, _[also see](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_].
 Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets [@Alekseyenko:2007]. 
@@ -82,7 +82,7 @@ We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast int
 
 We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-mutations` variants are simply matched to whichever gene they came from. In `find-aa-mutations` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Eventually peptide-level variants from across all VCF are reported in tabular format. 
 
-![Figure 1. Workflow describing the find-aa-mutations module. We construct a genome interval tree from a genome annotation (.gtf) and a reference genome sequence (.fa), then processing VCF files in parallel to create a single tabular output file.](fig1.png)
+![Figure 1. Workflow describing the find-aa-mutations module. We construct a genome interval tree from a genome annotation (.gtf) and a reference genome sequence (.fa), then processing VCF files in parallel to create a single tabular output file.\label{fig1}](fig1.jpg)
 
 ### `germline-filter`
 
