@@ -25,8 +25,9 @@ tags:
 - python
 - genomics
 - variant calling
-- vcf
+- VCF
 - single-cell
+- cancer
 affiliations:
 - index: 1
   name: Chan Zuckerberg Biohub, San Francisco, CA
@@ -41,7 +42,7 @@ There exist tools for identifying variants and predicting their functional conse
 
 To find variants in the genome, researchers often begin with a [DNA-sequencing](https://en.wikipedia.org/wiki/DNA_sequencing) (DNA-seq) or [RNA-sequencing](https://en.wikipedia.org/wiki/RNA-Seq) (RNA-seq) experiment on their samples of interest.
 After sequencing, the next step is alignment to the reference genome with tools like [STAR](https://github.com/alexdobin/STAR) or [BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
-or [freebayes](https://github.com/ekg/freebayes). 
+or [freebayes](https://github.com/ekg/freebayes) [@star, @bwa, @haplocaller, @freebayes]. 
 Variant callers produce tab delimited text files in the ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), VCF)
 for each processed sample, which encode the _genomic position_, _reference_ vs. _observed DNA sequence_, and _quality_
 associated with each observed variant. 
@@ -72,9 +73,9 @@ Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and sho
 
 A data structure crucial to `cerebra` is the *genome interval tree*, which matches RNA transcripts
 and peptides to each feature in the genome (*Figure 1*). 
-[Interval trees](https://en.wikipedia.org/wiki/Interval_tree) are self-balancing binary search trees that store numeric intervals and can quickly find every such interval that overlaps a given query interval (_see [also](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_). 
-Given _n_ nodes, interval trees have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations [Cormen:2009, _see [also](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_].
-Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets [Alekseyenko:2007]. 
+[Interval trees](https://en.wikipedia.org/wiki/Interval_tree) are self-balancing binary search trees that store numeric intervals and can quickly find every such interval that overlaps a given query interval (_[also see](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_). 
+Given _n_ nodes, interval trees have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations [@Cormen:2009, _[also see](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_].
+Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets [@Alekseyenko:2007]. 
 The _genome interval tree_ is constructed with a reference genome sequence ([FASTA format](https://en.wikipedia.org/wiki/FASTA_format), often with a `.fa` extension), and a genome annotation 
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html) `.gtf` extension).
 We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast interval tree construction and lookup operations.
@@ -123,15 +124,15 @@ The output is a heirarchically ordered text file (CSV or JSON) that reports the 
 
 We should stress that `find-aa-mutations` does not *definitively* report peptide-level variants but rather the *likely*
 set of peptide variants. 
-Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in scRNA-seq [Huang:2017]. 
+Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in scRNA-seq [@Huang:2017]. 
 For example, if a read picks up a variant in exon 2 of geneA, we can report each of the potential spliceforms of geneA that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
 Thus we report all possible spliceforms; determining the spliceform landscape of an individual cell from scRNA-seq is outside the scope of this project. 
 
-We tested `find-aa-mutations` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle). 
+We tested `find-aa-mutations` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle) [@GiaB_orig, @GiaB_adnl]. 
 Each of the seven VCF files was quite large, (~2GB) and `cerebra` was run on standard hardware (MacBook Pro, 2.5GHz quad-core processor, 16 GB RAM). 
 `cerebra` processed the seven files in 44 minutes, see *Figure 2*. 
 The Genome in a Bottle VCFs are much larger than the VCFs generated by a typical sequencing experiment; we thought it prudent to assess performance on a more realistic set of input files.
-We thus obtained VCFs from a single-cell RNA-seq study conducted on lung adenocarcinoma patient samples [maynard:2020].
+We thus obtained VCFs from a single-cell RNA-seq study conducted on lung adenocarcinoma patient samples [@Maynard:2020].
 The carcinoma VCFs are much smaller, on the order of megabytes rather than gigabytes. 
 Alignment was done with STAR and variant calling was performed with GATK HaplotypeCaller. 
 The results are shown in *Figure 2* -- `cerebra` clocks in at 34 minutes for the set of 100 VCFs.
