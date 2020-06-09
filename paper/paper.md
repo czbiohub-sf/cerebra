@@ -76,9 +76,9 @@ We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast int
 
 We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-mutations` variants are simply matched to whichever gene they came from. In `find-aa-mutations` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Eventually peptide-level variants from across all VCF are reported in tabular format. 
 
-[todo: add in figure 1 here]
+![Figure 1. Workflow describing the find-aa-mutations module. We construct a genome interval tree from a genome annotation (.gtf) and a reference genome sequence (.fa), then processing VCF files in parallel to create a single tabular output file.\label{fig1}](fig1.jpg)
 
-### `germline-filter`
+## `germline-filter`
 
 If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
 This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
@@ -93,14 +93,14 @@ If you have access to "control" tissue and your experimental question is concern
 `germline-filter` will produce a new set of VCFs, which you'll use for the next two steps.
 If you do not have access to "control" tissue, then proceed directly to `count-mutations` or `find-aa-mutations`.
 
-### `count-mutations`
+## `count-mutations`
 The `count-mutations` module reports the raw variant counts for every gene across every sample.
 We first create a _genome interval tree_ from the reference GTF, then read in a VCF file and convert it to a [vcfpy](https://pypi.org/project/vcfpy/) object, then processes VCF records in [parallel](https://en.wikipedia.org/wiki/Multiprocessing). 
 Each variant is matched to its corresponding gene, and gene-wise counts are stored in shared memory. 
 We then report the raw number of variants found in each sample. 
 The output is a CSV file that contains counts for each sample versus every gene in the genome. 
 
-### `find-aa-mutations`
+## `find-aa-mutations`
 The `find-aa-mutations` module reports the peptide-level consequence of variants in the genome.
 First we load the reference GTF, then construct an index (.fai) of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) to enable fast random memory access. 
 We then create a _genome interval tree_ that will be used to quickly match genomic coordinates from VCF records to peptide-level variants. 
