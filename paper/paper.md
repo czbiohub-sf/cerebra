@@ -40,7 +40,7 @@ or [freebayes](https://github.com/ekg/freebayes) [@star; @bwa; @haplocaller; @fr
 Variant callers produce tab delimited text files in the ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), VCF)
 for each processed sample, which encode the _genomic position_, _reference_ vs. _observed DNA sequence_, and _quality_
 associated with each observed variant. 
-`head` output of a sample VCF file. Note that only a single record is displayed, and that the record line has been artificially wrapped.
+Shown below is the `head` output of a sample VCF file. Note that only a single record is displayed, and that the record line has been artificially wrapped.
 
 ```
 ##fileformat=VCFv4.2
