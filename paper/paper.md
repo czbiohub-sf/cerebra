@@ -76,4 +76,88 @@ We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast int
 
 We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-mutations` variants are simply matched to whichever gene they came from. In `find-aa-mutations` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Eventually peptide-level variants from across all VCF are reported in tabular format. 
 
-[todo: add in figure here]
+[todo: add in figure 1 here]
+
+### `germline-filter`
+
+If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
+This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
+The user provides a very simple metadata file that indicates which experimental samples correspond to which control samples.
+Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants. 
+These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can quickly process "chunks" of input in a [parallel](https://en.wikipedia.org/wiki/Multiprocessing) manner. 
+There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases. 
+This option is designed to give the user a higher degree of confidence in the pathogenic nature of each variant -- if independent experiments have reported a given variant in human tissue, there is a higher likilihood that it is pathogenic. 
+The output of `germline-filter` is a set of trimmed-down VCF files. 
+
+If you have access to "control" tissue and your experimental question is concerned with differences between tumor/pathogenic tissue and control tissue, then `germline-filter` is the right place to start.
+`germline-filter` will produce a new set of VCFs, which you'll use for the next two steps.
+If you do not have access to "control" tissue, then proceed directly to `count-mutations` or `find-aa-mutations`.
+
+### `count-mutations`
+The `count-mutations` module reports the raw variant counts for every gene across every sample.
+We first create a _genome interval tree_ from the reference GTF, then read in a VCF file and convert it to a [vcfpy](https://pypi.org/project/vcfpy/) object, then processes VCF records in [parallel](https://en.wikipedia.org/wiki/Multiprocessing). 
+Each variant is matched to its corresponding gene, and gene-wise counts are stored in shared memory. 
+We then report the raw number of variants found in each sample. 
+The output is a CSV file that contains counts for each sample versus every gene in the genome. 
+
+### `find-aa-mutations`
+The `find-aa-mutations` module reports the peptide-level consequence of variants in the genome.
+First we load the reference GTF, then construct an index (.fai) of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) to enable fast random memory access. 
+We then create a _genome interval tree_ that will be used to quickly match genomic coordinates from VCF records to peptide-level variants. 
+If working  with cancer samples, the user has the option to filter out all variants that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic.
+
+VCF files are read in simultaneously; individual records are converted to _GenomePosition_ objects to keep track of their genomic intervals and observed DNA bases.
+_GenomePositions_ are then queried against the _genome interval tree_. 
+If an overlapping interval is found we retrieve the peptide-level variant from this node of the _genome interval tree_. 
+Peptide-level variants are converted to [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
+in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
+The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
+
+We should stress that `find-aa-mutations` does not *definitively* report peptide-level variants but rather the *likely*
+set of peptide variants. 
+Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in scRNA-seq [@Huang:2017]. 
+For example, if a read picks up a variant in exon 2 of geneA, we can report each of the potential spliceforms of geneA that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
+Thus we report all possible spliceforms; determining the spliceform landscape of an individual cell from scRNA-seq is outside the scope of this project. 
+
+We tested `find-aa-mutations` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle) [@GiaB_orig, @GiaB_adnl]. 
+Each of the seven VCF files was quite large, (~2GB) and `cerebra` was run on standard hardware (MacBook Pro, 2.5GHz quad-core processor, 16 GB RAM). 
+`cerebra` processed the seven files in 44 minutes, see *Figure 2*. 
+The Genome in a Bottle VCFs are much larger than the VCFs generated by a typical sequencing experiment; we thought it prudent to assess performance on a more realistic set of input files.
+We thus obtained VCFs from a single-cell RNA-seq study conducted on lung adenocarcinoma patient samples [@Maynard:2020].
+The carcinoma VCFs are much smaller, on the order of megabytes rather than gigabytes. 
+Alignment was done with STAR and variant calling was performed with GATK HaplotypeCaller. 
+The results are shown in *Figure 2* -- `cerebra` clocks in at 34 minutes for the set of 100 VCFs.
+
+[todo: add Figure 2]
+
+One interesting observation is that the first ~10 minutes of the `cerebra` timecourse appear flat, that is, no VCFs are processed.
+This can be attributed to the _genome interval tree_ construction phase. 
+After the tree is built, files are processed in a near-linear manner. 
+Also of note is that `cerebra`'s search operations take advantage of multiprocessing.
+Thus `cerebra` should scale better to high-memory machines with more cores, though it has been designed to run on everyday hardware. 
+
+## Conclusions
+
+Our tool satisfies an unmet need in the bioinformatics community. 
+Fast and accurate peptide-level summarizing of variants following a sequencing experiment is often crucial to understanding the underlying biology of an experimental system. 
+As sequencing costs continue to drop, large-scale variant calling will become accessible to more members of the community, and summary tools like `cerebra` will become increasingly important. 
+`cerebra` is fast and accurate and is one of the only tools that fills this niche. 
+It offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON), making downstream analysis accessible to non-bioinformatically inclined members of the community.
+
+## Acknowledgments
+
+Funding for this work was provided by the [Chan Zuckerberg Biohub](https://www.czbiohub.org/). The authors would like
+to thank Ashley Maynard, Angela Pisco and Daniel Le for helpful discussions and support.
+
+## Correspondence
+
+Please contact `lincoln.harris@czbiohub.org`
+
+## Code
+
+`cerebra` is written in python. 
+Code and detailed installation instructions can be found at https://github.com/czbiohub/cerebra. 
+In addition `cerebra` can be found on [PyPi](https://pypi.org/project/cerebra/).
+
+## References
+
