@@ -27,9 +27,33 @@ date: 20, August, 2020
 bibliography: paper.bib
 ---
 
-# Summary
+## Motivation
 
-This is a proof of concept integration between a GitHub [@haplocaller] repo and figshare [@freebayes] in an effort to get a DOI for a GitHub repository. When a repository is tagged for release on GitHub, Fidgit [@bwa] will import the release into figshare thus giving the code bundle a DOI. In a somewhat meta fashion, Fidgit is publishing itself to figshare with DOI 
+A single "typo" in the genome can have massive consequences on an organism's biology.
+Identifying the functional consequences of genomic typos (_i.e._ variants) is a fundamental challenge in bioinformatics. 
+There exist tools for identifying variants and predicting their functional consequences, however, wrangling variant calls and functional predictions across thousands of samples represents an unsolved problem. 
+`cerebra` addresses this need by offering a fast and accurate framework for summarizing variant calls and functional predictions across many samples. 
 
+To find variants in the genome, researchers often begin with a [DNA-sequencing](https://en.wikipedia.org/wiki/DNA_sequencing) (DNA-seq) or [RNA-sequencing](https://en.wikipedia.org/wiki/RNA-Seq) (RNA-seq) experiment on their samples of interest.
+After sequencing, the next step is alignment to the reference genome with tools like [STAR](https://github.com/alexdobin/STAR) or [BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
+or [freebayes](https://github.com/ekg/freebayes) [@star, @bwa, @haplocaller, @freebayes]. 
+Variant callers produce tab delimited text files in the ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), VCF)
+for each processed sample, which encode the _genomic position_, _reference_ vs. _observed DNA sequence_, and _quality_
+associated with each observed variant. 
+An example VCF file:
 
-# References
+```
+##fileformat=VCFv4.2
+##source=HaplotypeCaller
+#CHROM  POS ID	REF	ALT	QUAL	FILTER	INFO	FORMAT
+chr1	631391	.	C	T	72.28	.	AC=2;AF=1.00;AN=2;DP=2;ExcessHet=3.0103;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=NaN;QD=25.36;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
+chr1	631862	.	G	A	286	.	AC=2;AF=1.00;AN=2;DP=24;ExcessHet=3.0103;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=3.00;QD=28.73;SOR=0.693	GT:AD:DP:GQ:PL	1/1:0,8:8:24:300,24,0
+chr1	1014274	rs8997	A	G	72.28	.	AC=2;AF=1.00;AN=2;DB;DP=2;ExcessHet=3.0103;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=NaN;QD=30.97;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
+chr1	1309460	.	G	A	245.98	.	AC=2;AF=1.00;AN=2;DP=7;ExcessHet=3.0103;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=NaN;QD=27.24;SOR=4.174	GT:AD:DP:GQ:PL	1/1:0,7:7:21:260,21,0
+```
+
+Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF records, only a small portion of which are relevant to the researcher.
+
+In addition, variant callers report only the genomic location and not the _functional_ consequences of the variant, _i.e._ the effect the variant has on the translated protein sequence.
+We refer to these functional variants as "peptide-level variants." 
+We introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
