@@ -1,29 +1,29 @@
 ---
 title: 'cerebra: A tool for fast and accurate summarizing of variant calling format (.vcf) files'
 tags:
-  - python
-  - genomics
-  - variant calling
-  - VCF
-  - single-cell
-  - cancer
+    - python
+    - genomics
+    - variant calling
+    - VCF
+    - single-cell
+    - cancer
 authors:
  - name: Lincoln Harris
-   orcid: 
+   orcid: 0000-0003-0872-7098
    affiliation: 1
  - name: Rohan Vanheusden
-   orcid:
+   orcid: 0000-0003-0872-7098
    affiliation: 1 
-  - name: Olga Botvinnik
-   orcid:
+ - name: Olga Botvinnik
+   orcid: 0000-0003-0872-7098
    affiliation: 1 
-  - name: Spyros Darmanis
-   orcid:
+ - name: Spyros Darmanis
+   orcid: 0000-0003-0872-7098
    affiliation: 1 
 affiliations: 
- - name: Chan Zuckerberg Biohub, San Francisco, CA
-   index: 1
-date: August 2020 
+- name: Chan Zuckerberg Biohub, San Francisco, CA
+  index: 1
+date: 20, August, 2020 
 bibliography: paper.bib
 ---
 
