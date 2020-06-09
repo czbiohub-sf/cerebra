@@ -82,9 +82,7 @@ We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast int
 
 We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-mutations` variants are simply matched to whichever gene they came from. In `find-aa-mutations` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Eventually peptide-level variants from across all VCF are reported in tabular format. 
 
-![checkout](fig1.jpg)
-***Figure 1.*** Workflow describing the `find-aa-mutations` module.
-We construct a _genome interval tree_ from a genome annotation (`.gtf`) and a reference genome sequence (`.fa`), then processing VCF files in parallel to create a single tabular output file.
+![Figure 1. Workflow describing the find-aa-mutations module. We construct a genome interval tree from a genome annotation (.gtf) and a reference genome sequence (.fa), then processing VCF files in parallel to create a single tabular output file.](fig1.png)
 
 ### `germline-filter`
 
