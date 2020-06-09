@@ -57,3 +57,23 @@ Current methods for variant calling are incredibly powerful and robust, however,
 In addition, variant callers report only the genomic location and not the _functional_ consequences of the variant, _i.e._ the effect the variant has on the translated protein sequence.
 We refer to these functional variants as "peptide-level variants." 
 We introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
+
+## Functionality
+
+`cerebra` comprises three modules: (1) `germline-filter` removes variants that are common between germline samples 
+and samples of interest, (2) `count-mutations` reports total number of variants in each sample, and (3) `find-aa-mutations` reports likely peptide-level variants in each sample. 
+Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and short insertions and deletions. 
+`cerebra` is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements.
+
+A data structure crucial to `cerebra` is the *genome interval tree*, which matches RNA transcripts
+and peptides to each feature in the genome \autoref{fig1}. 
+[Interval trees](https://en.wikipedia.org/wiki/Interval_tree) are self-balancing binary search trees that store numeric intervals and can quickly find every such interval that overlaps a given query interval (_[also see](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_). 
+Given _n_ nodes, interval trees have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations [@Cormen:2009, _[also see](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_].
+Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets [@Alekseyenko:2007]. 
+The _genome interval tree_ is constructed with a reference genome sequence ([FASTA format](https://en.wikipedia.org/wiki/FASTA_format), often with a `.fa` extension), and a genome annotation 
+([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html) `.gtf` extension).
+We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast interval tree construction and lookup operations.
+
+We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-mutations` variants are simply matched to whichever gene they came from. In `find-aa-mutations` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Eventually peptide-level variants from across all VCF are reported in tabular format. 
+
+[todo: add in figure here]
