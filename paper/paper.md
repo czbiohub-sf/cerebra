@@ -1,22 +1,29 @@
 ---
-title: 'Fidgit: An ungodly union of GitHub and figshare'
+title: 'cerebra: A tool for fast and accurate summarizing of variant calling format (.vcf) files'
 tags:
-  - example
-  - tags
-  - for the paper
+  - python
+  - genomics
+  - variant calling
+  - VCF
+  - single-cell
+  - cancer
 authors:
- - name: Arfon M Smith
-   orcid: 0000-0003-0872-7098
-   affiliation: "1, 2"
- - name: Mickey Mouse
-   orcid: 0000-0003-0872-7098
-   affiliation: 2
-affiliations:
- - name: Space Telescope Science Insitute
+ - name: Lincoln Harris
+   orcid: 
+   affiliation: 1
+ - name: Rohan Vanheusden
+   orcid:
+   affiliation: 1 
+  - name: Olga Botvinnik
+   orcid:
+   affiliation: 1 
+  - name: Spyros Darmanis
+   orcid:
+   affiliation: 1 
+affiliations: 
+ - name: Chan Zuckerberg Biohub, San Francisco, CA
    index: 1
- - name: Disney Inc.
-   index: 2
-date: 14 February 2016
+date: August 2020 
 bibliography: paper.bib
 ---
 
