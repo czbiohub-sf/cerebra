@@ -147,10 +147,10 @@ Thus `cerebra` should scale better to high-memory machines with more cores, thou
 ## Conclusions
 
 Our tool satisfies an unmet need in the bioinformatics community. 
-Fast and accurate peptide-level summarizing of variants in a sequencing experiment is often crucial to understanding the underlying biology of an experimental system. 
-As sequencing costs continue to drop, large-scale variant calling will become more accessible to all members of the community, and summary tools like `cerebra` will become more important. 
+Fast and accurate peptide-level summarizing of variants following a sequencing experiment is often crucial to understanding the underlying biology of an experimental system. 
+As sequencing costs continue to drop, large-scale variant calling will become accessible to more members of the community, and summary tools like `cerebra` will become increasingly important. 
 `cerebra` is fast and accurate and is one of the only tools that fills this niche. 
-It offers the advantage of a single, easy-to-interpret output file, making downstream analysis accessible to non-bioinformatically inclined members of the community.
+It offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON), making downstream analysis accessible to non-bioinformatically inclined members of the community.
 
 ## Acknowledgments
 
