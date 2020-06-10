@@ -8,7 +8,15 @@
 What is `cerebra`?
 -------------------------------------
 
-This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. If you're interested in learning what variants are present in your DNA/RNA samples, variant callers like GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate variant calling format (VCF) files following a sequencing experiment. However, a single sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which contain meaningful biological signal. Thus drawing conclusions from VCF files remains a substantial challange. `cerebra` provides a fast and intuitive framework for summarizing VCF entries across samples. It is comprised of three modules that do the following:      
+This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. If you're interested in learning what variants are present in your DNA/RNA samples, variant callers like GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate variant calling format (VCF) files following a sequencing experiment. A VCF file looks like this:
+
+```##fileformat=VCFv4.2
+##source=HaplotypeCaller
+#CHROM POS ID REF ALT QUAL FILTER INFO FORMAT
+chr1 631391 . C T 72.28 . AC=2;AF=1.00;AN=2;DP=2;ExcessHet=3.0103;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=NaN;QD=25.36;SOR=2.303 GT:AD:DP:GQ:PL 1/1:0,2:2:6:84,6,0
+```
+Note that only a single VCF record is displayed here.
+A sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which contain meaningful biological signal. Thus drawing conclusions from VCF files remains a substantial challange. `cerebra` provides a fast and intuitive framework for summarizing VCF entries across samples. It is comprised of three modules that do the following:      
 
         1) remove germline variants from samples of interest        
         2) count the total number of variants in a given sample, on a per-gene basis           
