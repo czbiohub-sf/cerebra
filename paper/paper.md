@@ -60,7 +60,7 @@ We introduce `cerebra`, a python package that provides fast and accurate peptide
 ## Functionality
 
 `cerebra` comprises three modules: (1) `germline-filter` removes variants that are common between germline samples 
-and samples of interest, (2) `count-mutations` reports total number of variants in each sample, and (3) `find-aa-mutations` reports likely peptide-level variants in each sample. 
+and samples of interest, (2) `count-variants` reports total number of variants in each sample, and (3) `find-peptide-variants` reports likely peptide-level variants in each sample. 
 Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and short insertions and deletions. 
 `cerebra` is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements.
 
@@ -73,9 +73,9 @@ The _genome interval tree_ is constructed with a reference genome sequence ([FAS
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html) `.gtf` extension).
 We rely on the [ncls](https://github.com/biocore-ntnu/ncls) library for fast interval tree construction and lookup operations.
 
-We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-mutations` variants are simply matched to whichever gene they came from. In `find-aa-mutations` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Eventually peptide-level variants from across all VCF are reported in tabular format. 
+We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-variants` variants are simply matched to whichever gene they came from. In `find-peptide-variants` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Eventually peptide-level variants from across all VCF are reported in tabular format. 
 
-![Workflow describing the `find-aa-mutations` module. We construct a genome interval tree from a genome annotation (.gtf) and a reference genome sequence (.fa), then processing VCF files in parallel to create a single tabular output file.\label{workflow}](fig1.jpg)
+![Workflow describing the `find-peptide-variants` module. We construct a genome interval tree from a genome annotation (.gtf) and a reference genome sequence (.fa), then processing VCF files in parallel to create a single tabular output file.\label{workflow}](fig1.jpg)
 
 ## `germline-filter`
 
@@ -90,17 +90,17 @@ The output of `germline-filter` is a set of trimmed-down VCF files.
 
 If you have access to "control" tissue and your experimental question is concerned with differences between tumor/pathogenic tissue and control tissue, then `germline-filter` is the right place to start.
 `germline-filter` will produce a new set of VCFs, which you'll use for the next two steps.
-If you do not have access to "control" tissue, then proceed directly to `count-mutations` or `find-aa-mutations`.
+If you do not have access to "control" tissue, then proceed directly to `count-variants` or `find-peptide-variants`.
 
-## `count-mutations`
-The `count-mutations` module reports the raw variant counts for every gene across every sample.
+## `count-variants`
+The `count-variants` module reports the raw variant counts for every gene across every sample.
 We first create a _genome interval tree_ from the reference GTF, then read in a VCF file and convert it to a [vcfpy](https://pypi.org/project/vcfpy/) object, then processes VCF records in [parallel](https://en.wikipedia.org/wiki/Multiprocessing). 
 Each variant is matched to its corresponding gene, and gene-wise counts are stored in shared memory. 
 We then report the raw number of variants found in each sample. 
 The output is a CSV file that contains counts for each sample versus every gene in the genome. 
 
-## `find-aa-mutations`
-The `find-aa-mutations` module reports the peptide-level consequence of variants in the genome.
+## `find-peptide-variants`
+The `find-peptide-variants` module reports the peptide-level consequence of variants in the genome.
 First we load the reference GTF, then construct an index (.fai) of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) to enable fast random memory access. 
 We then create a _genome interval tree_ that will be used to quickly match genomic coordinates from VCF records to peptide-level variants. 
 If working  with cancer samples, the user has the option to filter out all variants that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic.
@@ -112,13 +112,13 @@ Peptide-level variants are converted to [ENSEMBL](https://uswest.ensembl.org/ind
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
 
-We should stress that `find-aa-mutations` does not *definitively* report peptide-level variants but rather the *likely*
+We should stress that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely*
 set of peptide variants. 
 Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in scRNA-seq [@Huang:2017]. 
 For example, if a read picks up a variant in exon 2 of geneA, we can report each of the potential spliceforms of geneA that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
 Thus we report all possible spliceforms; determining the spliceform landscape of an individual cell from scRNA-seq is outside the scope of this project. 
 
-We tested `find-aa-mutations` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle) [@GiaB_orig; @GiaB_adnl]. 
+We tested `find-peptide-variants` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle) [@GiaB_orig; @GiaB_adnl]. 
 Each of the seven VCF files was quite large, (~2GB) and `cerebra` was run on standard hardware (MacBook Pro, 2.5GHz quad-core processor, 16 GB RAM). 
 `cerebra` processed the seven files in 44 minutes, see *Figure 2*. 
 The Genome in a Bottle VCFs are much larger than the VCFs generated by a typical sequencing experiment; we thought it prudent to assess performance on a more realistic set of input files.
