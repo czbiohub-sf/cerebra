@@ -260,7 +260,7 @@ class AminoAcidMutationFinder():
 @click.argument("input_files", required=True, nargs=-1)
 def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
                       genomefa_path, cov_bool, output_path, input_files):
-    """ report amino-acid level SNPs and indels in each sample, and
+    """ report peptide-level SNPs and indels in each sample, and
         associated coverage """
 
     print("Beginning setup (this may take several minutes!)")
