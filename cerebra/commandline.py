@@ -20,8 +20,8 @@ settings = dict(help_option_names=['-h', '--help'])
              context_settings=settings)
 def cli():
     """
-    high-throughput summarizing of vcf entries following a sequencing
-    experiment
+    a tool for fast and accurate summarizing of variant calling
+    format (VCF) files
     """
     pass
 
