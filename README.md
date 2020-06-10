@@ -83,7 +83,7 @@ The output is a heirarchically ordered text file (CSV or JSON) that reports the 
 We should stress that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely*
 set of peptide variants. 
 Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in scRNA-seq.
-For example, if a read picks up a variant in exon 2 of geneA, we can report each of the potential spliceforms of geneA that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
+For example, if a read picks up a variant in exon 2 of _geneA_, we can report each of the potential spliceforms of _geneA_ that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
 Thus we report all possible spliceforms; determining the spliceform landscape of an individual cell from scRNA-seq is outside the scope of this project. 
 
 
