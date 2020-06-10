@@ -76,8 +76,8 @@ class GermlineFilterTestCase(unittest.TestCase):
 
         runner = CliRunner()
         result = runner.invoke(germline_filter, ["--processes", 1,
-                                            "--germline", gl_path,
-                                            "--cells", experimental_path,
+                                            "--control_path", gl_path,
+                                            "--experimental_path", experimental_path,
                                             "--metadata", meta_path,
                                             "--outdir", out_path])
 
