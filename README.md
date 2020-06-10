@@ -67,20 +67,20 @@ The output of `germline-filter` is a set of trimmed-down VCF files.
 
 If you have access to "control" tissue and your experimental question is concerned with differences between tumor/pathogenic tissue and control tissue, then `germline-filter` is the right place to start.
 `germline-filter` will produce a new set of VCFs, which you'll use for the next two steps.
-If you do not have access to "control" tissue, then proceed directly to `count-mutations` or `find-aa-mutations`.
+If you do not have access to "control" tissue, then proceed directly to `count-variants` or `find-peptide-variants`.
 
-### `count-mutations`
-The `count-mutations` module reports the raw variant counts for every gene across every sample.
+### `count-variants`
+The `count-variants` module reports the raw variant counts for every gene across every sample.
 The output is a CSV file that contains counts for each sample versus every gene in the genome. 
 
-### `find-aa-mutations`
-The `find-aa-mutations` module reports the peptide-level consequence of variants in the genome.
+### `find-peptide-variants`
+The `find-peptide-variants` module reports the peptide-level consequence of variants in the genome.
 If working  with cancer samples, the user has the option to filter out all variants that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic.
 VCF records are converted to peptide-level variants, and then [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
 
-We should stress that `find-aa-mutations` does not *definitively* report peptide-level variants but rather the *likely*
+We should stress that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely*
 set of peptide variants. 
 Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in scRNA-seq.
 For example, if a read picks up a variant in exon 2 of geneA, we can report each of the potential spliceforms of geneA that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
@@ -137,8 +137,8 @@ Options:
 
 Commands:
   germline-filter    filter out common SNPs/indels between control/germline samples and samples of interest
-  count-mutations    count total number of variants in each sample, and report on a per-gene basis
-  find-aa-mutations  report peptide-level SNPs and indels in each sample, and associated coverage
+  count-variants    count total number of variants in each sample, and report on a per-gene basis
+  find-peptide-variants  report peptide-level SNPs and indels in each sample, and associated coverage
 ```
 
 Note that the `-h` command will display usage information for each of the three commands. 
@@ -149,10 +149,10 @@ An example workflow might look like this:
 `cerebra germline-filter --processes 2 --control_path /path/to/control/vcfs --experimental_path /path/to/experimental/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs`   
 
 **Step 2:**     
-`cerebra count-mutations --processes 2 --cosmicdb /optional/path/to/cosmic/database --refgenome /path/to/genome/annotation --outfile /path/to/output/file /path/to/filtered/vcfs/*` 
+`cerebra count-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --refgenome /path/to/genome/annotation --outfile /path/to/output/file /path/to/filtered/vcfs/*` 
 
 **Step 3:**          
-`cerebra find-aa-mutations --processes 2 --cosmicdb /optional/path/to/cosmic/database --annotation /path/to/genome/annotation --genomefa /path/to/genome/fasta --report_coverage 1 --output /path/to/output/file /path/to/filtered/vcfs/*`
+`cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --annotation /path/to/genome/annotation --genomefa /path/to/genome/fasta --report_coverage 1 --output /path/to/output/file /path/to/filtered/vcfs/*`
 
 
 Authors
