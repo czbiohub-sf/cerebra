@@ -8,7 +8,7 @@ import vcfpy
 import hgvs.parser
 from pathlib import Path
 
-from cerebra.count_mutations import MutationCounter
+from cerebra.count_variants import MutationCounter
 from cerebra.utils import *
 
 
@@ -16,7 +16,7 @@ class MutationCounterTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         self.data_path = Path(
-            __file__).parent / "data" / "test_mutation_counts"
+            __file__).parent / "data" / "test_variant_counts"
 
         self.template_vcf = (self.data_path / "template.vcf")
 

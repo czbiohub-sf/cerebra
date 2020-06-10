@@ -5,7 +5,7 @@ import pandas as pd
 import vcfpy
 from click.testing import CliRunner
 
-from cerebra.count_mutations import MutationCounter
+from cerebra.count_variants import MutationCounter
 from cerebra.utils import *
 
 
@@ -14,7 +14,7 @@ class TestMutationCounter(unittest.TestCase):
 	def setUpClass(self):
 		''' __init__ method for class obj '''
 		self.data_path = os.path.abspath(__file__ + '/../' + \
-											'data/test_mutation_counts/')
+											'data/test_variant_counts/')
 		self.cosmicdb_path = self.data_path + \
 										'/cosmic_kras_egfr_braf_only.tsv.gz'
 		self.annotation_path = self.data_path + '/hg38-plus.sub.gtf'
@@ -121,11 +121,11 @@ class TestMutationCounter(unittest.TestCase):
 
 	def test_runtime(self):
 		''' full runtime test
-			does count_mutations returns w/o error? '''
-		from cerebra.count_mutations import count_mutations
+			does count_variants returns w/o error? '''
+		from cerebra.count_variants import count_variants
 
 		runner = CliRunner()
-		result = runner.invoke(count_mutations, ["--processes", 1,
+		result = runner.invoke(count_variants, ["--processes", 1,
 										"--cosmicdb", self.cosmicdb_path,
 										"--refgenome", self.annotation_path,
 										"--outfile", self.data_path +

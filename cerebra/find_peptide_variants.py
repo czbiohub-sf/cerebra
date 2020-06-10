@@ -258,7 +258,7 @@ class AminoAcidMutationFinder():
               help="path to output file (.csv)",
               required=True)
 @click.argument("input_files", required=True, nargs=-1)
-def find_aa_mutations(num_processes, cosmicdb_path, annotation_path,
+def find_peptide_variants(num_processes, cosmicdb_path, annotation_path,
                       genomefa_path, cov_bool, output_path, input_files):
     """ report peptide-level SNPs and indels in each sample, and
         associated coverage """

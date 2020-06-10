@@ -1,11 +1,11 @@
-''' some adnl basic tests for find_aa_mutations
+''' some adnl basic tests for find_peptide_variants
 	this time looking at specific attributes of the results csv / dataframe '''
 import os
 import pandas as pd
 import unittest
 from pyfaidx import Fasta
 
-from cerebra.find_aa_mutations import AminoAcidMutationFinder
+from cerebra.find_peptide_variants import AminoAcidMutationFinder
 
 
 class FindAAMutationsTester(unittest.TestCase):
@@ -13,7 +13,7 @@ class FindAAMutationsTester(unittest.TestCase):
 	def setUpClass(self):
 		''' __init__ method for FindAAMutationsTester class '''
 		self.data_path = os.path.abspath(__file__ + \
-								'/../' + 'data/test_find_aa_mutations/')
+								'/../' + 'data/test_find_peptide_variants/')
 		self.cosmicdb_path =  self.data_path + \
 								'/CosmicGenomeScreensMutantExport.min.tsv'
 		# self.annotation_path = self.data_path + '/hg38-plus.min.gtf'

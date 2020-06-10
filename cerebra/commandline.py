@@ -7,8 +7,8 @@ from functools import partial
 import click
 
 from cerebra.germline_filter import germline_filter
-from cerebra.count_mutations import count_mutations
-from cerebra.find_aa_mutations import find_aa_mutations
+from cerebra.count_variants import count_variants
+from cerebra.find_peptide_variants import find_peptide_variants
 
 click.option = partial(click.option, show_default=True)
 
@@ -27,8 +27,8 @@ def cli():
 
 
 cli.add_command(germline_filter, name='germline-filter')
-cli.add_command(count_mutations, name='count-mutations')
-cli.add_command(find_aa_mutations, name='find-aa-mutations')
+cli.add_command(count_variants, name='count-variants')
+cli.add_command(find_peptide_variants, name='find-peptide-variants')
 
 if __name__ == "__main__":
     cli()

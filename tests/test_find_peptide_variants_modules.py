@@ -1,11 +1,11 @@
-''' testing some of the key modules of find_aa_mutations '''
+''' testing some of the key modules of find_peptide_variants '''
 import os
 import pandas as pd
 import vcfpy
 import unittest
 from pyfaidx import Fasta
 
-from cerebra.find_aa_mutations import AminoAcidMutationFinder
+from cerebra.find_peptide_variants import AminoAcidMutationFinder
 from cerebra.protein_variant_predictor import ProteinVariantPredictor
 from cerebra.utils import *
 
@@ -15,7 +15,7 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 	def setUpClass(self):
 		''' __init__ method for class obj '''
 		data_path = os.path.abspath(__file__ + '/../' +
-										'data/test_find_aa_mutations/')
+										'data/test_find_peptide_variants/')
 		cosmicdb_path = data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
 		genomefa_path = data_path + '/GRCh38_limited.fa.gz'

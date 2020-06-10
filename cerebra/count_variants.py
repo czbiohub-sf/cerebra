@@ -159,7 +159,7 @@ class MutationCounter():
               required=True)
 @click.option("--outfile", prompt="path to output file (.csv)", required=True)
 @click.argument("files", required=True, nargs=-1)
-def count_mutations(processes, cosmicdb, refgenome, outfile, files):
+def count_variants(processes, cosmicdb, refgenome, outfile, files):
     """ count total number of variants in each sample, and report
         on a per-gene basis """
     print("Beginning setup (this may take several minutes!)")

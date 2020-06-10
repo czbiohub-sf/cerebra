@@ -5,7 +5,8 @@ import vcfpy
 import unittest
 from pyfaidx import Fasta
 
-from cerebra.find_aa_mutations import AminoAcidMutationFinder
+# dont understand why this module needs to be included
+from cerebra.find_peptide_variants import AminoAcidMutationFinder
 from cerebra.protein_variant_predictor import ProteinVariantPredictor
 from cerebra.utils import *
 
@@ -16,7 +17,7 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 		''' __init__ method for class obj '''
 
 		data_path = os.path.abspath(__file__ + '/../' + \
-									'data/test_find_aa_mutations/')
+									'data/test_find_peptide_variants/')
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
 		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 

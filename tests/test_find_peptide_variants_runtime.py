@@ -1,22 +1,22 @@
-''' very simple tests for find_aa_mutations runtime functionality '''
+''' very simple tests for find_peptide_variants runtime functionality '''
 import os
 import pandas as pd
 import filecmp
 from click.testing import CliRunner
 from pyfaidx import Fasta
 
-from cerebra.find_aa_mutations import find_aa_mutations
+from cerebra.find_peptide_variants import find_peptide_variants
 
 
 def test_basic():
 	''' does find_all_mutations returns w/o error? '''
 	data_path = os.path.abspath(__file__ + '/../' +
-								'data/test_find_aa_mutations/')
+								'data/test_find_peptide_variants/')
 	vcf_path = data_path + '/vcf/A1.vcf'
 	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 
 	runner = CliRunner()
-	result = runner.invoke(find_aa_mutations, [
+	result = runner.invoke(find_peptide_variants, [
 							"--processes", 1,
 							"--annotation", data_path + "/hg38-plus.min.gtf",
 							"--report_coverage", 1,
@@ -34,10 +34,10 @@ def test_basic():
 def test_basic_cmp():
 	''' does find_all_mutations return w/o error, redux
 		this one has a expected / actual file compare step '''
-	from cerebra.find_aa_mutations import AminoAcidMutationFinder
+	from cerebra.find_peptide_variants import AminoAcidMutationFinder
 
 	data_path = os.path.abspath(__file__ + '/../' +
-									'data/test_find_aa_mutations/')
+									'data/test_find_peptide_variants/')
 	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
 
 	annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'

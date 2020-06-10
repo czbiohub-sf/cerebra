@@ -7,7 +7,7 @@ import unittest
 from pyfaidx import Fasta
 
 from cerebra.protein_variant_predictor import ProteinVariantPredictor
-from cerebra.find_aa_mutations import AminoAcidMutationFinder
+from cerebra.find_peptide_variants import AminoAcidMutationFinder
 from cerebra.utils import *
 
 
@@ -17,7 +17,7 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 		''' __init__ method for class obj '''
 
 		data_path = os.path.abspath(__file__ + '/../' + \
-										'data/test_find_aa_mutations/')
+										'data/test_find_peptide_variants/')
 		cosmicdb_path = data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
 		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
