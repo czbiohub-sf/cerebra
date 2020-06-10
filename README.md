@@ -33,7 +33,7 @@ Python libraries exist (_ie._ [PyVCF](https://pyvcf.readthedocs.io/en/latest/) a
      1        20  rs10    99      10
 
 Such a table contains only genomic (ie. DNA-level) coordinates. Often the next question is what specific gene and protein-level mutation is each variant associated with? _cerebra_ queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene, probable transcript and probable amino-acid level mutation. _cerebra_ produces a table that looks like the following: 
-![alt text](https://raw.githubusercontent.com/lincoln-harris/cerebra/master/images/cerebra_out_sample.png)
+![alt text](https://raw.githubusercontent.com/lincoln-harris/cerebra/master/cerebra_out_sample.png)
 
 _cerebra_ adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting peptide level variants
 
