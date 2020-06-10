@@ -11,7 +11,7 @@ What is `cerebra`?
 This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. If you're interested in learning what variants are present in your DNA/RNA samples, variant callers like GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate variant calling format (VCF) files following a sequencing experiment. However, a single sequencing run can generate on the order of 10^8 unique VCF entries, only a small portion of which contain meaningful biological signal. Thus drawing conclusions from VCF files remains a substantial challange. `cerebra` provides a fast and intuitive framework for summarizing VCF entries across samples. It is comprised of three modules that do the following:      
 
         1) remove germline variants from samples of interest        
-        2) count the total number of variants in a given sample           
+        2) count the total number of variants in a given sample, on a per-gene basis           
         3) report peptide-level variants for each sample                 
         
 `cerebra` gets its name from the eponymous X-men [character](https://en.wikipedia.org/wiki/Cerebra), who had the ability to detect mutant individuals among the general public. 
@@ -121,16 +121,16 @@ Usage
 ```
 Usage: cerebra  <command>
 
-  high-throughput summarizing of vcf entries following a sequencing
-  experiment
+  a tool for fast and accurate summarizing of variant calling format (VCF)
+  files
 
 Options:
   -h, --help  Show this message and exit.
 
 Commands:
-  count-mutations    count total number of mutations in each sample
-  find-aa-mutations  report amino-acid level SNPs and indels in each sample
-  germline-filter    filter out common SNPs/indels between germline samples...
+  germline-filter    filter out common SNPs/indels between control/germline samples and samples of interest
+  count-mutations    count total number of variants in each sample, and report on a per-gene basis
+  find-aa-mutations  report peptide-level SNPs and indels in each sample, and associated coverage
 ```
 
 Note that the `-h` command will display usage information for each of the three commands. 
@@ -138,7 +138,7 @@ Note that the `-h` command will display usage information for each of the three 
 An example workflow might look like this:   
 
 **Step 1:**     
-`cerebra germline-filter --processes 2 --germline /path/to/control/vcfs --cells /path/to/experimental/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs`   
+`cerebra germline-filter --processes 2 --control_path /path/to/control/vcfs --experimental_path /path/to/experimental/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs`   
 
 **Step 2:**     
 `cerebra count-mutations --processes 2 --cosmicdb /optional/path/to/cosmic/database --refgenome /path/to/genome/annotation --outfile /path/to/output/file /path/to/filtered/vcfs/*` 

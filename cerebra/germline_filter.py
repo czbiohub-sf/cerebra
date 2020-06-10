@@ -67,20 +67,20 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
 @click.command()
 @click.option("--processes", default=1,
               prompt="number of processes to use for computation", type=int)
-@click.option("--germline", "germline_path",
-              prompt="path to germline vcf files directory", required=True)
-@click.option("--cells", "cells_path",
-              prompt="path to cell vcf files directory", required=True)
+@click.option("--control_path", "control_path",
+              prompt="path to control/germline samples vcf files directory", required=True)
+@click.option("--experimental_path", "experimental_path",
+              prompt="path to experimental samples vcf files directory", required=True)
 @click.option("--metadata", "metadata_path",
               prompt="path to metadata csv file", required=True)
 @click.option("--outdir", "out_path",
               prompt="path to output vcf files directory", required=True)
-def germline_filter(processes, germline_path, cells_path, metadata_path,
+def germline_filter(processes, control_path, experimental_path, metadata_path,
                     out_path):
-    """ filter out common SNPs/indels between germline samples and samples
+    """ filter out common SNPs/indels between control/germline samples and samples
         of interest """
-    germline_path = Path(germline_path)
-    cells_path = Path(cells_path)
+    control_path = Path(control_path)
+    experimental_path = Path(experimental_path)
     metadata_path = Path(metadata_path)
     out_path = Path(out_path)
 
@@ -92,7 +92,7 @@ def germline_filter(processes, germline_path, cells_path, metadata_path,
     def process_patient(germline_sample_id):
         # Find all non-tumor bulk VCF files for the patient ID.
         germline_wb_vcf_paths = list(
-            germline_path.glob(germline_sample_id + "_*_*.vcf"))
+            control_path.glob(germline_sample_id + "_*_*.vcf"))
 
         # Fetch all cell IDs associated with the patient ID.
         experimental_sample_ids = metadata_df.loc[
@@ -101,7 +101,7 @@ def germline_filter(processes, germline_path, cells_path, metadata_path,
 
         # Use the cell IDs to create a list of all single-cell VCF files
         # for the patient.
-        cell_vcf_paths = [(cells_path / experimental_sample_id). \
+        cell_vcf_paths = [(experimental_path / experimental_sample_id). \
                             with_suffix(".vcf") for experimental_sample_id 
                             in experimental_sample_ids]
 
