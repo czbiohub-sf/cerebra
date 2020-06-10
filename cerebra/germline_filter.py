@@ -77,7 +77,7 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
               prompt="path to output vcf files directory", required=True)
 def germline_filter(processes, control_path, experimental_path, metadata_path,
                     out_path):
-    """ filter out common SNPs/indels between germline samples and samples
+    """ filter out common SNPs/indels between control/germline samples and samples
         of interest """
     control_path = Path(control_path)
     experimental_path = Path(experimental_path)
