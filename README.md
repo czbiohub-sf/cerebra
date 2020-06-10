@@ -26,7 +26,7 @@ A sequencing run can generate on the order of 10^8 unique VCF records, only a sm
 
 If you're working with tumor data, it might be a good idea to limit the variant search space to only known cancer variants. Therefore `cerebra` implements an optional method for restricting to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database.  
 
-NOTE: this framework was developed for, but is certainly not limited to, single-cell RNA sequencing data. 
+This tool was developed for, but is certainly not limited to, single-cell RNA sequencing data. 
 
 -   Free software: MIT license
 
