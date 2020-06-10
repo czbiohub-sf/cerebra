@@ -133,7 +133,19 @@ Commands:
   germline-filter    filter out common SNPs/indels between germline samples...
 ```
 
-[todo: add example cmdlines here]
+Note that the `-h` command will display usage information for each of the three commands. 
+
+An example workflow might look like this:   
+
+**Step 1:**     
+`cerebra germline-filter --processes 2 --germline /path/to/control/vcfs --cells /path/to/experimental/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs`   
+
+**Step 2:**     
+`cerebra count-mutations --processes 2 --cosmicdb /optional/path/to/cosmic/database --refgenome /path/to/genome/annotation --outfile /path/to/output/file /path/to/filtered/vcfs/*` 
+
+**Step 3:**          
+`cerebra find-aa-mutations --processes 2 --cosmicdb /optional/path/to/cosmic/database --annotation /path/to/genome/annotation --genomefa /path/to/genome/fasta --report_coverage 1 --output /path/to/output/file /path/to/filtered/vcfs/*`
+
 
 Authors
 --------
