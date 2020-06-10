@@ -1,4 +1,4 @@
-cerebra
+`cerebra`
 ================================
 <a href="https://pypi.org/project/cerebra/"><img alt="PyPI" src="https://badge.fury.io/py/cerebra.svg"></a>
 
