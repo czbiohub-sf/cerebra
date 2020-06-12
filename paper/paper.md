@@ -110,7 +110,12 @@ _GenomePositions_ are then queried against the _genome interval tree_.
 If an overlapping interval is found we retrieve the peptide-level variant from this node of the _genome interval tree_. 
 Peptide-level variants are converted to [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
-The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
+The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample.    
+
+Variant callers are known to produce a great deal of false positives, especially when applied to single-cell RNA-seq data (see ref).
+To address this concern we include the `--report_coverage` option. 
+If indicated this option will report raw counts for variant and wildtype reads at each variant loci. 
+We reasoned that variants with a high degree of read support are less likely to be false positives; this option is designed to give the user a greater degree of confidence in individual variant calls.        
 
 We should stress that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely*
 set of peptide variants. 
