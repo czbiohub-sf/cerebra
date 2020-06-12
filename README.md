@@ -80,6 +80,10 @@ VCF records are converted to peptide-level variants, and then [ENSEMBL](https://
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
 
+Variant callers are known to produce a great deal of false positives; the `--report-coverage` option is designed to give the user a greater degree of confidence in individual variant calls. If indicated this option will report raw counts for variant
+and wildtype reads at each variant loci. We reason that variants with a high degree of read
+support are less likely to be false positives. 
+
 We should stress that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely*
 set of peptide variants. 
 Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in scRNA-seq.
