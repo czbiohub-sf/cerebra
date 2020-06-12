@@ -124,7 +124,7 @@ For example, if a read picks up a variant in exon 2 of a given gene, we can repo
 For the example shown in \autoref{splice} we would translate and report _t1_ and _t3_ as both of these contain exon 2. 
 It is possible the sample does not actually express both of these spliceforms, however, determining the spliceform landscape of a sample from RNA-seq is outside the scope of this project. 
 
-![For a given mutational event, `cerebra` reports all potentially effected spliceforms.\label{splice}](fig2.jpg)
+![For a given mutational event, `cerebra` reports all potentially affected spliceforms.\label{splice}](fig2.jpg)
 
 We tested `find-peptide-variants` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle) [@GiaB_orig; @GiaB_adnl]. 
 Each of the seven VCF files was quite large, (~2GB) and `cerebra` was run on standard hardware (MacBook Pro, 2.5GHz quad-core processor, 16 GB RAM). 
