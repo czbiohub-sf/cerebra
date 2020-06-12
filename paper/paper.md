@@ -117,7 +117,7 @@ set of peptide variants.
 Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in RNA-seq [@Huang:2017]. 
 For example, if a read picks up a variant in exon 2 of a given gene, we can report each of the potential spliceforms of that gene that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample (see \autoref{splice}). 
 For the example shown in \autoref{splice} we would translate and report _t1_ and _t3_ as both of these contain exon 2. 
-It is possible the sample does not actually express both of these spliceforms, however, determining the spliceform landscape of an individual cell from RNA-seq is outside the scope of this project. 
+It is possible the sample does not actually express both of these spliceforms, however, determining the spliceform landscape of a sample from RNA-seq is outside the scope of this project. 
 
 ![For a given mutational event, `cerebra` reports all potentially effected spliceforms.\label{splice}](fig2.jpg)
 
