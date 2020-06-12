@@ -112,7 +112,7 @@ Peptide-level variants are converted to [ENSEMBL](https://uswest.ensembl.org/ind
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample.    
 
-Variant callers are known to produce a great deal of false positives, especially when applied to single-cell RNA-seq data (see ref).
+Variant callers are known to produce a great deal of false positives, especially when applied to single-cell RNA-seq data [@Enge:2017].
 To address this concern we include the `--report_coverage` option. 
 If indicated this option will report raw counts for variant and wildtype reads at each variant loci. 
 We reasoned that variants with a high degree of read support are less likely to be false positives; this option is designed to give the user a greater degree of confidence in individual variant calls.        
