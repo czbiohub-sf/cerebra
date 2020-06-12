@@ -66,3 +66,6 @@ def test_basic_cmp():
 
 	expect_path = data_path + '/expect_out_1.csv'
 	filecmp.cmp(expect_path, outpath)
+
+	# teardown
+	os.remove(data_path + "/test_out.csv")

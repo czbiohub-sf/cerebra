@@ -66,6 +66,8 @@ class FindAAMutationsTester(unittest.TestCase):
 		assert 'Gly12Ser' in a1_kras_str
 		assert 'Gly13Val' in a1_kras_str
 
+		# teardown
+		os.remove(self.data_path + "/test_out.csv")
 
 if __name__ == "__main__":
 	unittest.main()
