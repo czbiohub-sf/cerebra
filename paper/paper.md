@@ -115,10 +115,11 @@ The output is a heirarchically ordered text file (CSV or JSON) that reports the 
 We should stress that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely*
 set of peptide variants. 
 Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in scRNA-seq [@Huang:2017]. 
-For example, if a read picks up a variant in exon 2 of _geneA_, we can report each of the potential spliceforms of _geneA_ that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
-Thus we report all possible spliceforms; determining the spliceform landscape of an individual cell from scRNA-seq is outside the scope of this project. 
+For example, if a read picks up a variant in exon 2 of a given gene, we can report each of the potential spliceforms of that gene that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample (see \autoref{splice}). 
+For the example shown in \autoref{splice} we would translate and report _t1_ and _t3_ as both of these contain exon 2. 
+It is possible the sample does not actually express both of these spliceforms, however, determining the spliceform landscape of an individual cell from scRNA-seq is outside the scope of this project. 
 
-![Alt splicing figure.\label{splice}](fig2.jpg)
+![For a given mutational event, `cerebra` reports all potentially effected spliceforms.\label{splice}](fig2.jpg)
 
 We tested `find-peptide-variants` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle) [@GiaB_orig; @GiaB_adnl]. 
 Each of the seven VCF files was quite large, (~2GB) and `cerebra` was run on standard hardware (MacBook Pro, 2.5GHz quad-core processor, 16 GB RAM). 
@@ -129,7 +130,7 @@ The carcinoma VCFs are much smaller, on the order of megabytes rather than gigab
 Alignment was done with STAR and variant calling was performed with GATK HaplotypeCaller. 
 The results are shown in *Figure 2* -- `cerebra` clocks in at 34 minutes for the set of 100 VCFs.
 
-[todo: add Figure 2]
+[todo: add Figure 3]
 
 One interesting observation is that the first ~10 minutes of the `cerebra` timecourse appear flat, that is, no VCFs are processed.
 This can be attributed to the _genome interval tree_ construction phase. 
