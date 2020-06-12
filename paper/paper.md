@@ -118,7 +118,7 @@ Definitively reporting protein variants requires knowledge of alternate splicing
 For example, if a read picks up a variant in exon 2 of _geneA_, we can report each of the potential spliceforms of _geneA_ that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
 Thus we report all possible spliceforms; determining the spliceform landscape of an individual cell from scRNA-seq is outside the scope of this project. 
 
-[todo: add a figure for this]
+![Alt splicing figure.\label{splice}](fig2.jpg)
 
 We tested `find-peptide-variants` on a set of high-quality reference-grade VCF files from the [Genome in a Bottle consortium](https://www.nist.gov/programs-projects/genome-bottle) [@GiaB_orig; @GiaB_adnl]. 
 Each of the seven VCF files was quite large, (~2GB) and `cerebra` was run on standard hardware (MacBook Pro, 2.5GHz quad-core processor, 16 GB RAM). 
