@@ -39,8 +39,63 @@ Python libraries exist (_i.e._ [PyVCF](https://pyvcf.readthedocs.io/en/latest/) 
      1        10  .       50      1
      1        20  rs10    99      10
 
-Such a table contains only genomic (_i.e._ DNA-level) coordinates. Often the next question is what specific gene and peptide-level variants is each variant associated with? `cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene, probable transcript and probable peptide-level level variants. `cerebra` produces a table that looks like the following: 
-![alt text](https://raw.githubusercontent.com/lincoln-harris/cerebra/master/cerebra_out_sample.png)
+Such a table contains only genomic (_i.e._ DNA-level) coordinates. Often the next question is what specific gene and peptide-level variants is each variant associated with? `cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene, probable transcript and probable peptide-level level variants. `cerebra` produces the following outfile: 
+
+```
+$ python
+> import json
+> f = open(/pth/to/cerebra/output.json)
+> data = json.load(f)
+> print(json.dumps(data, indent=4))
+
+{
+    "CCN1": {
+        "A16_B000563": [],
+        "A1_B001546": [],
+        "A1_B002531": [
+            "ENSP00000398736.2:p.(Glu189=)"
+        ],
+        "A1_B002570": [],
+        "A2_B002558": [],
+        "A3_B000561": [
+            "ENSP00000398736.2:p.(Arg209Trp)",
+            "ENSP00000398736.2:p.(Ile90Val)"
+        ],
+        "A3_B000568": [],
+        "A3_B001544": [
+            "ENSP00000398736.2:p.(Ala82Thr)"
+        ],
+        "A3_B002090": [],
+        "A3_B002531": [
+            "ENSP00000398736.2:p.(Pro217Ser)"
+        ]
+    },
+    "GOLGB1": {
+        "A16_B000563": [],
+        "A1_B001546": [
+            "ENSP00000484083.1:p.?",
+            "ENSP00000377275.3:p.(Ala1826Val)",
+            "ENSP00000484083.1:p.(Gly1690Asp)",
+            "ENSP00000484083.1:p.(Ala1746Val)",
+            "ENSP00000377275.3:p.(Gly1770Asp)",
+            "ENSP00000341848.5:p.(Thr911Ser)",
+            "ENSP00000417767.1:p.(Thr782Ser)",
+        ],
+        "A1_B002531": [],
+        "A1_B002570": [],
+        "A2_B002558": [],
+        "A3_B000561": [],
+        "A3_B000568": [],
+        "A3_B001544": [
+            "ENSP00000377275.3:p.?",
+            "ENSP00000341848.5:p.?",
+            "ENSP00000484083.1:p.?"
+        ],
+        "A3_B002090": [],
+        "A3_B002531": []
+    }
+}
+```
 
 `cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting peptide level variants
 
