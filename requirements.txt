@@ -1,4 +1,4 @@
-cython>=0.29.1
+cython==0.29.13
 pytest
 flake8
 coverage
@@ -14,4 +14,4 @@ ncls
 hgvs
 pyfaidx
 biopython
-pysam
+pysam==0.15.3

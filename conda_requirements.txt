@@ -1,4 +1,4 @@
-cython>=0.29.1
+cython==0.29.13
 pytest
 coverage
 flake8
