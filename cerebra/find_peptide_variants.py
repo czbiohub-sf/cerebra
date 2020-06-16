@@ -253,9 +253,9 @@ class AminoAcidMutationFinder():
               "cov_bool",
               help="do you want to report coverage information?",
               required=True, type=int)
-@click.option("--output",
+@click.option("--output_path",
               "output_path",
-              help="path to output file (.csv)",
+              help="path to output file",
               required=True)
 @click.argument("input_files", required=True, nargs=-1)
 def find_peptide_variants(num_processes, cosmicdb_path, annotation_path,
@@ -286,9 +286,13 @@ def find_peptide_variants(num_processes, cosmicdb_path, annotation_path,
     print("Finding mutations...")
     result_df = aa_mutation_finder.find_transcript_mutations(input_files,
                                                 processes=num_processes)
+
     print("Writing file...")
-    output_path = Path(output_path)
-    result_df.to_csv(output_path)
-    # result_df.to_json(output_path)
+
+    csv_path = Path(output_path)
+    result_df.to_csv(csv_path)
+
+    json_path = str(csv_path).strip('.csv') + '.json'
+    result_df.to_json(json_path)
 
     print("Done!")
