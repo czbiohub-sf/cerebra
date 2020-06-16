@@ -97,7 +97,7 @@ $ python
 }
 ```
 
-`cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting peptide level variants
+Here _CCN1_ and _GOLGB1_ are gene names while _A16_B000563_, _A1_B001546_, _A1_B002531,_... are RNA-seq sample IDs. `cerebra` reports variants to every gene in the genome, for every sample in a given experiment. The _ENSP****_ numbers refer to [Ensembl](https://www.ensembl.org/index.html) translation IDs -- unique identifiers that correspond to exactly one polypeptide in the Ensembl database. The strings enclosed in parentheses refer to the amino-acid level variant reported in that particular sample. For example the string `Arg209Trp` indicates that position 209 of this particular polypeptide should contain an _Arg_, but the experimental sample instead contains a _Trp_. `cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting amino-acid variants.
 
 Features
 --------
@@ -224,4 +224,4 @@ Contributing
 We welcome any bug reports, feature requests or other contributions. Please submit a well documented report on our [issue tracker](https://github.com/czbiohub/cerebra/issues). For substantial changes please fork this repo and submit a pull request for review. 
 
 Feel free to clone but NOTE this project is still a work in progress. 
-You can find official releases on [PyPi](https://pypi.org/project/cerebra/)
+You can find official releases on [PyPi](https://pypi.org/project/cerebra/).
