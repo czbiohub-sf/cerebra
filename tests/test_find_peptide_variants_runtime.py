@@ -21,7 +21,7 @@ def test_basic():
 							"--annotation", data_path + "/hg38-plus.min.gtf",
 							"--report_coverage", 1,
 							"--genomefa", genomefa_path,
-							"--output", data_path + "/test_out.csv",
+							"--output_path", data_path + "/test_out.csv",
 							vcf_path])
 
 	assert result.exit_code == 0
