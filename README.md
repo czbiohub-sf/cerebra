@@ -7,7 +7,6 @@
 
 What is `cerebra`?
 -------------------------------------
-dummy
 This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. If you're interested in learning what variants are present in your DNA/RNA samples, variant callers like GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate variant calling format (VCF) files following a sequencing experiment. A VCF file looks like this:
 
 ```##fileformat=VCFv4.2
