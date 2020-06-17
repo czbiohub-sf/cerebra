@@ -38,7 +38,7 @@ To find variants in the genome, researchers often begin with a [DNA-sequencing](
 After sequencing, the next step is alignment to the reference genome with tools like [STAR](https://github.com/alexdobin/STAR) or [BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
 or [freebayes](https://github.com/ekg/freebayes) [@star; @bwa; @haplocaller; @freebayes]. 
 Variant callers produce tab delimited text files in the ([variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf), VCF)
-for each processed sample, which encode the _genomic position_, _reference_ vs. _observed DNA sequence_, and _quality_
+for each processed sample, which encode: i) the genomic position, ii) reference vs. observed DNA sequence, and iii) quality
 associated with each observed variant. 
 Shown below is the `head` output of a sample VCF file. Note that only a single record is displayed, and that the record line has been artificially wrapped.
 
@@ -59,9 +59,9 @@ We introduce `cerebra`, a python package that provides fast and accurate peptide
 
 ## Functionality
 
-`cerebra` comprises three modules: (1) `germline-filter` removes variants that are common between germline samples 
-and samples of interest, (2) `count-variants` reports total number of variants in each sample, and (3) `find-peptide-variants` reports likely peptide-level variants in each sample. 
-Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and short insertions and deletions. 
+`cerebra` comprises three modules: i) `germline-filter` removes variants that are common between germline samples 
+and samples of interest, ii) `count-variants` reports total number of variants in each sample, and iii) `find-peptide-variants` reports likely peptide-level variants in each sample. 
+Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and short insertions/deletions. 
 `cerebra` is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements.
 
 A data structure crucial to `cerebra` is the *genome interval tree*, which matches RNA transcripts
@@ -85,7 +85,7 @@ The user provides a very simple metadata file that indicates which experimental 
 Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants. 
 These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can quickly process "chunks" of input in a [parallel](https://en.wikipedia.org/wiki/Multiprocessing) manner. 
 There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases. 
-This option is designed to give the user a higher degree of confidence in the pathogenic nature of each variant -- if independent experiments have reported a given variant in human tissue, there is a higher likilihood that it is pathogenic. 
+This option is designed to give the user a higher degree of confidence in the pathogenic nature of each variant -- if independent experiments have reported a given variant in human tissue, there is a higher likelihood that it is not an artifact. 
 The output of `germline-filter` is a set of trimmed-down VCF files. 
 
 If you have access to "control" tissue and your experimental question is concerned with differences between tumor/pathogenic tissue and control tissue, then `germline-filter` is the right place to start.
@@ -109,17 +109,17 @@ VCF files are read in simultaneously; individual records are converted to _Genom
 _GenomePositions_ are then queried against the _genome interval tree_. 
 If an overlapping interval is found we retrieve the peptide-level variant from this node of the _genome interval tree_. 
 Peptide-level variants are converted to [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
-in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
-The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample.    
+in accordance with the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
+The output is a hierarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample.    
 
 Variant callers are known to produce a great deal of false positives, especially when applied to single-cell RNA-seq data [@Enge:2017].
 To address this concern we include the `--report_coverage` option. 
 If indicated this option will report raw counts for variant and wildtype reads at each variant loci. 
 We reasoned that variants with a high degree of read support are less likely to be false positives; this option is designed to give the user a greater degree of confidence in individual variant calls.        
 
-We should stress that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely*
+We should emphasize that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely*
 set of peptide variants. 
-Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in RNA-seq [@Huang:2017]. 
+Definitively reporting protein variants requires knowledge of alternate splicing, which represents an open problem in RNA-seq [@Huang:2017]. 
 For example, if a read picks up a variant in exon 2 of a given gene, we can report each of the potential spliceforms of that gene that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample (see \autoref{splice}). 
 For the example shown in \autoref{splice} we would translate and report _t1_ and _t3_ as both of these contain exon 2. 
 It is possible the sample does not actually express both of these spliceforms, however, determining the spliceform landscape of a sample from RNA-seq is outside the scope of this project. 
@@ -137,16 +137,15 @@ One interesting observation is that the first ~10 minutes of the `cerebra` timec
 This can be attributed to the _genome interval tree_ construction phase. 
 After the tree is built, files are processed in a near-linear manner. 
 Also of note is that `cerebra`'s search operations take advantage of multiprocessing.
-Thus `cerebra` should scale better to high-memory machines with more cores, though it has been designed to run on everyday hardware. 
+Thus `cerebra` should scale better to high-memory machines with more cores, though it has been designed to run on standard hardware. 
 
 ## Conclusions
-
-Our tool satisfies an unmet need in the bioinformatics community. 
 Fast and accurate peptide-level summarizing of variants following a sequencing experiment is often crucial to understanding the underlying biology of an experimental system. 
+We present a tool that can be used to quickly summarize the variant calls contained within a large set of VCF files.
 As sequencing costs continue to drop, large-scale variant calling will become accessible to more members of the community, and summary tools like `cerebra` will become increasingly important. 
+
 `cerebra` is fast and accurate and is one of the only tools that fills this niche. 
 It offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON), making downstream analysis accessible to non-bioinformatically inclined members of the community.
-
 `cerebra` is already enabling research, see [@Maynard:2019], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas. Understanding the mutational landscape of individual tumors was essential to this study, and would not have been possible without `cerebra`. We hope that `cerebra` can provide an easy-to-use framework for future studies in the same vein. 
 
 ## Acknowledgments
