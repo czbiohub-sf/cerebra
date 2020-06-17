@@ -51,7 +51,7 @@ chr1	631391	.	C	T	72.28	.	AC=2;AF=1.00;AN=2;DP=2;
         QD=25.36;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
 ```
 
-Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate on the order of 10^8 unique VCF records, only a small portion of which are relevant to the researcher.
+Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate as many as 10^8 unique VCF records, only a small portion of which are relevant to the researcher.
 
 In addition, variant callers report only the genomic location and not the _functional_ consequences of the variant, _i.e._ the effect the variant has on the translated protein sequence.
 We refer to these functional variants as "peptide-level variants." 
@@ -128,7 +128,7 @@ It is possible the sample does not actually express both of these spliceforms, h
 
 To assess performance of `find-peptide-variants` we obtained VCFs from a single-cell RNA-seq study conducted on lung adenocarcinoma patient samples [@Maynard:2019]. 
 These VCFs were produced with STAR (alignment) and GATK HaplotypeCaller (variant calling). 
-In terms of size, the carcinoma VCFs are on the order of megabytes, typical of a single-cell RNA-seq experiment. 
+The carcinoma VCFs are on the order of megabytes, typical of a single-cell RNA-seq experiment. 
 As show in \autoref{runtime} `cerebra` processes the set of 100 VCF files in approximately 34 minutes. 
 
 ![`cerebra` processes 100 VCF files (~400 Mb in total) in ~34 minutes.\label{runtime}](fig3.jpg)
@@ -145,7 +145,8 @@ We present a tool that can be used to quickly summarize the variant calls contai
 As sequencing costs continue to drop, large-scale variant calling will become accessible to more members of the community, and summary tools like `cerebra` will become increasingly important. 
 
 `cerebra` is fast and accurate and is one of the only tools that fills this niche. 
-It offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON), making downstream analysis accessible to non-bioinformatically inclined members of the community.
+It offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON), making downstream analysis accessible to non-bioinformatically inclined members of the community.    
+
 `cerebra` is already enabling research, see [@Maynard:2019], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas. Understanding the mutational landscape of individual tumors was essential to this study, and would not have been possible without `cerebra`. We hope that `cerebra` can provide an easy-to-use framework for future studies in the same vein. 
 
 ## Acknowledgments
