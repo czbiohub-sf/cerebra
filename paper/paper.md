@@ -135,7 +135,7 @@ The carcinoma VCFs are much smaller, on the order of megabytes rather than gigab
 Alignment was done with STAR and variant calling was performed with GATK HaplotypeCaller. 
 The results are shown in \autoref{runtime} -- `cerebra` clocks in at 34 minutes for the set of 100 VCFs.
 
-![`cerebra` processes 100 VCF files (~400 Mb in total) in ~34 minutes.\label{runtime}](fig2.jpg)
+![`cerebra` processes 100 VCF files (~400 Mb in total) in ~34 minutes.\label{runtime}](fig3.jpg)
 
 One interesting observation is that the first ~10 minutes of the `cerebra` timecourse appear flat, that is, no VCFs are processed.
 This can be attributed to the _genome interval tree_ construction phase. 
