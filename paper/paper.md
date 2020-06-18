@@ -69,7 +69,7 @@ and peptides to each feature in the genome (\autoref{workflow}).
 Given _n_ nodes, interval trees have theoretical average-case O(log*n*) and worst-case O(*n*) time complexity for search operations, making them tractable for genome-scale operations [@Cormen:2009, _[see also](https://www.coursera.org/lecture/algorithms-part1/interval-search-trees-ot9vw)_].
 Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets [@Alekseyenko:2007]. 
 The _genome interval tree_ is constructed with a reference genome sequence ([FASTA format](https://en.wikipedia.org/wiki/FASTA_format), often with a `.fa` extension), and a genome annotation 
-([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html) `.gtf` extension).
+([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html), `.gtf` extension).
 We rely on the [ncls](https://github.com/biocore-ntnu/ncls) python library for fast interval tree construction and lookup operations.
 
 We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-variants` variants are simply matched to whichever gene they came from. In `find-peptide-variants` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Finally, peptide-level variants from across all VCFs are reported in tabular format. 
@@ -85,7 +85,7 @@ Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify s
 These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet "chunks" of input at the same time. 
 There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases. 
 This option is designed to give the user a higher degree of confidence in the pathogenicity of each variant.
-If independent experiments have reported a given variant in pathogenic human tissue, it is more likely to be real and less likely to be an artifact.
+If independent experiments have reported a given variant in pathogenic human tissue, it is more likely to be "real" and less likely to be an artifact.
 The output of `germline-filter` is a set of trimmed-down VCF files. 
 
 If you have access to "control" tissue and your experimental question is concerned with differences between tumor/pathogenic tissue and control tissue, then `germline-filter` is the right place to start.
