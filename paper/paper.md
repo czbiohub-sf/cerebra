@@ -73,7 +73,7 @@ The _genome interval tree_ is constructed with a reference genome sequence ([FAS
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html), `.gtf` extension).
 We rely on the [ncls](https://github.com/biocore-ntnu/ncls) python library for fast interval tree construction and lookup operations.
 
-We use [multi processing](https://en.wikipedia.org/wiki/Multiprocessing) to analyze multiple VCF files at once, using the Python [`pathos`](https://pypi.org/project/pathos/) library module. 
+We use [multi processing](https://en.wikipedia.org/wiki/Multiprocessing) to analyze multiple VCF files at once, using the Python [pathos](https://pypi.org/project/pathos/) library module. 
 We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. 
 In the `germline-filter` module variants are compared to one another and filtered out if found to be identical.
 In `count-variants` variants are simply matched to whichever gene they came from. 
