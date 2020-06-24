@@ -30,8 +30,8 @@ bibliography: paper.bib
 ## Motivation
 
 A single "typo" in the genome can have profound consequences on an organism's biology.
-Identifying the functional consequences of genomic typos (_i.e._ variants) is a fundamental challenge in bioinformatics. 
-There exist tools for identifying variants and predicting their functional consequences, however, wrangling variant calls and functional predictions across thousands of samples represents an unsolved problem. 
+Identifying the functional consequences of genomic typos (termed "variants") is a fundamental challenge in bioinformatics. 
+Tools exist for identifying variants and predicting their functional consequences, however, wrangling variant calls and functional predictions across thousands of samples remains an unsolved problem. 
 `cerebra` addresses this need by offering a fast and accurate framework for summarizing variant calls and functional predictions across many samples. 
 
 To find variants in the genome, researchers often begin with a [DNA-sequencing](https://en.wikipedia.org/wiki/DNA_sequencing) (DNA-seq) or [RNA-sequencing](https://en.wikipedia.org/wiki/RNA-Seq) (RNA-seq) experiment on their samples of interest.
@@ -40,7 +40,7 @@ or [freebayes](https://github.com/ekg/freebayes) [@star; @bwa; @haplocaller; @fr
 Variant callers produce tab delimited text files in the [variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf) (VCF) for each processed sample.
 VCF files encode: i) the genomic position, ii) reference vs. observed DNA sequence, and iii) quality
 associated with each observed variant. 
-Shown below is the `head` output of a sample VCF file. 
+Shown below are the first 4 lines of a sample VCF file. 
 Note that only a single record is displayed, and that the record line has been artificially wrapped.
 
 ```
@@ -73,7 +73,8 @@ The _genome interval tree_ is constructed with a reference genome sequence ([FAS
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html), `.gtf` extension).
 We rely on the [ncls](https://github.com/biocore-ntnu/ncls) python library for fast interval tree construction and lookup operations.
 
-We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. 
+We use [multi processing](https://en.wikipedia.org/wiki/Multiprocessing) to analyze multiple VCF files at once, using the Python [`pathos`](https://pypi.org/project/pathos/) library module. 
+We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. 
 In the `germline-filter` module variants are compared to one another and filtered out if found to be identical.
 In `count-variants` variants are simply matched to whichever gene they came from. 
 In `find-peptide-variants` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. 
