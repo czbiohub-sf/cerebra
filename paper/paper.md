@@ -93,10 +93,8 @@ There is also the option to limit the reported variants to those found in NCBI's
 This option is designed to give the user a higher degree of confidence in the pathogenicity of each variant.
 If independent experiments have reported a given variant in pathogenic human tissue, it is more likely to be "real" and less likely to be an artifact.
 The output of `germline-filter` is a set of trimmed-down VCF files. 
-
-If you have access to "control" tissue and your experimental question is concerned with differences between tumor/pathogenic tissue and control tissue, then `germline-filter` is the right place to start.
-`germline-filter` will produce a new set of VCFs, which you'll use for the next two steps.
-If you do not have access to "control" tissue, then proceed directly to `count-variants` or `find-peptide-variants`.
+These VCFs will be used for the next two steps. 
+If you do not have access to "control" tissue its also ok to skip this step entirely and proceed directly to `count-variants` or `find-peptide-variants`. 
 
 ## `count-variants`
 The `count-variants` module reports the raw variant counts for every gene across every sample.
