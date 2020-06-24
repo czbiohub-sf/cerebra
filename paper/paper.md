@@ -40,7 +40,8 @@ or [freebayes](https://github.com/ekg/freebayes) [@star; @bwa; @haplocaller; @fr
 Variant callers produce tab delimited text files in the [variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf) (VCF) for each processed sample.
 VCF files encode: i) the genomic position, ii) reference vs. observed DNA sequence, and iii) quality
 associated with each observed variant. 
-Shown below is the `head` output of a sample VCF file. Note that only a single record is displayed, and that the record line has been artificially wrapped.
+Shown below is the `head` output of a sample VCF file. 
+Note that only a single record is displayed, and that the record line has been artificially wrapped.
 
 ```
 ##fileformat=VCFv4.2
@@ -72,9 +73,14 @@ The _genome interval tree_ is constructed with a reference genome sequence ([FAS
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html), `.gtf` extension).
 We rely on the [ncls](https://github.com/biocore-ntnu/ncls) python library for fast interval tree construction and lookup operations.
 
-We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-variants` variants are simply matched to whichever gene they came from. In `find-peptide-variants` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Finally, peptide-level variants across all VCF files are reported in tabular format. 
+We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. 
+In the `germline-filter` module variants are compared to one another and filtered out if found to be identical.
+In `count-variants` variants are simply matched to whichever gene they came from. 
+In `find-peptide-variants` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. 
+Finally, peptide-level variants across all VCF files are reported in tabular format. 
 
-![Workflow describing the `find-peptide-variants` module. We construct a genome interval tree from a genome annotation (.gtf) and a reference genome sequence (.fa), then process VCF files in parallel to create a single tabular output file (CSV or JSON).\label{workflow}](fig1.jpg)
+![Workflow describing the `find-peptide-variants` module.
+We construct a genome interval tree from a genome annotation (.gtf) and a reference genome sequence (.fa), then process VCF files in parallel to create a single tabular output file (CSV or JSON).\label{workflow}](fig1.jpg)
 
 ## `germline-filter`
 
@@ -146,7 +152,8 @@ As sequencing costs continue to drop, large-scale variant calling will become ac
 Our tool offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON).
 These features make downstream analysis accessible to non-bioinformatically inclined members of the community.    
 
-`cerebra` is already enabling research, see [@Maynard:2019], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. Understanding the mutational landscape of individual tumors was essential to this study, and given the sheer volume of VCF records would not have been possible without `cerebra`. 
+`cerebra` is already enabling research, see [@Maynard:2019], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. 
+Understanding the mutational landscape of individual tumors was essential to this study, and given the sheer volume of VCF records would not have been possible without `cerebra`. 
 We hope that `cerebra` can provide an easy-to-use framework for future studies in the same vein. 
 
 ## Acknowledgments
