@@ -29,13 +29,13 @@ bibliography: paper.bib
 
 ## Motivation
 
-A single "typo" in the genome can have massive consequences on an organism's biology.
+A single "typo" in the genome can have profound consequences on an organism's biology.
 Identifying the functional consequences of genomic typos (_i.e._ variants) is a fundamental challenge in bioinformatics. 
 There exist tools for identifying variants and predicting their functional consequences, however, wrangling variant calls and functional predictions across thousands of samples represents an unsolved problem. 
 `cerebra` addresses this need by offering a fast and accurate framework for summarizing variant calls and functional predictions across many samples. 
 
 To find variants in the genome, researchers often begin with a [DNA-sequencing](https://en.wikipedia.org/wiki/DNA_sequencing) (DNA-seq) or [RNA-sequencing](https://en.wikipedia.org/wiki/RNA-Seq) (RNA-seq) experiment on their samples of interest.
-After sequencing, the next step is alignment to the reference genome with tools like [STAR](https://github.com/alexdobin/STAR) or [BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
+Sequencing is followed by alignment of reads to the reference genome with tools like [STAR](https://github.com/alexdobin/STAR) or [BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
 or [freebayes](https://github.com/ekg/freebayes) [@star; @bwa; @haplocaller; @freebayes]. 
 Variant callers produce tab delimited text files in the [variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf) (VCF) for each processed sample.
 VCF files encode: i) the genomic position, ii) reference vs. observed DNA sequence, and iii) quality
@@ -51,10 +51,10 @@ chr1	631391	.	C	T	72.28	.	AC=2;AF=1.00;AN=2;DP=2;
         QD=25.36;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
 ```
 
-Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate as many as 10^8 unique VCF records, only a small portion of which are relevant to the researcher.
+Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate as many as 10^8 unique VCF records, only a small portion of which may be relevant to the researcher.
 In addition, variant callers report only the genomic location and not the _functional_ consequences of the variant, _i.e._ the effect the variant has on the translated protein sequence.
 We refer to these functional variants as "peptide-level variants." 
-We introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
+To address the unmet need for high-throughput VCF summary tools, we introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
 
 ## Functionality
 
@@ -72,7 +72,7 @@ The _genome interval tree_ is constructed with a reference genome sequence ([FAS
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html), `.gtf` extension).
 We rely on the [ncls](https://github.com/biocore-ntnu/ncls) python library for fast interval tree construction and lookup operations.
 
-We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-variants` variants are simply matched to whichever gene they came from. In `find-peptide-variants` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Finally, peptide-level variants from across all VCFs are reported in tabular format. 
+We use [parallel processing](https://en.wikipedia.org/wiki/Multiprocessing) to stream in multiple VCF files at once. We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. In the `germline-filter` module variants are compared to one another and filtered out if found to be identical. In `count-variants` variants are simply matched to whichever gene they came from. In `find-peptide-variants` variants are queried against our _genome interval tree_ -- if a matching interval is found we convert the DNA-level variant to a peptide-level variant. Finally, peptide-level variants across all VCF files are reported in tabular format. 
 
 ![Workflow describing the `find-peptide-variants` module. We construct a genome interval tree from a genome annotation (.gtf) and a reference genome sequence (.fa), then process VCF files in parallel to create a single tabular output file (CSV or JSON).\label{workflow}](fig1.jpg)
 
@@ -109,7 +109,7 @@ _GenomePositions_ are then queried against the _genome interval tree_.
 If an overlapping interval is found we retrieve the peptide-level variant from this node of the _genome interval tree_. 
 Peptide-level variants are converted to [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
 in accordance with the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
-The output is a hierarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample.    
+The output is a hierarchically ordered text file (CSV or JSON) that reports the the ENSEMBL protein ID and the gene associated with each variant, for each experimental sample.    
 
 Variant callers are known to produce a great deal of false positives, especially when applied to single-cell RNA-seq data [@Enge:2017].
 To address this concern we include the `--report_coverage` option. 
@@ -129,7 +129,7 @@ It is possible the sample does not actually express both of these spliceforms, h
 To assess performance of `find-peptide-variants` we obtained VCFs from a single-cell RNA-seq study conducted on lung adenocarcinoma patient samples [@Maynard:2019]. 
 These VCFs were produced with STAR (alignment) and GATK HaplotypeCaller (variant calling), and are on the order of megabytes, typical of a single-cell RNA-seq experiment. 
 `cerebra` was run on standard hardware (MacBook Pro, 2.5GHz quad-core processor, 16 GB RAM).
-As show in \autoref{runtime} `cerebra` processed the set of 100 VCF files in approximately 34 minutes. 
+As show in \autoref{runtime} `cerebra` processed a set of 100 VCF files in approximately 34 minutes. 
 
 ![`cerebra` processes 100 VCF files (~400 Mb in total) in ~34 minutes.\label{runtime}](fig3.jpg)
 
@@ -146,7 +146,8 @@ As sequencing costs continue to drop, large-scale variant calling will become ac
 Our tool offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON).
 These features make downstream analysis accessible to non-bioinformatically inclined members of the community.    
 
-`cerebra` is already enabling research, see [@Maynard:2019], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas. Understanding the mutational landscape of individual tumors was essential to this study, and would not have been possible without `cerebra`. We hope that `cerebra` can provide an easy-to-use framework for future studies in the same vein. 
+`cerebra` is already enabling research, see [@Maynard:2019], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. Understanding the mutational landscape of individual tumors was essential to this study, and given the sheer volume of VCF records would not have been possible without `cerebra`. 
+We hope that `cerebra` can provide an easy-to-use framework for future studies in the same vein. 
 
 ## Acknowledgments
 
@@ -155,7 +156,7 @@ to thank Ashley Maynard, Angela Pisco and Daniel Le for helpful discussions and 
 
 ## Correspondence
 
-Please contact `lincoln.harris@czbiohub.org`
+Please contact `ljharris018@gmail.com`
 
 ## Code
 
