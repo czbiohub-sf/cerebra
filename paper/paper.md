@@ -52,7 +52,8 @@ chr1	631391	.	C	T	72.28	.	AC=2;AF=1.00;AN=2;DP=2;
         QD=25.36;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
 ```
 
-Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate as many as 10^8 unique VCF records, only a small portion of which may be relevant to the researcher.
+Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate as many as 10^8 unique VCF records.
+Only a small portion of these VCF records are likely to be relevant to the researcher.
 In addition, variant callers report only the genomic location and not the _functional_ consequences of the variant, _i.e._ the effect the variant has on the translated protein sequence.
 We refer to these functional variants as "peptide-level variants." 
 To address the unmet need for high-throughput VCF summary tools, we introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
@@ -73,7 +74,7 @@ The _genome interval tree_ is constructed with a reference genome sequence ([FAS
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html), `.gtf` extension).
 We rely on the [ncls](https://github.com/biocore-ntnu/ncls) python library for fast interval tree construction and lookup operations.
 
-We use [multi processing](https://en.wikipedia.org/wiki/Multiprocessing) to analyze multiple VCF files at once, using the Python [pathos](https://pypi.org/project/pathos/) library module. 
+In order to analyze multiple VCF records at once, we use [multiprocessing](https://en.wikipedia.org/wiki/Multiprocessing) with the Python [pathos](https://pypi.org/project/pathos/) library module.
 We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. 
 In the `germline-filter` module variants are compared to one another and filtered out if found to be identical.
 In `count-variants` variants are simply matched to whichever gene they came from. 
@@ -140,7 +141,7 @@ As show in \autoref{runtime} `cerebra` processed a set of 100 VCF files in appro
 The first 10 or so minutes of `cerebra find-peptide-variants` do not involve any VCF processing, instead, this time is attributed to the _genome interval tree_ construction phase.
 After the tree is built, files are processed in a near-linear manner. 
 Also of note is that `cerebra`'s search operations take advantage of multiprocessing.
-Although it has been designed to run on standard hardware, `cerebra` should scale better than single-threaded tools to high-memory machines. 
+`cerebra` should scale better to high-memory machines than single-threaded tools, though it has been designed to run on standard hardware.
 
 ## Conclusions
 
