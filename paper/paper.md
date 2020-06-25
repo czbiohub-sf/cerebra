@@ -89,15 +89,15 @@ If the research project is centered around a "tumor/pathogenic vs control" quest
 This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
 The user provides a very simple metadata file (see [README.md](https://github.com/czbiohub/cerebra/blob/master/README.md)) that indicates which experimental samples correspond to which control samples.
 Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants. 
-These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet "chunks" of input at the same time. 
+These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
 There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases. 
 This option is designed to give the user a higher degree of confidence in the pathogenicity of each variant.
-If independent experiments have reported a given variant in pathogenic human tissue, it is more likely to be "real" and less likely to be an artifact.
-The output of `germline-filter` is a set of trimmed-down VCF files. 
-These VCFs will be used for the next two steps. 
-If you do not have access to "control" tissue its also ok to skip this step entirely and proceed directly to `count-variants` or `find-peptide-variants`. 
+If independent experiments have reported a given variant in pathogenic human tissue, it is less likely to be an artifact.
+The output of `germline-filter` is a set of trimmed-down VCF files, which will be used for the next two steps. 
+If you do not have access to "control" tissue then proceed directly to `count-variants` or `find-peptide-variants`. 
 
 ## `count-variants`
+
 The `count-variants` module reports the raw variant counts for every gene across every sample.
 We first create a _genome interval tree_ from the reference GTF, then read in a VCF file and convert it to a [vcfpy](https://pypi.org/project/vcfpy/) object, then processes VCF records in [parallel](https://en.wikipedia.org/wiki/Multiprocessing). 
 Each variant is matched to its corresponding gene, and gene-wise counts are stored in [shared memory](https://en.wikipedia.org/wiki/Shared_memory). 
@@ -105,6 +105,7 @@ If working  with cancer samples, the user has the option to filter out all varia
 `count-variants` produces two output files, one containing raw variant counts and one containing COSMIC filtered variant counts for every gene in the genome. 
 
 ## `find-peptide-variants`
+
 The `find-peptide-variants` module reports the peptide-level consequence of genomic variants.
 First we load the reference GTF, then construct an index (.fai) of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) to enable fast random memory access. 
 We then create a _genome interval tree_ that will be used to quickly match genomic coordinates from VCF records to peptide-level variants. 
@@ -112,18 +113,16 @@ The user again has the option to filter out variants not found in the COSMIC dat
 VCF records are read in simultaneously; individual records are converted to _GenomePosition_ objects to keep track of their genomic intervals and observed DNA bases.
 _GenomePositions_ are then queried against the _genome interval tree_. 
 If an overlapping interval is found we retrieve the peptide-level variant from this node of the _genome interval tree_. 
-Peptide-level variants are converted to [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
-in accordance with the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
+Peptide-level variants are converted to [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, in accordance with the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a hierarchically ordered text file (CSV or JSON) that reports the the ENSEMBL protein ID and the gene associated with each variant, for each experimental sample.    
 
 Variant callers are known to produce a great deal of false positives, especially when applied to single-cell RNA-seq data [@Enge:2017].
-To address this concern we include the `--report_coverage` option. 
+To address this concern we have included the `--report_coverage` option. 
 If indicated this option will report counts for both variant and wildtype reads at all variant loci. 
 We reasoned that variants with a high degree of read support are less likely to be false positives.
 This option is designed to give the user more confidence in individual variant calls.        
 
-We should emphasize that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely*
-set of peptide variants. 
+We should emphasize that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely* set of peptide variants. 
 Definitively reporting protein variants from RNA-seq requires knowledge of alternate splicing -- this represents an open problem in the field [@Huang:2017]. 
 For example, if a read picks up a variant in exon 2 of a given gene, we can report each of the potential spliceforms of that gene that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample (see \autoref{splice}). 
 For the example shown in \autoref{splice} we would translate and report _t1_ and _t3_ as both of these contain exon 2. 
@@ -138,18 +137,17 @@ As show in \autoref{runtime} `cerebra` processed a set of 100 VCF files in appro
 
 ![`cerebra` processes 100 VCF files (~400 Mb in total) in ~34 minutes.\label{runtime}](fig3.jpg)
 
-One interesting observation is that the first ~10 minutes of the `cerebra` timecourse appear flat, that is, no VCFs are processed.
-This can be attributed to the _genome interval tree_ construction phase. 
+The first 10 or so minutes of `cerebra find-peptide-variants` do not involve any VCF processing, instead, this time is attributed to the _genome interval tree_ construction phase.
 After the tree is built, files are processed in a near-linear manner. 
 Also of note is that `cerebra`'s search operations take advantage of multiprocessing.
-Thus `cerebra` should scale better to high-memory machines with more cores, though it has been designed to run on standard hardware. 
+Although it has been designed to run on standard hardware, `cerebra` should scale better than single-threaded tools to high-memory machines. 
 
 ## Conclusions
+
 RNA/DNA sequencing paired with fast and accurate summarizing of variants is often crucial to understanding the biology of an experimental system. 
 We present a tool that can be used to quickly summarize the variant calls contained within a large set of VCF files.
 As sequencing costs continue to drop, large-scale variant calling will become accessible to more members of the community, and summary tools like `cerebra` will become increasingly important. 
 Our tool offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON).
-These features make downstream analysis accessible to non-bioinformatically inclined members of the community.    
 
 `cerebra` is already enabling research, see [@Maynard:2019], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. 
 Understanding the mutational landscape of individual tumors was essential to this study, and given the sheer volume of VCF records would not have been possible without `cerebra`. 
@@ -157,8 +155,8 @@ We hope that `cerebra` can provide an easy-to-use framework for future studies i
 
 ## Acknowledgments
 
-Funding for this work was provided by the [Chan Zuckerberg Biohub](https://www.czbiohub.org/). The authors would like
-to thank Ashley Maynard, Angela Pisco and Daniel Le for helpful discussions and support.
+Funding for this work was provided by the [Chan Zuckerberg Biohub](https://www.czbiohub.org/).
+The authors would like to thank Ashley Maynard, Angela Pisco and Daniel Le for helpful discussions and support.
 
 ## Correspondence
 
@@ -166,7 +164,7 @@ Please contact `ljharris018@gmail.com`
 
 ## Code
 
-`cerebra` is written in python. 
+`cerebra` is written in Python 3. 
 Code and detailed installation instructions can be found at https://github.com/czbiohub/cerebra. 
 In addition `cerebra` can be found on [PyPi](https://pypi.org/project/cerebra/).
 
