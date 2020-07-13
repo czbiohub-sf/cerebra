@@ -14,13 +14,13 @@ matrix:
     - python: "pypy3"
       env: NO_MYPY=true
 install:
-    - pip install -r requirements.txt 
-    - pip install pytest flake8 coverage
-    - pip install .
+    - pip3 install requirements.txt 
+    - pip3 install pytest flake8 coverage
+    - pip3 install .
 script:
     - make coverage
     - make lint
 after_script:
-    - pip install codecov
+    - pip3 install codecov
     - codecov
 
