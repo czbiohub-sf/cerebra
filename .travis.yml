@@ -13,8 +13,18 @@ matrix:
     - python: "3.9-dev"
     - python: "pypy3"
       env: NO_MYPY=true
+before_install:
+    - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+        -O miniconda.sh
+    - chmod +x miniconda.sh
+    - "./miniconda.sh -b"
+    - export PATH=~/miniconda3/bin/:$PATH
+    - conda update --yes conda
 install:
-    - pip3 install requirements.txt 
+    - conda config --add channels bioconda
+    - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION pip
+    - source activate testenv
+    - pip3 install -r requirements.txt 
     - pip3 install pytest flake8 coverage
     - pip3 install .
 script:
