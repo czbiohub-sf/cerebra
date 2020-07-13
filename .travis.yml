@@ -13,12 +13,10 @@ install:
     - conda config --add channels bioconda
     - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION pip
     - source activate testenv
-    - conda install --yes --file requirements.txt
-    - pip install -r requirements.txt
+    - pip install -r requirements.txt 
+    - pip install pytest flake8
+    - pip install flake8 
     - pip install .
-    - pip install pytest
-    - pip install flake8
-    - pip install coverage
 script:
     - make coverage
     - make lint
