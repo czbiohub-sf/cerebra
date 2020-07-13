@@ -7,12 +7,10 @@ matrix:
     - python: "3.8-dev"
     - python: "3.9-dev"
     - python: "pypy3"
-      env: NO_MYPY=true
   allow_failures:
     - python: "3.8-dev"
     - python: "3.9-dev"
     - python: "pypy3"
-      env: NO_MYPY=true
 before_install:
     - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
         -O miniconda.sh
@@ -21,14 +19,14 @@ before_install:
     - export PATH=~/miniconda3/bin/:$PATH
     - conda update --yes conda
 install:
-    - pip install -r requirements.txt 
-    - pip install pytest flake8 coverage
-    - pip install .
+    - pip3 install -r requirements.txt 
+    - pip3 install pytest flake8 coverage
+    - pip3 install .
 script:
     - make coverage
     - make lint
 after_script:
-    - pip install codecov
+    - pip3 install codecov
     - codecov
 deploy:
     provider: pypi
