@@ -21,16 +21,17 @@ before_install:
     - export PATH=~/miniconda3/bin/:$PATH
     - conda update --yes conda
 install:
-    - conda config --add channels bioconda
-    - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION pip
-    - source activate testenv
-    - pip3 install -r requirements.txt 
-    - pip3 install pytest flake8 coverage
-    - pip3 install .
+    - pip install -r requirements.txt 
+    - pip install pytest flake8 coverage
+    - pip install .
 script:
     - make coverage
     - make lint
 after_script:
-    - pip3 install codecov
+    - pip install codecov
     - codecov
-
+deploy:
+    provider: pypi
+    on:
+        tags: true
+        repo: czbiohub/cerebra
