@@ -14,8 +14,7 @@ install:
     - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION pip
     - source activate testenv
     - pip install -r requirements.txt 
-    - pip install pytest flake8
-    - pip install flake8 
+    - pip install pytest flake8 coverage
     - pip install .
 script:
     - make coverage
