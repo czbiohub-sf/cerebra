@@ -90,7 +90,7 @@ This module removes germline variants that are common between the control and th
 The user provides a very simple metadata file (see [README.md](https://github.com/czbiohub/cerebra/blob/master/README.md)) that indicates which experimental samples correspond to which control samples.
 Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
 These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
-There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases. 
+There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases [@ncbi, @cosmic].
 This option is designed to give the user a higher degree of confidence in the pathogenicity of each variant.
 If independent experiments have reported a given variant in pathogenic human tissue, it is less likely to be an artifact.
 The output of `germline-filter` is a set of trimmed-down VCF files, which will be used for the next two steps. 
@@ -107,7 +107,7 @@ If working  with cancer samples, the user has the option to filter out all varia
 ## `find-peptide-variants`
 
 The `find-peptide-variants` module reports the peptide-level consequence of genomic variants.
-First we load the reference GTF, then construct an index (.fai) of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) to enable fast random memory access. 
+First we load the reference GTF, then construct an index (.fai) of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) to enable fast random memory access [@pyfaidx].
 We then create a _genome interval tree_ that will be used to quickly match genomic coordinates from VCF records to peptide-level variants. 
 The user again has the option to filter out variants not found in the COSMIC database. 
 VCF records are read in simultaneously; individual records are converted to _GenomePosition_ objects to keep track of their genomic intervals and observed DNA bases.
