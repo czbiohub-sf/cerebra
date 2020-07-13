@@ -71,9 +71,9 @@ Given _n_ nodes, interval trees have theoretical average-case O(log*n*) and wors
 Tree construction proceeds at O(*n*log*n*) time complexity, making construction rather than search the bottleneck for most VCF sets [@Alekseyenko:2007]. 
 The _genome interval tree_ is constructed with a reference genome sequence ([FASTA format](https://en.wikipedia.org/wiki/FASTA_format), often with a `.fa` extension), and a genome annotation 
 ([gene transfer format, GTF](https://www.gencodegenes.org/pages/data_format.html), `.gtf` extension).
-We rely on the [ncls](https://github.com/biocore-ntnu/ncls) python library for fast interval tree construction and lookup operations.
+We rely on the [ncls](https://github.com/biocore-ntnu/ncls) python library for fast interval tree construction and lookup operations [@Alekseyenko:2007].
 
-In order to analyze multiple VCF records at once, we use [multiprocessing](https://en.wikipedia.org/wiki/Multiprocessing) with the Python [pathos](https://pypi.org/project/pathos/) library module.
+In order to analyze multiple VCF records at once, we use [multiprocessing](https://en.wikipedia.org/wiki/Multiprocessing) with the Python [pathos](https://pypi.org/project/pathos/) library module [@pathos].
 We extract relevant information -- including genomic interval, observed base, and read coverage -- from each variant record. 
 In the `germline-filter` module variants are compared to one another and filtered out if found to be identical.
 In `count-variants` variants are simply matched to whichever gene they came from. 
@@ -88,7 +88,7 @@ We construct a genome interval tree from a genome annotation (.gtf) and a refere
 If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
 This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
 The user provides a very simple metadata file (see [README.md](https://github.com/czbiohub/cerebra/blob/master/README.md)) that indicates which experimental samples correspond to which control samples.
-Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants. 
+Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
 These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
 There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases. 
 This option is designed to give the user a higher degree of confidence in the pathogenicity of each variant.
