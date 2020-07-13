@@ -90,7 +90,7 @@ This module removes germline variants that are common between the control and th
 The user provides a very simple metadata file (see [README.md](https://github.com/czbiohub/cerebra/blob/master/README.md)) that indicates which experimental samples correspond to which control samples.
 Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
 These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
-There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases [@ncbi, @cosmic].
+There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases [@ncbi; @cosmic].
 This option is designed to give the user a higher degree of confidence in the pathogenicity of each variant.
 If independent experiments have reported a given variant in pathogenic human tissue, it is less likely to be an artifact.
 The output of `germline-filter` is a set of trimmed-down VCF files, which will be used for the next two steps. 
