@@ -9,16 +9,15 @@ tags:
     - cancer
 authors:
  - name: Lincoln Harris
-   orcid: 0000-0003-0872-7098
+   orcid: 0000-0003-2544-4225
    affiliation: 1
  - name: Rohan Vanheusden
-   orcid: 0000-0003-0872-7098
    affiliation: 1 
  - name: Olga Botvinnik
-   orcid: 0000-0003-0872-7098
+   orcid: 0000-0003-4412-7970
    affiliation: 1 
  - name: Spyros Darmanis
-   orcid: 0000-0003-0872-7098
+   orcid: 0000-0003-4002-8158
    affiliation: 1 
 affiliations: 
 - name: Chan Zuckerberg Biohub, San Francisco, CA
