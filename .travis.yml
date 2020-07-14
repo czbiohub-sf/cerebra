@@ -6,10 +6,25 @@ matrix:
     - python: "3.6"
       os: linux
     - python: "3.7"
+      os: osx
+    - python: "3.7"
+      os: linux
     - python: "3.8"
+      os: osx
+    - python: "3.8"
+      os: linux
     - python: "3.8-dev"
+      os: osx
+    - python: "3.8-dev"
+      os: linux
     - python: "3.9-dev"
+      os: osx
+    - python: "3.9-dev"
+      os: linux
     - python: "pypy3"
+      os: osx
+    - python: "pypy3"
+      os: linux
   allow_failures:
     - python: "3.8-dev"
     - python: "3.9-dev"
