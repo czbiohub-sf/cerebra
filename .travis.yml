@@ -27,7 +27,8 @@ matrix:
       install:
         - python -m pip install -U pip
         - sudo pip install setuptools
-        - sudo pip install .
+        - sudo pip install -r requirements.txt
+        - sudo pip install -r test_requirements.txt
 
 script:
     - make test
