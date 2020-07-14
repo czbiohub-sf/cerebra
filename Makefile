@@ -5,7 +5,7 @@ help:
 	@echo "install - Install requirements "
 
 test:
-	py.test
+	pytest
 
 coverage:
 	coverage run --source cerebra --omit="*/test*" --module py.test
