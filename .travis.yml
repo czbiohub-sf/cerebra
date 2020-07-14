@@ -48,7 +48,16 @@ matrix:
         - brew update
         - brew install openssl
         - brew install zlib
+        - brew outdated pyenv || brew upgrade pyenv
+        - brew install pyenv-virtualenv
+        - pyenv install $PYTHON
+        - export PYENV_VERSION=$PYTHON
+        - export PATH="/Users/travis/.pyenv/shims:${PATH}"
+        - pyenv-virtualenv venv
+        - source venv/bin/activate
+        - python --version
       install:
+        - python -m pip install -U pip
         - sudo pip install . -r requirements.txt
 
   allow_failures:
