@@ -11,7 +11,7 @@ matrix:
     
     - os: osx
       language: generic
-      env: PYTHON=36'
+      env: PYTHON=3.6.9'
       before_install:
         - brew update
         - brew install openssl
@@ -30,6 +30,7 @@ matrix:
         - sudo pip install .
 
 script:
+    - make test
     - make coverage
     - make lint
 after_script:
