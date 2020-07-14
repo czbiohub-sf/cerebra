@@ -20,7 +20,7 @@ before_install:
     - conda update --yes conda
 install:
     - pip3 install -r requirements.txt 
-    - pip3 install pytest flake8 coverage
+    - pip3 install -r test_requirements.txt
     - pip3 install .
 script:
     - make coverage
