@@ -38,6 +38,18 @@ matrix:
         - pip3 install -r requirements.txt 
         - pip3 install -r test_requirements.txt
         - pip3 install .
+    
+    - os: osx
+      osx_image: xcode10
+      language: generic
+      env: PYTHON=36'
+      before_install:
+        - sudo pip install setuptools
+        - brew update
+        - brew install openssl
+        - brew install zlib
+      install:
+        - sudo pip install . -r requirements.txt
 
   allow_failures:
     - python: "3.8-dev"
