@@ -7,6 +7,10 @@ matrix:
     - python: "3.8-dev"
     - python: "3.9-dev"
     - python: "pypy3"
+   -
+    language: generic
+    os: osx
+    python: 3.6
   allow_failures:
     - python: "3.8-dev"
     - python: "3.9-dev"
