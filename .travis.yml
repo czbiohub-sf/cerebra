@@ -13,7 +13,6 @@ matrix:
       language: generic
       env: PYTHON=36'
       before_install:
-        - sudo pip install setuptools
         - brew update
         - brew install openssl
         - brew install zlib
@@ -27,7 +26,8 @@ matrix:
         - python --version
       install:
         - python -m pip install -U pip
-        - sudo pip install . -r requirements.txt
+        - sudo pip install setuptools
+        - sudo pip install .
 
 script:
     - make coverage
