@@ -31,10 +31,6 @@ matrix:
      -
         os: osx
         python: 3.9-dev
-  allow_failures:
-    - python: "3.8-dev"
-    - python: "3.9-dev"
-    - python: "pypy3"
 before_install:
     - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
         -O miniconda.sh
