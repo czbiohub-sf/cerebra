@@ -11,18 +11,17 @@ matrix:
     
     - os: osx
       language: generic
-      env: PYTHON=3.6.9'
+      env: PYTHON=3.7.9'
       before_install:
         - brew update
         - brew install openssl
         - brew install zlib
         - brew outdated pyenv || brew upgrade pyenv
         - brew install pyenv-virtualenv
-        - pyenv install 3.6.9
-        - export PYENV_VERSION=3.6.9
+        - pyenv install 3.7.9
+        - export PYENV_VERSION=3.7.9
         - export PATH="/Users/travis/.pyenv/shims:${PATH}"
         - pyenv virtualenv venv
-        - ls
         - source /Users/travis/.pyenv/versions/venv/bin/activate
         - python --version
       install:
