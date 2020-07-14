@@ -11,6 +11,11 @@ matrix:
     - python: "3.8-dev"
     - python: "3.9-dev"
     - python: "pypy3"
+  -
+    language: generic
+    os: osx
+    python: 3.6
+
 before_install:
     - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
         -O miniconda.sh
