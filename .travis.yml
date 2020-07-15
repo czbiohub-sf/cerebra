@@ -3,7 +3,35 @@ matrix:
   include:
 
     - os: linux
+      python: "3.6"
+      install:
+        - pip3 install -r requirements.txt 
+        - pip3 install -r test_requirements.txt
+        - pip3 install .
+
+     - os: linux
       python: "3.7"
+      install:
+        - pip3 install -r requirements.txt 
+        - pip3 install -r test_requirements.txt
+        - pip3 install .
+
+     - os: linux
+      python: "3.8"
+      install:
+        - pip3 install -r requirements.txt 
+        - pip3 install -r test_requirements.txt
+        - pip3 install .
+
+     - os: linux
+      python: "3.8-dev"
+      install:
+        - pip3 install -r requirements.txt 
+        - pip3 install -r test_requirements.txt
+        - pip3 install .
+
+     - os: linux
+      python: "3.9-dev"
       install:
         - pip3 install -r requirements.txt 
         - pip3 install -r test_requirements.txt
@@ -29,6 +57,11 @@ matrix:
         - sudo pip install setuptools
         - sudo pip install -r requirements.txt -e .
         - sudo pip install -r test_requirements.txt -e .
+
+  allow_failures:
+    - python: "3.8-dev"
+    - python: "3.9-dev"
+    - python: "pypy3"
 
 script:
     - make test
