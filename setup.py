@@ -21,12 +21,12 @@ with open("README.md", "r") as fh:
 
 setup(
     name='cerebra',
-    version='1.0.9',
+    version='1.1.0',
     description="finds mutants in your scRNA-seq experiment",
     long_description=long_description,
     long_description_content_type='text/markdown',
     author="Lincoln Harris",
-    author_email='lincoln.harris@czbiohub.org',
+    author_email='ljharris018@gmail.com',
     url='https://github.com/czbiohub/cerebra',
     packages=[
         'cerebra',
