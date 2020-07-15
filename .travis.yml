@@ -46,6 +46,27 @@ matrix:
     
     - os: osx
       language: generic
+      env: PYTHON=3.6.6'
+      before_install:
+        - brew update
+        - brew install openssl
+        - brew install zlib
+        - brew outdated pyenv || brew upgrade pyenv
+        - brew install pyenv-virtualenv
+        - pyenv install 3.6.6
+        - export PYENV_VERSION=3.6.6
+        - export PATH="/Users/travis/.pyenv/shims:${PATH}"
+        - pyenv virtualenv venv
+        - source /Users/travis/.pyenv/versions/venv/bin/activate
+        - python --version
+      install:
+        - python -m pip install -U pip
+        - sudo pip install setuptools
+        - sudo pip install -r requirements.txt -e .
+        - sudo pip install -r test_requirements.txt -e .
+
+    - os: osx
+      language: generic
       env: PYTHON=3.7.7'
       before_install:
         - brew update
@@ -65,6 +86,27 @@ matrix:
         - sudo pip install -r requirements.txt -e .
         - sudo pip install -r test_requirements.txt -e .
 
+    - os: osx
+      language: generic
+      env: PYTHON=3.8.2'
+      before_install:
+        - brew update
+        - brew install openssl
+        - brew install zlib
+        - brew outdated pyenv || brew upgrade pyenv
+        - brew install pyenv-virtualenv
+        - pyenv install 3.8.2
+        - export PYENV_VERSION=3.8.2
+        - export PATH="/Users/travis/.pyenv/shims:${PATH}"
+        - pyenv virtualenv venv
+        - source /Users/travis/.pyenv/versions/venv/bin/activate
+        - python --version
+      install:
+        - python -m pip install -U pip
+        - sudo pip install setuptools
+        - sudo pip install -r requirements.txt -e .
+        - sudo pip install -r test_requirements.txt -e .
+
   allow_failures:
     - python: "3.8-dev"
     - python: "3.9-dev"
@@ -72,8 +114,4 @@ matrix:
 
 script:
     - make test
-    - make coverage
     - make lint
-after_script:
-    - pip3 install codecov
-    - codecov

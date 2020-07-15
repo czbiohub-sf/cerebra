@@ -1,6 +1,5 @@
 biopython
 click
-colorama
 cython==0.29.13
 hgvs
 ncls
@@ -8,7 +7,6 @@ numpy
 pandas
 pathos
 pyfaidx
-pysam==0.15.3
 setuptools>=38.6.0
 tqdm
 vcfpy
