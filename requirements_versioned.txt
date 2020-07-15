@@ -1,3 +1,4 @@
+biopython==1.77
 click==7.0
 cython==0.29.13
 hgvs==1.4.0
