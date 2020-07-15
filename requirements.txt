@@ -1,6 +1,5 @@
 biopython
 click
-colorama
 cython==0.29.13
 hgvs
 ncls
