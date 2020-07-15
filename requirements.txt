@@ -8,7 +8,6 @@ numpy
 pandas
 pathos
 pyfaidx
-pysam==0.15.3
 setuptools>=38.6.0
 tqdm
 vcfpy
