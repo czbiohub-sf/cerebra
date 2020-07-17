@@ -10,7 +10,7 @@ Types of Contributions
 
 ### Report Bugs
 
-Report bugs at <https://github.com/>czbiohub/cerebra/issues.
+Report bugs at https://github.com/czbiohub/cerebra/issues.
 
 If you are reporting a bug, please include:
 
@@ -34,7 +34,7 @@ even on the web in blog posts, articles, and such.
 
 ### Submit Feedback
 
-The best way to send feedback is to file an issue at <https://github.com/>czbiohub/cerebra/issues.
+The best way to send feedback is to file an issue at https://github.com/czbiohub/cerebra/issues.
 
 If you are proposing a feature:
 
@@ -65,13 +65,11 @@ local development.
 
     Now you can make your changes locally.
 
-5.  When you're done making changes, check that your changes pass flake8 and the tests, including testing other Python versions with tox:
+5.  When you're done making changes, check that your changes pass flake8 and the tests:
 
-        $ flake8 cerebra tests
-        $ py.test
-        $ tox
-
-    To get flake8 and tox, just pip install them into your virtualenv.
+        $ make test
+        $ make coverage
+        $ make lint
 
 6.  Commit your changes and push your branch to GitHub:
 
@@ -89,7 +87,7 @@ Before you submit a pull request, check that it meets these guidelines:
 1.  The pull request should include tests.
 2.  If the pull request adds functionality, the docs should be updated. Put your new functionality into a function with a docstring, and add the feature to the list in README.rst.
 3.  The pull request should work for Python 3.6 and 3.7. Check
-    <https://travis-ci.org/>czbiohub/cerebra/pull\_requests and make sure that the tests pass
+    https://travis-ci.org/github/czbiohub/cerebra/pull_requests and make sure that the tests pass
     for all supported Python versions.
 
 Tips
@@ -97,4 +95,4 @@ Tips
 
 To run a subset of tests:
 
-    $ python -m unittest tests.test_cerebra
+    $ pytest test_you_want_to_run.py
