@@ -48,16 +48,17 @@ Get Started!
 Ready to contribute? Here's how to set up cerebra for
 local development.
 
-1.  Fork the cerebra repo on GitHub.
+1.  Fork the cerebra repo on GitHub: https://github.com/czbiohub/cerebra
 2.  Clone your fork locally:
 
-        $ git clone git@github.com:your_name_here/cerebra.git
+        $ git clone https://github.com/your-name/cerebra.git
 
-3.  Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development:
+3.  Install your local copy into a virtualenv. Using the standard library [`venv`](https://docs.python.org/3/library/venv.html) module: 
 
-        $ mkvirtualenv cerebra
-        $ cd cerebra/
-        $ python setup.py develop
+        $ cd cerebra
+        $ python3 -m venv cerebra-dev
+        $ source cerebra-dev/bin/activate
+        $ pip3 install -e . 
 
 4.  Create a branch for local development:
 
