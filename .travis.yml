@@ -44,7 +44,8 @@ matrix:
         - pip3 install -r test_requirements.txt
         - pip3 install .
     
-    - os: osx
+    - name: "Python 3.6.6 OSX"
+      os: osx
       language: generic
       env: PYTHON=3.6.6'
       before_install:
@@ -65,7 +66,8 @@ matrix:
         - sudo pip install -r requirements.txt -e .
         - sudo pip install -r test_requirements.txt -e .
 
-    - os: osx
+    - name: "Python 3.7.7 OSX"
+      os: osx
       language: generic
       env: PYTHON=3.7.7'
       before_install:
@@ -86,7 +88,8 @@ matrix:
         - sudo pip install -r requirements.txt -e .
         - sudo pip install -r test_requirements.txt -e .
 
-    - os: osx
+    - name: "Python 3.8.2 OSX"
+      os: osx
       language: generic
       env: PYTHON=3.8.2'
       before_install:
@@ -107,10 +110,24 @@ matrix:
         - sudo pip install -r requirements.txt -e .
         - sudo pip install -r test_requirements.txt -e .
 
+    - name: "Python 3.8.0 Windows"
+      os: windows                 
+      language: shell       
+      before_install:
+        - choco install python --version 3.8.0
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+      install:
+        - python -m pip install -U pip # maybe dont need this
+        - pip install setuptools
+        - pip install -r requirements.txt -e .
+        - pip install -r test_requirements.txt -e .
+
   allow_failures:
     - python: "3.8-dev"
     - python: "3.9-dev"
     - python: "pypy3"
+    - os: windows
 
 script:
     - make test
