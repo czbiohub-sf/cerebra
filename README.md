@@ -152,18 +152,11 @@ Installation
 ------------
 There are four different methods available to install `cerebra`. Choose one. 
 
-__From [PyPi](https://pypi.org/project/cerebra/)__          
-```
-pip install cerebra
-
-# OR, if you dont have root privileges
-pip install --user cerebra
-```
-
 __With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)__                
-```docker pull lincolnharris/cerebra```                 
-            
-            
+```
+docker pull lincolnharris/cerebra
+```                 
+
 __With traditional git clone and the python standard library [venv](https://docs.python.org/3/library/venv.html) module__
 ```
 git clone https://github.com/czbiohub/cerebra.git
@@ -180,6 +173,14 @@ cd cerebra
 conda create -n cerebra python=3.7
 conda activate cerebra
 pip3 install -e . 
+```
+
+__From [PyPi](https://pypi.org/project/cerebra/) (system-wide installation)__              
+```
+pip install cerebra
+
+# OR, if you dont have root privileges
+pip install --user cerebra
 ```
 
 As of present `cerebra` is not installable on Windows. `cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library -- or rather, `pysam` is a dependency-of-a-dependency -- and currently this library is only available on Unix-like systems. 
