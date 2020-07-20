@@ -176,6 +176,7 @@ conda activate cerebra
 pip3 install -e . 
 ```
 
+Unfortunately, as of now `cerebra` is not installable on Windows. `cerebra` depends on the [pysam](https://pysam.readthedocs.io/en/latest/index.html) library, which at the moment is only available on Unix-like systems. 
 
 Usage
 -----
