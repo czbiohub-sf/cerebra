@@ -160,10 +160,11 @@ With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)
 With git clone and the python standard library [venv](https://docs.python.org/3/library/venv.html) module
 
 ```
-$ cd cerebra
-$ python3 -m venv cerebra-dev
-$ source cerebra-dev/bin/activate
-$ pip3 install -e . 
+git clone https://github.com/czbiohub/cerebra.git
+cd cerebra
+python3 -m venv cerebra-dev
+source cerebra-dev/bin/activate
+pip3 install -e . 
 ```
 
 With git clone and [conda](https://docs.conda.io/en/latest/)
