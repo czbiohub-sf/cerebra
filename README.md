@@ -150,15 +150,21 @@ Thus `cerebra` should scale better to high-memory machines with more cores, thou
 
 Installation
 ------------
+There are four different methods available to install `cerebra`. Choose one. 
 
-From [PyPi](https://pypi.org/project/cerebra/)   
-```pip install cerebra```
+__From [PyPi](https://pypi.org/project/cerebra/)__          
+```
+pip install cerebra
 
-With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)     
+# OR, if you dont have root privileges
+pip install --user cerebra
+```
+
+__With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)__                
 ```docker pull lincolnharris/cerebra```                 
             
             
-With git clone and the python standard library [venv](https://docs.python.org/3/library/venv.html) module
+__With traditional git clone and the python standard library [venv](https://docs.python.org/3/library/venv.html) module__
 ```
 git clone https://github.com/czbiohub/cerebra.git
 cd cerebra
@@ -167,7 +173,7 @@ source cerebra-dev/bin/activate
 pip3 install -e . 
 ```
 
-With git clone and [conda](https://docs.conda.io/en/latest/)
+__With traditional git clone and [conda](https://docs.conda.io/en/latest/)__
 ``` 
 git clone https://github.com/czbiohub/cerebra.git
 cd cerebra
@@ -176,7 +182,8 @@ conda activate cerebra
 pip3 install -e . 
 ```
 
-Unfortunately, as of now `cerebra` is not installable on Windows. `cerebra` depends on the [pysam](https://pysam.readthedocs.io/en/latest/index.html) library, which at the moment is only available on Unix-like systems. 
+As of present `cerebra` is not installable on Windows. `cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library -- or rather, `pysam` is a dependency-of-a-dependency -- and currently this library is only available on Unix-like systems. 
+
 
 Usage
 -----
