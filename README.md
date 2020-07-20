@@ -151,32 +151,30 @@ Thus `cerebra` should scale better to high-memory machines with more cores, thou
 Installation
 ------------
 
-To install the latest version from PyPi you'll first need to install a few system-specific dependencies.     
-
-For OSX:     
-```
-sudo pip install setuptools
-brew update
-brew install openssl
-brew install zlib
-```
-
-For Debian/Ubuntu:     
-```
-sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev
-```
-
-Following that, you can install directly from PyPi.        
+From [PyPi](https://pypi.org/project/cerebra/)   
 ```pip install cerebra```
 
-If you prefer working with virtual environments you can clone from github and install with `pip`. 
+With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)     
+```docker pull lincolnharris/cerebra```
+
+With git clone and the python standard library [venv](https://docs.python.org/3/library/venv.html) module
+
+```
+$ cd cerebra
+$ python3 -m venv cerebra-dev
+$ source cerebra-dev/bin/activate
+$ pip3 install -e . 
+```
+
+With git clone and [conda](https://docs.conda.io/en/latest/)
 ``` 
 git clone https://github.com/czbiohub/cerebra.git
 cd cerebra
 conda create -n cerebra python=3.7
 conda activate cerebra
-pip install -e . 
-````
+pip3 install -e . 
+```
+
 
 Usage
 -----
