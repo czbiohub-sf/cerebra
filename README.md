@@ -155,10 +155,10 @@ From [PyPi](https://pypi.org/project/cerebra/)
 ```pip install cerebra```
 
 With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)     
-```docker pull lincolnharris/cerebra```
-
+```docker pull lincolnharris/cerebra```                 
+            
+            
 With git clone and the python standard library [venv](https://docs.python.org/3/library/venv.html) module
-
 ```
 git clone https://github.com/czbiohub/cerebra.git
 cd cerebra
@@ -214,7 +214,7 @@ An example workflow might look like this:
 
 Authors
 --------
-This work was produced by [Lincoln Harris](https://github.com/lincoln-harris), [Rohan Vanheusden](https://github.com/rvanheusden), [Olga Botvinnik](https://github.com/olgabot) and [Spyros Darmanis](https://spyrosdarmanis.wixsite.com/mylab) of the Chan Zuckerberg Biohub. For questions please contact lincoln.harris@czbiohub.org
+This work was produced by [Lincoln Harris](https://github.com/lincoln-harris), [Rohan Vanheusden](https://github.com/rvanheusden), [Olga Botvinnik](https://github.com/olgabot) and [Spyros Darmanis](https://spyrosdarmanis.wixsite.com/mylab) of the Chan Zuckerberg Biohub. For questions please contact ljharris018@gmail.com
 
 
 Contributing
