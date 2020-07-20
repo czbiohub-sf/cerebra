@@ -21,7 +21,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='cerebra',
-    version='1.1.0',
+    version='1.1.1',
     description="finds mutants in your scRNA-seq experiment",
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -41,11 +41,15 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Information Technology",
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3',
+        "Operating System :: Unix",
+        "Operating System :: MacOS",
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     entry_points={
         'console_scripts': [
