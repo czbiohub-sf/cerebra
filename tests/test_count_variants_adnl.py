@@ -14,9 +14,9 @@ class TestMutationCounter(unittest.TestCase):
 	def setUpClass(self):
 		''' __init__ method for class obj '''
 		self.data_path = os.path.abspath(__file__ + '/../' + \
-											'data/test_variant_counts/')
+											'data/test_find_peptide_variants/')
 		self.cosmicdb_path = self.data_path + \
-										'/cosmic_kras_egfr_braf_only.tsv.gz'
+										'/cosmic_min.tsv'
 		self.annotation_path = self.data_path + '/gencode_min.gtf'
 
 		self.input_path = self.data_path + '/vcf/'
@@ -46,8 +46,8 @@ class TestMutationCounter(unittest.TestCase):
 								(record for idx, record in
 									self.refgenome_df.iterrows()))
 
-		assert len(cosmic_genome_tree.tree_map) == 2
-		assert len(cosmic_genome_tree.records) == 544
+		assert len(cosmic_genome_tree.tree_map) == 1
+		assert len(cosmic_genome_tree.records) == 283
 
 		assert len(hg38_genome_tree.tree_map) == 2
 		assert len(hg38_genome_tree.records) == 827
@@ -138,6 +138,7 @@ class TestMutationCounter(unittest.TestCase):
 
 	# 	# teardown
 	# 	os.remove(self.data_path + "/test_out.csv")
+	#	os.remove(self.data_path + "/test_out_filtered.csv")
 
 
 if __name__ == "__main__":

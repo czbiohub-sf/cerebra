@@ -16,7 +16,7 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 		''' __init__ method for class obj '''
 		data_path = os.path.abspath(__file__ + '/../' +
 										'data/test_find_peptide_variants/')
-		cosmicdb_path = data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
+		cosmicdb_path = data_path + '/cosmic_min.tsv'
 
 		annotation_path = data_path + '/gencode_min.gtf'
 		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
@@ -61,11 +61,11 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 								(row for _, row in filtered_cosmic_df.iterrows()))
 
 
-		assert len(filtered_cosmic_df.index) == 544
+		assert len(filtered_cosmic_df.index) == 283
 		assert len(filtered_cosmic_df.columns) == 34
 
-		assert len(cosmic_genome_tree.records) == 544
-		assert len(cosmic_genome_tree.tree_map) == 2
+		assert len(cosmic_genome_tree.records) == 283
+		assert len(cosmic_genome_tree.tree_map) == 1
 
 
 	def test_genome_position_init(self):

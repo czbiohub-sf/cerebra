@@ -16,12 +16,12 @@ class MutationCounterTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         self.data_path = Path(
-            __file__).parent / "data" / "test_variant_counts"
+            __file__).parent / "data" / "test_find_peptide_variants"
 
         self.template_vcf = (self.data_path / "template.vcf")
 
         self.cosmic_df = pd.read_csv(
-            (self.data_path / "cosmic_kras_egfr_braf_only.tsv.gz"),
+            (self.data_path / "cosmic_min.tsv"),
             sep='\t')
 
         self.hg38_df = pd.read_csv((self.data_path / "gencode_min.gtf"),

@@ -15,11 +15,9 @@ class FindAAMutationsTester(unittest.TestCase):
 		self.data_path = os.path.abspath(__file__ + \
 								'/../' + 'data/test_find_peptide_variants/')
 
-		self.cosmicdb_path =  self.data_path + \
-								'/cosmic_kras_egfr_braf_only.tsv.gz'
+		self.cosmicdb_path =  self.data_path + '/cosmic_min.tsv'
 		
-		self.annotation_path = self.data_path + \
-								'/gencode_min.gtf'
+		self.annotation_path = self.data_path + '/gencode_min.gtf'
 
 		self.genomefa_path = self.data_path + '/GRCh38_limited_chr7.fa.gz'
 		self.cov_bool = 1
