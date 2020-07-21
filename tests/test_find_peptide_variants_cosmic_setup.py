@@ -18,7 +18,7 @@ class FindAAMutationsTesterCos(unittest.TestCase):
 										'data/test_find_peptide_variants/')
 		cosmicdb_path = data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
-		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 		self.input_path = data_path + '/vcf/'
 		self.input_paths = [self.input_path + x for x in os.listdir(self.input_path)]

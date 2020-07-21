@@ -19,7 +19,7 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 		data_path = os.path.abspath(__file__ + '/../' + \
 									'data/test_find_peptide_variants/')
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
-		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 		self.input_path = data_path + '/vcf/'
 		self.input_paths = [self.input_path +

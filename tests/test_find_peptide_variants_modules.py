@@ -18,7 +18,7 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 										'data/test_find_peptide_variants/')
 		cosmicdb_path = data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
-		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 		self.input_path = data_path + '/vcf/'
 		self.input_paths = [self.input_path + x for x in os.listdir(self.input_path)]
@@ -70,8 +70,7 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 		''' testing genome pos strings to make sure they contain what we've
 			placed in the test vcf files '''
 
-		A1_gps = ['7:55191822-55191822', '12:25245351-25245351',
-					'12:25245347-25245347', '7:55191822-55191822']
+		A1_gps = ['7:55191822-55191822', '7:55191822-55191822']
 		A2_gps = ['1:631862-631862', '1:633561-633561', '1:634112-634112',
 					 '1:634229-634229', '1:914949-914949']
 		A3_gps = ['1:629906-629906', '1:634112-634112', '1:634229-634229',

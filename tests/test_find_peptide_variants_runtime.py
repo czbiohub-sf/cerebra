@@ -13,7 +13,7 @@ def test_basic():
 	data_path = os.path.abspath(__file__ + '/../' +
 								'data/test_find_peptide_variants/')
 	vcf_path = data_path + '/vcf/A1.vcf'
-	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+	genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 	runner = CliRunner()
 	result = runner.invoke(find_peptide_variants, [
@@ -38,7 +38,7 @@ def test_basic_cmp():
 
 	data_path = os.path.abspath(__file__ + '/../' +
 									'data/test_find_peptide_variants/')
-	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+	genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 	annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
 	cov_bool = 1
@@ -64,7 +64,7 @@ def test_basic_cmp():
 
 	assert os.path.isfile(outpath)
 
-	expect_path = data_path + '/expect_out_1.csv'
+	expect_path = data_path + '/expect_out.csv'
 	filecmp.cmp(expect_path, outpath)
 
 	# teardown
