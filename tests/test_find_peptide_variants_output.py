@@ -14,9 +14,10 @@ class FindAAMutationsTester(unittest.TestCase):
 		''' __init__ method for FindAAMutationsTester class '''
 		self.data_path = os.path.abspath(__file__ + \
 								'/../' + 'data/test_find_peptide_variants/')
+
 		self.cosmicdb_path =  self.data_path + \
-								'/CosmicGenomeScreensMutantExport.min.tsv'
-		# self.annotation_path = self.data_path + '/hg38-plus.min.gtf'
+								'/cosmic_kras_egfr_braf_only.tsv.gz'
+		
 		self.annotation_path = self.data_path + \
 								'/gencode.v33.greatestHits.annotation.gtf'
 
@@ -56,16 +57,11 @@ class FindAAMutationsTester(unittest.TestCase):
 		expect_index = ['A1', 'A2', 'A3', 'A4', 'A5']
 		assert list(outfile.index) == expect_index
 
-		#expect_cols = ['EGFR', 'KRAS']
 		expect_cols = ['EGFR']
 		assert list(outfile.columns) == expect_cols
 
 		a1_egfr_str = outfile.loc['A1']['EGFR']
 		assert 'Leu858Arg' in a1_egfr_str
-
-		#a1_kras_str = outfile.loc['A1']['KRAS']
-		#assert 'Gly12Ser' in a1_kras_str
-		#assert 'Gly13Val' in a1_kras_str
 
 		# teardown
 		os.remove(self.data_path + "/test_out.csv")

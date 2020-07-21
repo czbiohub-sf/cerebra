@@ -22,7 +22,7 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
 		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
-		self.input_path = data_path + '/vcf/'
+		self.input_path = data_path + '/vcf/'  # limiting to just one
 		self.input_paths = [self.input_path +
 								x for x in os.listdir(self.input_path)]
 
@@ -88,7 +88,7 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 
 				for result in protein_variant_results:
 					predicted_variant = result.predicted_variant
-					
+
 					assert str(predicted_variant) in potential_variants
 
 					if target_variants is not None:
@@ -99,7 +99,7 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 								predicted_variant,
 								strict_unknown=False,
 								strict_silent=True):
-								#print('here i am!')
+				
 								target_count += 1
 								break
 

@@ -21,7 +21,7 @@ class MutationCounterTestCase(unittest.TestCase):
         self.template_vcf = (self.data_path / "template.vcf")
 
         self.cosmic_df = pd.read_csv(
-            (self.data_path / "CosmicGenomeScreensMutantExport.min.tsv"),
+            (self.data_path / "cosmic_kras_egfr_braf_only.tsv.gz"),
             sep='\t')
         self.hg38_df = pd.read_csv((self.data_path / "hg38-plus.min.gtf"),
                                    sep='\t', header=None)
