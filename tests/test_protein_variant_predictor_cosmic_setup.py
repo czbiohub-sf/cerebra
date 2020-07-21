@@ -19,7 +19,7 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 		data_path = os.path.abspath(__file__ + '/../' + \
 										'data/test_find_peptide_variants/')
 		cosmicdb_path = data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
-		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
+		annotation_path = data_path + '/gencode_min.gtf'
 		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 		self.input_path = data_path + '/vcf/'  # limiting to just one

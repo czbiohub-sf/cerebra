@@ -18,7 +18,7 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 										'data/test_find_peptide_variants/')
 		cosmicdb_path = data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
 
-		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
+		annotation_path = data_path + '/gencode_min.gtf'
 		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 		self.input_path = data_path + '/vcf/'
@@ -38,12 +38,12 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 		protein_variant_predictor = ProteinVariantPredictor(
 									annotation_genome_tree, self.genome_faidx)
 
-		assert len(annotation_genome_tree.records) == 885
-		assert len(annotation_genome_tree.tree_map) == 4
+		assert len(annotation_genome_tree.records) == 827
+		assert len(annotation_genome_tree.tree_map) == 2
 
-		assert len(protein_variant_predictor.transcript_records) == 17
-		assert len(protein_variant_predictor.tree.records) == 230
-		assert len(protein_variant_predictor.tree.tree_map) == 2
+		assert len(protein_variant_predictor.transcript_records) == 13
+		assert len(protein_variant_predictor.tree.records) == 218
+		assert len(protein_variant_predictor.tree.tree_map) == 1
 
 
 	def test_cosmic_filter(self):

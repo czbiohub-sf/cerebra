@@ -23,8 +23,9 @@ class MutationCounterTestCase(unittest.TestCase):
         self.cosmic_df = pd.read_csv(
             (self.data_path / "cosmic_kras_egfr_braf_only.tsv.gz"),
             sep='\t')
-        self.hg38_df = pd.read_csv((self.data_path / "hg38-plus.min.gtf"),
-                                   sep='\t', header=None)
+
+        self.hg38_df = pd.read_csv((self.data_path / "gencode_min.gtf"),
+                                    sep='\t', skiprows=5)
 
         self.mutation_counter = MutationCounter(self.cosmic_df, self.hg38_df)
 

@@ -19,7 +19,7 @@ class FindAAMutationsTester(unittest.TestCase):
 								'/cosmic_kras_egfr_braf_only.tsv.gz'
 		
 		self.annotation_path = self.data_path + \
-								'/gencode.v33.greatestHits.annotation.gtf'
+								'/gencode_min.gtf'
 
 		self.genomefa_path = self.data_path + '/GRCh38_limited_chr7.fa.gz'
 		self.cov_bool = 1
