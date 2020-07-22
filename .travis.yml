@@ -132,3 +132,7 @@ matrix:
 script:
     - make test
     - make lint
+
+after_script:
+    - pip3 install codecov
+    - codecov
