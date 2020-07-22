@@ -18,11 +18,11 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 
 		data_path = os.path.abspath(__file__ + '/../' + \
 										'data/test_find_peptide_variants/')
-		cosmicdb_path = data_path + '/cosmic_kras_egfr_braf_only.tsv.gz'
-		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
-		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+		cosmicdb_path = data_path + '/cosmic_min.tsv'
+		annotation_path = data_path + '/gencode_min.gtf'
+		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
-		self.input_path = data_path + '/vcf/'
+		self.input_path = data_path + '/vcf/'  
 		self.input_paths = [self.input_path +
 								x for x in os.listdir(self.input_path)]
 
@@ -48,19 +48,9 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 
 		# these are all possible ensembl translation ids that should
 		#	be predicted given our test vcfs
-
-				# (Leu813Arg) one is wierd?
 		potential_variants = ['ENSP00000415559.1:p.(Leu813Arg)',
 								'ENSP00000395243.3:p.(Leu813Arg)',
 								'ENSP00000275493.2:p.(Leu858Arg)',
-								'ENSP00000308495.3:p.(Gly12Ser)',
-								'ENSP00000452512.1:p.(Gly12Ser)',
-								'ENSP00000451856.1:p.(Gly12Ser)',
-								'ENSP00000256078.4:p.(Gly12Ser)',
-								'ENSP00000308495.3:p.(Gly13Val)',
-								'ENSP00000452512.1:p.(Gly13Val)',
-								'ENSP00000451856.1:p.(Gly13Val)',
-								'ENSP00000256078.4:p.(Gly13Val)',
 								'ENSP00000415559.1:p.(Leu813delinsArgTrp)',
 								'ENSP00000395243.3:p.(Leu813delinsArgTrp)',
 								'ENSP00000275493.2:p.(Leu858delinsArgTrp)']
@@ -96,6 +86,7 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 
 				for result in protein_variant_results:
 					predicted_variant = result.predicted_variant
+
 					assert str(predicted_variant) in potential_variants
 
 					if target_variants is not None:
@@ -106,10 +97,12 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 								predicted_variant,
 								strict_unknown=False,
 								strict_silent=True):
+				
 								target_count += 1
 								break
 
-		assert target_count == 3
+		assert target_count == 1  # means that only one of these badboys 
+								  #     is in COSMIC
 
 
 if __name__ == "__main__":

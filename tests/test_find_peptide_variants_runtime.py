@@ -13,12 +13,12 @@ def test_basic():
 	data_path = os.path.abspath(__file__ + '/../' +
 								'data/test_find_peptide_variants/')
 	vcf_path = data_path + '/vcf/A1.vcf'
-	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+	genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 	runner = CliRunner()
 	result = runner.invoke(find_peptide_variants, [
 							"--processes", 1,
-							"--annotation", data_path + "/hg38-plus.min.gtf",
+							"--annotation", data_path + "/gencode_min.gtf",
 							"--report_coverage", 1,
 							"--genomefa", genomefa_path,
 							"--output_path", data_path + "/test_out.csv",
@@ -33,14 +33,14 @@ def test_basic():
 
 def test_basic_cmp():
 	''' does find_all_mutations return w/o error, redux
-		this one has a expected / actual file compare step '''
+		this one has an expected vs. actual file compare step '''
 	from cerebra.find_peptide_variants import AminoAcidMutationFinder
 
 	data_path = os.path.abspath(__file__ + '/../' +
 									'data/test_find_peptide_variants/')
-	genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+	genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
-	annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
+	annotation_path = data_path + '/gencode_min.gtf'
 	cov_bool = 1
 	num_processes = 2
 	outpath = data_path + '/test_out.csv'
@@ -48,7 +48,6 @@ def test_basic_cmp():
 	input_path = data_path + '/vcf/'
 	input_paths = [input_path + x for x in os.listdir(input_path)]
 
-	# cosmic_df = pd.read_csv(cosmicdb_path, sep='\t')
 	cosmic_df = None
 	annotation_df = pd.read_csv(annotation_path, sep='\t', skiprows=5)
 	genome_faidx = Fasta(genomefa_path)
@@ -64,8 +63,9 @@ def test_basic_cmp():
 
 	assert os.path.isfile(outpath)
 
-	expect_path = data_path + '/expect_out_1.csv'
+	expect_path = data_path + '/expect_out.csv'
 	filecmp.cmp(expect_path, outpath)
 
 	# teardown
 	os.remove(data_path + "/test_out.csv")
+	os.remove(data_path + "/test_out.json")

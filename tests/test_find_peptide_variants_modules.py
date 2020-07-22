@@ -16,9 +16,10 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 		''' __init__ method for class obj '''
 		data_path = os.path.abspath(__file__ + '/../' +
 										'data/test_find_peptide_variants/')
-		cosmicdb_path = data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
-		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
-		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+		cosmicdb_path = data_path + '/cosmic_min.tsv'
+
+		annotation_path = data_path + '/gencode_min.gtf'
+		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 		self.input_path = data_path + '/vcf/'
 		self.input_paths = [self.input_path + x for x in os.listdir(self.input_path)]
@@ -37,12 +38,12 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 		protein_variant_predictor = ProteinVariantPredictor(
 									annotation_genome_tree, self.genome_faidx)
 
-		assert len(annotation_genome_tree.records) == 885
-		assert len(annotation_genome_tree.tree_map) == 4
+		assert len(annotation_genome_tree.records) == 827
+		assert len(annotation_genome_tree.tree_map) == 2
 
-		assert len(protein_variant_predictor.transcript_records) == 17
-		assert len(protein_variant_predictor.tree.records) == 230
-		assert len(protein_variant_predictor.tree.tree_map) == 2
+		assert len(protein_variant_predictor.transcript_records) == 13
+		assert len(protein_variant_predictor.tree.records) == 218
+		assert len(protein_variant_predictor.tree.tree_map) == 1
 
 
 	def test_cosmic_filter(self):
@@ -59,10 +60,11 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 								from_str(str(row["Mutation genome position"])),
 								(row for _, row in filtered_cosmic_df.iterrows()))
 
-		assert len(filtered_cosmic_df.index) == 93
+
+		assert len(filtered_cosmic_df.index) == 283
 		assert len(filtered_cosmic_df.columns) == 34
 
-		assert len(cosmic_genome_tree.records) == 93
+		assert len(cosmic_genome_tree.records) == 283
 		assert len(cosmic_genome_tree.tree_map) == 1
 
 
@@ -70,8 +72,7 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 		''' testing genome pos strings to make sure they contain what we've
 			placed in the test vcf files '''
 
-		A1_gps = ['7:55191822-55191822', '12:25245351-25245351',
-					'12:25245347-25245347', '7:55191822-55191822']
+		A1_gps = ['7:55191822-55191822', '7:55191822-55191822']
 		A2_gps = ['1:631862-631862', '1:633561-633561', '1:634112-634112',
 					 '1:634229-634229', '1:914949-914949']
 		A3_gps = ['1:629906-629906', '1:634112-634112', '1:634229-634229',

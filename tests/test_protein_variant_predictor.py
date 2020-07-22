@@ -18,8 +18,8 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 
 		data_path = os.path.abspath(__file__ + '/../' + \
 									'data/test_find_peptide_variants/')
-		annotation_path = data_path + '/gencode.v33.greatestHits.annotation.gtf'
-		genomefa_path = data_path + '/GRCh38_limited.fa.gz'
+		annotation_path = data_path + '/gencode_min.gtf'
+		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 		self.input_path = data_path + '/vcf/'
 		self.input_paths = [self.input_path +
@@ -41,8 +41,8 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 		trans_rec = self.protein_variant_predictor.transcript_records
 		tree = self.protein_variant_predictor.tree.tree_map
 
-		assert len(trans_rec) == 17
-		assert len(tree) == 2
+		assert len(trans_rec) == 13
+		assert len(tree) == 1
 
 		# these are the ensembl transcript IDs that should be contained within
 		#	our limited version of the cosmic db
@@ -67,21 +67,12 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 		# these are all possible ensembl translation ids that should be 
 		#	predicted given our test vcfs
 
-				# (Leu813Arg) one is wierd?
 		potential_variants = ['ENSP00000415559.1:p.(Leu813Arg)',
-								'ENSP00000395243.3:p.(Leu813Arg)',
 								'ENSP00000275493.2:p.(Leu858Arg)',
-								'ENSP00000308495.3:p.(Gly12Ser)',
-								'ENSP00000452512.1:p.(Gly12Ser)',
-								'ENSP00000451856.1:p.(Gly12Ser)',
-								'ENSP00000256078.4:p.(Gly12Ser)',
-								'ENSP00000308495.3:p.(Gly13Val)',
-								'ENSP00000452512.1:p.(Gly13Val)',
-								'ENSP00000451856.1:p.(Gly13Val)',
-								'ENSP00000256078.4:p.(Gly13Val)',
+								'ENSP00000395243.3:p.(Leu813Arg)',
 								'ENSP00000415559.1:p.(Leu813delinsArgTrp)',
-								'ENSP00000395243.3:p.(Leu813delinsArgTrp)',
-								'ENSP00000275493.2:p.(Leu858delinsArgTrp)']
+								'ENSP00000275493.2:p.(Leu858delinsArgTrp)',
+								'ENSP00000395243.3:p.(Leu813delinsArgTrp)']
 
 		for vcf_path in self.input_paths:
 			vcf_reader = vcfpy.Reader.from_path(vcf_path)
@@ -98,7 +89,6 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 				for result in protein_variant_results:
 					predicted_variant = result.predicted_variant
 					assert str(predicted_variant) in potential_variants
-
 
 if __name__ == "__main__":
 	unittest.main()

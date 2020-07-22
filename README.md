@@ -1,7 +1,7 @@
 cerebra
 ================================
 <a href="https://pypi.org/project/cerebra/"><img alt="PyPI" src="https://badge.fury.io/py/cerebra.svg"></a>
-[![Docker Build](https://img.shields.io/docker/build/lincolnharris/cerebra)](https://hub.docker.com/r/lincolnharris/cerebra)    
+[![Docker Build](https://img.shields.io/docker/cloud/build/lincolnharris/cerebra)](https://hub.docker.com/r/lincolnharris/cerebra)    
 [![Build Status](https://travis-ci.org/czbiohub/cerebra.svg?branch=master)](https://travis-ci.org/czbiohub/cerebra)
 [![Code Coverage](https://codecov.io/gh/czbiohub/cerebra/branch/master/graph/badge.svg)](https://codecov.io/gh/czbiohub/cerebra)        
 
