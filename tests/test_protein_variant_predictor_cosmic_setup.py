@@ -76,9 +76,6 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 								_get_cosmic_record_protein_variant(overlap)
 					for overlap in overlaps)
 
-				for t in target_variants: # testing here buh
-					print(t)
-
 				# Filter out variants which could not be correctly obtained for
 				# some reason.
 				target_variants = \
