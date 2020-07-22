@@ -44,59 +44,59 @@ class FindPeptideVariantsTester(unittest.TestCase):
 									self.annotation_df, self.genome_faidx, cov_bool=1)
 
 
-	def test_target_variant_string(self):
-		''' todo: add description '''
+	# def test_target_variant_string(self):
+	# 	''' todo: add description '''
 
-		for vcf_path in self.input_paths:
-			curr_vcf = vcf_path.strip(self.input_path)
-			vcf_reader = vcfpy.Reader.from_path(vcf_path)
+	# 	for vcf_path in self.input_paths:
+	# 		curr_vcf = vcf_path.strip(self.input_path)
+	# 		vcf_reader = vcfpy.Reader.from_path(vcf_path)
 
-			for record in vcf_reader:
-				record_pos = GenomePosition.from_vcf_record(record)
+	# 		for record in vcf_reader:
+	# 			record_pos = GenomePosition.from_vcf_record(record)
 
-				protein_variant_results = self.protein_variant_predictor \
-											.predict_for_vcf_record(record)
+	# 			protein_variant_results = self.protein_variant_predictor \
+	# 										.predict_for_vcf_record(record)
 
-				if not protein_variant_results:
-					continue
+	# 			if not protein_variant_results:
+	# 				continue
 
-				overlaps = self.aa_mutation_finder. \
-							_cosmic_genome_tree.get_all_overlaps(record_pos)
+	# 			overlaps = self.aa_mutation_finder. \
+	# 						_cosmic_genome_tree.get_all_overlaps(record_pos)
 
-				for overlap in overlaps:
-					# this should be the only 'Mutation AA' str in the 
-					#     COSMIC db
-					assert overlap["Mutation AA"] == 'p.L858R'
-					target_variant = self.aa_mutation_finder. \
-							_get_cosmic_record_protein_variant(overlap)
+	# 			for overlap in overlaps:
+	# 				# this should be the only 'Mutation AA' str in the 
+	# 				#     COSMIC db
+	# 				assert overlap["Mutation AA"] == 'p.L858R'
+	# 				target_variant = self.aa_mutation_finder. \
+	# 						_get_cosmic_record_protein_variant(overlap)
 					
-					# this is the only one of our test variants
-					#							 thats in COSMIC
-					assert str(target_variant) == \
-									'ENSP00000275493.2:p.Leu858Arg'
+	# 				# this is the only one of our test variants
+	# 				#							 thats in COSMIC
+	# 				assert str(target_variant) == \
+	# 								'ENSP00000275493.2:p.Leu858Arg'
 
 
-	def test_exception_handling(self):
-		''' todo: add description '''
+	# def test_exception_handling(self):
+	# 	''' todo: add description '''
 
-		for index, row in self.cosmic_df.iterrows():
-			cosmic_record = self.cosmic_df.loc[index]
-			mutation_aa = cosmic_record["Mutation AA"]
-			gene_name = cosmic_record["Gene name"]
-			transcript_accession = cosmic_record["Accession Number"]
+	# 	for index, row in self.cosmic_df.iterrows():
+	# 		cosmic_record = self.cosmic_df.loc[index]
+	# 		mutation_aa = cosmic_record["Mutation AA"]
+	# 		gene_name = cosmic_record["Gene name"]
+	# 		transcript_accession = cosmic_record["Accession Number"]
 
-			for tx_id, tx_record in self.protein_variant_predictor \
-				.transcript_records.items():
-				if tx_id.split('.')[0] == transcript_accession:
-					transcript_record = tx_record
-					break
-			else:   # this record SHOULD trigger exception
-				target_variant = self.aa_mutation_finder. \
-						_get_cosmic_record_protein_variant(cosmic_record)
+	# 		for tx_id, tx_record in self.protein_variant_predictor \
+	# 			.transcript_records.items():
+	# 			if tx_id.split('.')[0] == transcript_accession:
+	# 				transcript_record = tx_record
+	# 				break
+	# 		else:   # this record SHOULD trigger exception
+	# 			target_variant = self.aa_mutation_finder. \
+	# 					_get_cosmic_record_protein_variant(cosmic_record)
 				
-				assert target_variant == None
-				assert mutation_aa != 'p.L858R'
-				assert gene_name != 'EGFR' and gene_name != 'BRAF'
+	# 			assert target_variant == None
+	# 			assert mutation_aa != 'p.L858R'
+	# 			assert gene_name != 'EGFR' and gene_name != 'BRAF'
 
 
 	def test_find_cell_gene_aa_mutations(self):
@@ -126,9 +126,19 @@ class FindPeptideVariantsTester(unittest.TestCase):
 			if curr_vcf == 'A1':
 				k = list(gene_aa_mutations)
 				assert 'EGFR' in k
+
+				# take a look at the variant coverage string 
+				#		this is horrible -- I know
+				v = gene_aa_mutations.get('EGFR')
+				vl = list(v)
+				ve = vl[0]
+				vc = ve.split(',')[1] 
+				assert vc == '[2:0]'
 			else:
 				k = list(gene_aa_mutations)
 				assert not k
+
+		#assert True == False
 
 
 if __name__ == "__main__":
