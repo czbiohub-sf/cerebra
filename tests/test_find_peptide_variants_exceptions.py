@@ -123,7 +123,7 @@ class FindPeptideVariantsTester(unittest.TestCase):
 			init_process(curr_aa_mutation_finder)
 			gene_aa_mutations = process_cell(vcf_path)
 
-			if curr_vcf == 'A1':
+			if 'A1' in curr_vcf:
 				k = list(gene_aa_mutations)
 				assert 'EGFR' in k
 
@@ -137,8 +137,6 @@ class FindPeptideVariantsTester(unittest.TestCase):
 			else:
 				k = list(gene_aa_mutations)
 				assert not k
-
-		#assert True == False
 
 
 if __name__ == "__main__":
