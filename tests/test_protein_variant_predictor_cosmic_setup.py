@@ -22,7 +22,7 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 		annotation_path = data_path + '/gencode_min.gtf'
 		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
-		self.input_path = data_path + '/vcf/'  # limiting to just one
+		self.input_path = data_path + '/vcf/'  
 		self.input_paths = [self.input_path +
 								x for x in os.listdir(self.input_path)]
 
@@ -48,8 +48,6 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 
 		# these are all possible ensembl translation ids that should
 		#	be predicted given our test vcfs
-
-				# this (Leu813Arg) one is wierd?
 		potential_variants = ['ENSP00000415559.1:p.(Leu813Arg)',
 								'ENSP00000395243.3:p.(Leu813Arg)',
 								'ENSP00000275493.2:p.(Leu858Arg)',
@@ -78,6 +76,9 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 								_get_cosmic_record_protein_variant(overlap)
 					for overlap in overlaps)
 
+				for t in target_variants: # testing here buh
+					print(t)
+
 				# Filter out variants which could not be correctly obtained for
 				# some reason.
 				target_variants = \
@@ -103,8 +104,9 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 								target_count += 1
 								break
 
-		assert target_count == 1
-		#assert True == False
+		assert target_count == 1  # means that only one of these badboys 
+								  #     is in COSMIC
+
 
 if __name__ == "__main__":
 	unittest.main()

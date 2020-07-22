@@ -63,8 +63,7 @@ class AminoAcidMutationFinder():
                 transcript_record = tx_record
                 break
         else:
-            # If we can't find the transcript record, it probably is not
-            # protein-coding.
+            # is there a better way to handle this? 
             print(f"[{transcript_accession} -> N/A] {mutation_aa}")
             return None
 
@@ -166,6 +165,8 @@ class AminoAcidMutationFinder():
                 target_variants = [
                     variant for variant in target_variants if variant
                 ]
+
+                # TODO: test here
 
                 if not target_variants:
                     continue

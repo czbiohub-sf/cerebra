@@ -90,7 +90,5 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 					predicted_variant = result.predicted_variant
 					assert str(predicted_variant) in potential_variants
 
-		assert True == True
-
 if __name__ == "__main__":
 	unittest.main()
