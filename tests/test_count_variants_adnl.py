@@ -155,7 +155,7 @@ class TestMutationCounter(unittest.TestCase):
 
 		annotation_path = self.data_path + '/hg38-plus.min.gtf'
 		runner = CliRunner()
-		result = runner.invoke(count_variants, ["--processes", 1,
+		result = runner.invoke(count_variants, ["--processes", 2,
 										"--cosmicdb", self.cosmicdb_path,
 										"--refgenome", annotation_path,
 										"--outfile", self.data_path +

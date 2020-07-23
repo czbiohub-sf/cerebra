@@ -46,7 +46,7 @@ def test_gtf():
 
 	runner = CliRunner()
 	result = runner.invoke(find_peptide_variants, [
-							"--processes", 1,
+							"--processes", 2,
 							"--annotation", data_path + "/hg38-plus.min.gtf",
 							"--cosmicdb", cosmicdb_path,
 							"--report_coverage", 0,

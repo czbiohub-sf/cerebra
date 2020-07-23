@@ -87,5 +87,29 @@ class GermlineFilterTestCase(unittest.TestCase):
         os.remove(out_path + 'A1.vcf')
 
 
+    def test_basic_multi(self):
+        ''' does germline-filter return w/o error? '''
+        from cerebra.germline_filter import germline_filter
+
+        data_path = os.path.abspath(__file__ + '/../' +
+                                    'data/test_germline_filter/')
+        gl_path = data_path + '/germline/'
+        experimental_path = data_path + '/experimental/'
+        meta_path = data_path + '/meta.csv'
+        out_path = data_path + '/gl_out/'
+
+        runner = CliRunner()
+        result = runner.invoke(germline_filter, ["--processes", 2,
+                                            "--control_path", gl_path,
+                                            "--experimental_path", experimental_path,
+                                            "--metadata", meta_path,
+                                            "--outdir", out_path])
+
+        assert result.exit_code == 0
+        assert os.path.isfile(out_path + "A1.vcf")
+
+        os.remove(out_path + 'A1.vcf')
+
+
 if __name__ == "__main__":
     unittest.main()
