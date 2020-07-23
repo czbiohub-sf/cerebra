@@ -74,4 +74,4 @@ def test_basic_cmp():
 
 	# teardown
 	os.remove(data_path + "/test_out.csv")
-	os.remove(data_path + "/test_out.json")
+	#os.remove(data_path + "/test_out.json")

@@ -126,15 +126,20 @@ class AminoAcidMutationFinder():
             call = record_.calls[0]
             curr_AD = call.data.get('AD')
 
+            # TODO: add exception case to handle > 1 alt allele
+            #      this will absolutely come up
+
             if len(curr_AD) != 1:
                 wt_count = curr_AD[0]
-                v_count = curr_AD[1]  # need to account for > 1 alt allele
+                v_count = curr_AD[1]
             else:
-                # TODO: test here
+                # this isnt really a variant -- in theory we shouldnt 
+                #         see any of these
                 wt_count = curr_AD[0]
                 v_count = 0
             ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
             return (ratio_str)
+
             """ end function definition """
 
         vcf_reader = vcfpy.Reader.from_stream(
