@@ -21,7 +21,7 @@ class FindAAMutationsTester(unittest.TestCase):
 
 		self.genomefa_path = self.data_path + '/GRCh38_limited_chr7.fa.gz'
 		self.cov_bool = 1
-		self.num_processes = 2
+		self.num_processes = 1  # this is wierd 
 		self.outpath = self.data_path + '/test_out.csv'
 
 		self.input_path = self.data_path + '/vcf/'

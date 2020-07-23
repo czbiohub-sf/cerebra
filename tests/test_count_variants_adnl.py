@@ -74,6 +74,7 @@ class TestMutationCounter(unittest.TestCase):
 										record in self.refgenome_df.iterrows()))
 
 		a1_expect = {'EGFR': 2}
+		a2_expect = {'EGFR': 1}
 
 		for vcf in self.input_paths:
 			curr_vcf = vcf.strip(self.input_path)
@@ -81,6 +82,8 @@ class TestMutationCounter(unittest.TestCase):
 
 			if 'A1' in curr_vcf:
 				assert counts[0] == a1_expect
+			elif 'A2' in curr_vcf:
+				assert counts[0] == a2_expect
 			else:
 				assert counts[0] == {}
 
@@ -113,7 +116,7 @@ class TestMutationCounter(unittest.TestCase):
 
 				gene_name = mutation_counter._parse_gene_name(gene_row[8])
 
-				if 'A1' in curr_vcf:
+				if 'A1' in curr_vcf or 'A2' in curr_vcf:
 					assert gene_name in A1_gene_names
 				else:
 					assert gene_name == ''

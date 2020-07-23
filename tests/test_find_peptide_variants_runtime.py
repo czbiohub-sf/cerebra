@@ -47,7 +47,7 @@ def test_basic_cmp():
 
 	annotation_path = data_path + '/gencode_min.gtf'
 	cov_bool = 0
-	num_processes = 2   # want to include that multiprocessing module
+	num_processes = 1   # want to include that multiprocessing module
 	outpath = data_path + '/test_out.csv'
 
 	input_path = data_path + '/vcf/'
@@ -69,9 +69,34 @@ def test_basic_cmp():
 
 	assert os.path.isfile(outpath)
 
-	expect_path = data_path + '/expect_out.csv'
-	filecmp.cmp(expect_path, outpath)
+	outdf = pd.read_csv(outpath, index_col=0)
+	expect_index = ['A1', 'A2', 'A3', 'A4', 'A5']
+	expect_cols = ['EGFR']
 
-	# teardown
+	assert list(outdf.index) == expect_index
+	assert list(outdf.columns) == expect_cols
+
+	indel_ensps = ['ENSP00000275493.2:p.(Leu858delinsArgTrp)', 
+					'ENSP00000395243.3:p.(Leu813delinsArgTrp)', 
+					'ENSP00000415559.1:p.(Leu813delinsArgTrp)']
+
+	snp_ensps = ['ENSP00000415559.1:p.(Leu813Arg)', 
+					'ENSP00000395243.3:p.(Leu813Arg)', 
+					'ENSP00000275493.2:p.(Leu858Arg)', ]
+
+	a1_matches = outdf.loc['A1']['EGFR']
+	a2_matches = outdf.loc['A2']['EGFR']
+
+	# this is a bit backwards but ok considering the wierd format of outfile
+	for x in indel_ensps:
+		assert x in a1_matches
+
+	for y in snp_ensps:
+		assert y in a1_matches
+
+	for z in snp_ensps:
+		assert z in a2_matches
+
+	#teardown
 	os.remove(data_path + "/test_out.csv")
 	#os.remove(data_path + "/test_out.json")
