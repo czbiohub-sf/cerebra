@@ -101,7 +101,7 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 								target_count += 1
 								break
 
-		assert target_count == 2  # means that only two of these badboys 
+		assert target_count == 3  # means that only two of these badboys 
 								  #     are in COSMIC
 
 

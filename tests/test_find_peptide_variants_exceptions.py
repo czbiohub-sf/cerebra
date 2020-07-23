@@ -142,7 +142,7 @@ class FindPeptideVariantsTester(unittest.TestCase):
 				vl = list(v)
 				ve = vl[0]
 				vc = ve.split(',')[1]
-				assert vc == '[0:2]'
+				assert vc == '[0:2]' or vc == '[3:2:1]'
 
 			else:
 				k = list(gene_aa_mutations)

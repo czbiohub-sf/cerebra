@@ -95,15 +95,15 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 				curr_gps.append(str(record_pos))
 
 			if curr_vcf == 'A1':
-				assert curr_gps == A1_gps
+				assert set(curr_gps) == set(A1_gps)
 			elif curr_vcf == 'A2':
-				assert curr_gps == A2_gps
+				assert set(curr_gps) == set(A2_gps)
 			elif curr_vcf == 'A3':
-				assert curr_gps == A3_gps
+				assert set(curr_gps) == set(A3_gps)
 			elif curr_vcf == 'A4':
-				assert curr_gps == A4_gps
+				assert set(curr_gps) == set(A4_gps)
 			elif curr_vcf == 'A5':
-				assert curr_gps == A5_gps
+				assert set(curr_gps) == set(A5_gps)
 
 
 if __name__ == "__main__":

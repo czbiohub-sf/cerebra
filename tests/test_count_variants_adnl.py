@@ -74,7 +74,7 @@ class TestMutationCounter(unittest.TestCase):
 										record in self.refgenome_df.iterrows()))
 
 		a1_expect = {'EGFR': 2}
-		a2_expect = {'EGFR': 1}
+		a2_expect = {'EGFR': 2}
 
 		for vcf in self.input_paths:
 			curr_vcf = vcf.strip(self.input_path)

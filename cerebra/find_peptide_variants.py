@@ -125,22 +125,31 @@ class AminoAcidMutationFinder():
             """ extracts coverage info from the INFO field of a vcf entry """
             call = record_.calls[0]
             curr_AD = call.data.get('AD')
-
-            # TODO: add exception case to handle > 1 alt allele
-            #      this will absolutely come up
-
-            if len(curr_AD) != 1:
+            
+            if len(curr_AD) == 2:   # most common case
                 wt_count = curr_AD[0]
                 v_count = curr_AD[1]
-            else:
-                # this isnt really a variant -- in theory we shouldnt 
-                #         see any of these
+                ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
+            
+            elif len(curr_AD) == 1 :   # this isnt really a variant
+                wt_count = curr_AD[0]  #  in theory we shouldnt see any 
+                v_count = 0            #  of these
+                ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
+
+            elif len(curr_AD) > 2:  # hella exception case
+                i = 1
+                looping = True
                 wt_count = curr_AD[0]
-                v_count = 0
-            ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
+                ratio_str = str(wt_count) + ']'
+                while i < len(curr_AD):
+                    curr_v_count = curr_AD[i]
+                    ratio_str = str(curr_v_count) + ':' + ratio_str
+                    i += 1
+                ratio_str = '[' + ratio_str
+
             return (ratio_str)
 
-            """ end function definition """
+            """ end sub-function definition """
 
         vcf_reader = vcfpy.Reader.from_stream(
             stream) if stream is not None else vcfpy.Reader.from_path(path)
