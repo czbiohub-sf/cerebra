@@ -16,7 +16,7 @@ class TestMutationCounter(unittest.TestCase):
 		self.data_path = os.path.abspath(__file__ + '/../' + \
 											'data/test_find_peptide_variants/')
 		self.cosmicdb_path = self.data_path + \
-										'/cosmic_min.tsv'
+											'/cosmic_min.tsv'
 		self.annotation_path = self.data_path + '/gencode_min.gtf'
 
 		self.input_path = self.data_path + '/vcf/'
@@ -122,26 +122,52 @@ class TestMutationCounter(unittest.TestCase):
 					assert gene_name == ''
 
 
-	# TODO: NEED TO GET THIS WORKING
-	# def test_runtime(self):
-	# 	''' full runtime test
-	# 		does count_variants returns w/o error? '''
-	# 	from cerebra.count_variants import count_variants
+	def test_runtime_header(self):
+		''' full runtime test
+			does count_variants returns w/o error? 
 
-	# 	runner = CliRunner()
-	# 	result = runner.invoke(count_variants, ["--processes", 1,
-	# 									"--cosmicdb", self.cosmicdb_path,
-	# 									"--refgenome", self.annotation_path,
-	# 									"--outfile", self.data_path +
-	# 									'/test_out.csv',
-	# 									self.input_path + 'A1.vcf'])
+			testing with gtf that HAS header '''
+		from cerebra.count_variants import count_variants
 
-	# 	assert result.exit_code == 0
-	# 	assert os.path.isfile(self.data_path + "/test_out.csv")
+		runner = CliRunner()
+		result = runner.invoke(count_variants, ["--processes", 1,
+										"--cosmicdb", self.cosmicdb_path,
+										"--refgenome", self.annotation_path,
+										"--outfile", self.data_path +
+										'/test_out.csv',
+										self.input_path + 'A1.vcf'])
 
-	# 	# teardown
-	# 	os.remove(self.data_path + "/test_out.csv")
-	#	os.remove(self.data_path + "/test_out_filtered.csv")
+		assert result.exit_code == 0
+		assert os.path.isfile(self.data_path + "/test_out.csv")
+
+		# teardown
+		os.remove(self.data_path + "/test_out.csv")
+		os.remove(self.data_path + "/test_out_filtered.csv")
+
+
+	def test_runtime_no_header(self):
+		''' full runtime test
+			does count_variants returns w/o error?
+
+			this time testing with a diff version of the gtf that
+			DOES NOT have a header '''
+		from cerebra.count_variants import count_variants
+
+		annotation_path = self.data_path + '/hg38-plus.min.gtf'
+		runner = CliRunner()
+		result = runner.invoke(count_variants, ["--processes", 1,
+										"--cosmicdb", self.cosmicdb_path,
+										"--refgenome", annotation_path,
+										"--outfile", self.data_path +
+										'/test_out.csv',
+										self.input_path + 'A1.vcf'])
+
+		assert result.exit_code == 0
+		assert os.path.isfile(self.data_path + "/test_out.csv")
+
+		# teardown
+		os.remove(self.data_path + "/test_out.csv")
+		os.remove(self.data_path + "/test_out_filtered.csv")
 
 
 if __name__ == "__main__":

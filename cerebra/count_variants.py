@@ -167,7 +167,12 @@ def count_variants(processes, cosmicdb, refgenome, outfile, files):
     print("Loading COSMIC database...")
     cosmic_df = pd.read_csv(cosmicdb, delimiter='\t')
     print("Loading reference genome...")
-    refgenome_df = pd.read_csv(refgenome, delimiter='\t', header=None)
+    
+    try:
+        refgenome_df = pd.read_csv(refgenome, delimiter='\t', header=None)
+    except pd.errors.ParserError:
+        refgenome_df = pd.read_csv(refgenome, \
+                             sep='\t', skiprows=5, header=None)
 
     print("Building genome trees...")
     mutation_counter = MutationCounter(cosmic_df, refgenome_df)

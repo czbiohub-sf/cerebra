@@ -35,6 +35,34 @@ def test_basic():
 	os.remove(data_path + "/test_out.csv")
 	os.remove(data_path + "/test_out.json")
 
+
+def test_gtf():
+	''' lets try the same thing with a different gtf '''
+	data_path = os.path.abspath(__file__ + '/../' +
+								'data/test_find_peptide_variants/')
+	vcf_path = data_path + '/vcf/A1.vcf'
+	genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
+	cosmicdb_path = data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
+
+	runner = CliRunner()
+	result = runner.invoke(find_peptide_variants, [
+							"--processes", 1,
+							"--annotation", data_path + "/hg38-plus.min.gtf",
+							"--cosmicdb", cosmicdb_path,
+							"--report_coverage", 0,
+							"--genomefa", genomefa_path,
+							"--output_path", data_path + "/test_out.csv",
+							vcf_path])
+
+	assert result.exit_code == 0
+	assert os.path.isfile(data_path + "/test_out.csv")
+	assert os.path.isfile(data_path + "/test_out.json")
+
+	# teardown
+	os.remove(data_path + "/test_out.csv")
+	os.remove(data_path + "/test_out.json")
+
+
 def test_basic_cmp():
 	''' does find_all_mutations return w/o error, redux
 		this one has an expected vs. actual file compare step 
