@@ -131,6 +131,7 @@ matrix:
 
 script:
     - make test
+    - make coverage
     - make lint
 
 after_script:
