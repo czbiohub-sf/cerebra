@@ -63,8 +63,9 @@ class AminoAcidMutationFinder():
                 transcript_record = tx_record
                 break
         else:
-            # is there a better way to handle this? 
-            print(f"[{transcript_accession} -> N/A] {mutation_aa}")
+            # record not found in cosmic database
+            # i dont think we need to explicitly do anything to handle 
+            #      this exception
             return None
 
         protein_accession = transcript_record.feat.attributes["protein_id"]
@@ -129,10 +130,12 @@ class AminoAcidMutationFinder():
                 wt_count = curr_AD[0]
                 v_count = curr_AD[1]  # need to account for > 1 alt allele
             else:
+                # TODO: test here
                 wt_count = curr_AD[0]
                 v_count = 0
             ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
             return (ratio_str)
+            """ end function definition """
 
         vcf_reader = vcfpy.Reader.from_stream(
             stream) if stream is not None else vcfpy.Reader.from_path(path)
@@ -167,7 +170,6 @@ class AminoAcidMutationFinder():
                 ]
 
                 # TODO: test here
-
                 if not target_variants:
                     continue
 
@@ -197,6 +199,7 @@ class AminoAcidMutationFinder():
                     gene_name = result.transcript_feat.attributes["gene_name"]
                     gene_aa_mutations[gene_name].add(pvr_str)
                 else:
+                    # test here
                     gene_name = result.transcript_feat.attributes["gene_name"]
                     gene_aa_mutations[gene_name].add(str(predicted_variant))
 
@@ -283,11 +286,9 @@ def find_peptide_variants(num_processes, cosmicdb_path, annotation_path,
                                                 genome_faidx, cov_bool)
 
     print("Setup complete.")
-
     print("Finding mutations...")
     result_df = aa_mutation_finder.find_transcript_mutations(input_files,
                                                 processes=num_processes)
-
     print("Writing file...")
 
     csv_path = Path(output_path)

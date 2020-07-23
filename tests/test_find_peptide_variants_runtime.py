@@ -9,31 +9,36 @@ from cerebra.find_peptide_variants import find_peptide_variants
 
 
 def test_basic():
-	''' does find_all_mutations returns w/o error? '''
+	''' does find_all_mutations returns w/o error? 
+		basic runtime test '''
 	data_path = os.path.abspath(__file__ + '/../' +
 								'data/test_find_peptide_variants/')
 	vcf_path = data_path + '/vcf/A1.vcf'
 	genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
+	cosmicdb_path = data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
 
 	runner = CliRunner()
 	result = runner.invoke(find_peptide_variants, [
 							"--processes", 1,
 							"--annotation", data_path + "/gencode_min.gtf",
-							"--report_coverage", 1,
+							"--cosmicdb", cosmicdb_path,
+							"--report_coverage", 0,
 							"--genomefa", genomefa_path,
 							"--output_path", data_path + "/test_out.csv",
 							vcf_path])
 
 	assert result.exit_code == 0
 	assert os.path.isfile(data_path + "/test_out.csv")
+	assert os.path.isfile(data_path + "/test_out.json")
 
 	# teardown
 	os.remove(data_path + "/test_out.csv")
-
+	os.remove(data_path + "/test_out.json")
 
 def test_basic_cmp():
 	''' does find_all_mutations return w/o error, redux
-		this one has an expected vs. actual file compare step '''
+		this one has an expected vs. actual file compare step 
+		pytest keeps telling me filecmp.cmp() is outdated? '''
 	from cerebra.find_peptide_variants import AminoAcidMutationFinder
 
 	data_path = os.path.abspath(__file__ + '/../' +
@@ -41,8 +46,8 @@ def test_basic_cmp():
 	genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 
 	annotation_path = data_path + '/gencode_min.gtf'
-	cov_bool = 1
-	num_processes = 2
+	cov_bool = 0
+	num_processes = 2   # want to include that multiprocessing module
 	outpath = data_path + '/test_out.csv'
 
 	input_path = data_path + '/vcf/'
@@ -54,7 +59,8 @@ def test_basic_cmp():
 	aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df,
 												genome_faidx, cov_bool)
 
-	results_df = aa_mutation_finder.find_transcript_mutations(paths=input_paths,
+	results_df = aa_mutation_finder.find_transcript_mutations(
+									paths=input_paths,
 									processes=num_processes)
 
 	results_df = results_df.sort_index()  # row sort

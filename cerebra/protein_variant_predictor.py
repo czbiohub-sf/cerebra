@@ -68,6 +68,7 @@ class ProteinVariantPredictor():
             transcript_feat = features["transcript"][0]
 
             # Hopefully redundant check
+            # TODO: test here
             if not transcript_feat:
                 print(f"Unexpected missing transcript feature for transcript"
                       " ID {transcript_id}")

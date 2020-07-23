@@ -22,7 +22,8 @@ class FindPeptideVariantsTester(unittest.TestCase):
 
 		annotation_path = self.data_path + '/gencode_min.gtf'
 		genomefa_path = self.data_path + '/GRCh38_limited_chr7.fa.gz'
-		cosmicdb_path = self.data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
+		cosmicdb_path = self.data_path + \
+						'/CosmicGenomeScreensMutantExport.min.tsv'
 
 		self.input_path = self.data_path + '/vcf/' 
 		self.input_paths = [self.input_path +
