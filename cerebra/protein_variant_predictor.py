@@ -121,6 +121,7 @@ class ProteinVariantPredictor():
         self.tree = GenomeIntervalTree(lambda record: record.feat.pos,
                                        cds_records)
 
+        # there must be a smarter way of doing this
         if 'chrM' in self.genome_fasta.keys():
             self.genome_fasta_mito = genome_faidx["chrM"][:]
         else:
@@ -185,12 +186,14 @@ class ProteinVariantPredictor():
 
         ref = vcf_record.REF
         for alt in vcf_record.ALT:
+ 
             # Create a GenomePosition representing the range affected by the
             # ALT sequence.
             affected_pos = record_pos.shifted_by(
                 vcf_alt_affected_range(ref, alt))
 
             coding_overlaps = self.tree.get_all_overlaps(affected_pos)
+
             transcript_ids = set(
                 record.transcript.feat.attributes["transcript_id"]
                 for record in coding_overlaps)

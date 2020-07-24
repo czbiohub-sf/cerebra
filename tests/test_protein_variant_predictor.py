@@ -16,16 +16,18 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 	def setUpClass(self):
 		''' __init__ method for class obj '''
 
-		data_path = os.path.abspath(__file__ + '/../' + \
+		self.data_path = os.path.abspath(__file__ + '/../' + \
 									'data/test_find_peptide_variants/')
-		annotation_path = data_path + '/gencode_min.gtf'
-		genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
+		
+		annotation_path = self.data_path + '/gencode_min.gtf'
+		genomefa_path = self.data_path + '/GRCh38_limited_chr7.fa.gz'
 
-		self.input_path = data_path + '/vcf/'
+		self.input_path = self.data_path + '/vcf/'
 		self.input_paths = [self.input_path +
 								x for x in os.listdir(self.input_path)]
 
-		annotation_df = pd.read_csv(annotation_path, sep='\t', skiprows=5)
+		annotation_df = pd.read_csv(annotation_path, delimiter='\t', \
+                                        comment='#', header=None)
 		genome_faidx = Fasta(genomefa_path)
 
 		self.annotation_genome_tree = GenomeIntervalTree(lambda feat: feat.pos,
@@ -89,6 +91,25 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 				for result in protein_variant_results:
 					predicted_variant = result.predicted_variant
 					assert str(predicted_variant) in potential_variants
+
+
+	def test_mito(self):
+		''' TODO: description here '''
+
+		annotation_path = self.data_path + '/gencode_min_chr7.gtf'
+		genomefa_path = self.data_path + '/GRCh38_chr7_chrM.fa.gz'
+
+		annotation_df = pd.read_csv(annotation_path, delimiter='\t', \
+                                        comment='#', header=None)
+		genome_faidx = Fasta(genomefa_path)
+
+		annotation_genome_tree = GenomeIntervalTree(lambda feat: feat.pos,
+						(GFFFeature(row) for _,
+							row in annotation_df.iterrows()))
+
+		protein_variant_predictor = ProteinVariantPredictor(
+									annotation_genome_tree, genome_faidx)
+
 
 if __name__ == "__main__":
 	unittest.main()
