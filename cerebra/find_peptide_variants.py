@@ -290,14 +290,9 @@ def find_peptide_variants(num_processes, cosmicdb_path, annotation_path,
         cosmic_df = None
 
     print("Loading genome annotation...")
-    #annotation_df = pd.read_csv(annotation_path, sep='\t', skiprows=5)
 
-    try:
-        annotation_df = pd.read_csv(annotation_path, delimiter='\t', \
-                                                    header=None)
-    except pd.errors.ParserError:
-        annotation_df = pd.read_csv(annotation_path, \
-                             sep='\t', skiprows=5, header=None)
+    annotation_df = pd.read_csv(annotation_path, delimiter='\t', \
+                                        comment='#', header=None)
 
     print("Loading genome sequences...")
     genome_faidx = Fasta(genomefa_path)
