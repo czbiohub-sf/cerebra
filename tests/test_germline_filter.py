@@ -31,6 +31,7 @@ class GermlineFilterTestCase(unittest.TestCase):
         for filtered_cell_vcf_path in filtered_cell_vcf_paths:
             cell_name = filtered_cell_vcf_path.stem.replace("GF_", '')
             cell_vcf_path = self.vcf_path / (cell_name + ".vcf")
+
             germline_vcf_paths = self.germ_path.glob(cell_name + "_GL*.vcf")
 
             # Create germline genome tree
@@ -87,7 +88,7 @@ class GermlineFilterTestCase(unittest.TestCase):
         os.remove(out_path + 'A1.vcf')
 
 
-    def test_basic_multi(self):
+    def test_failure_multi(self):
         ''' does germline-filter return w/o error? '''
         from cerebra.germline_filter import germline_filter
 
@@ -95,7 +96,7 @@ class GermlineFilterTestCase(unittest.TestCase):
                                     'data/test_germline_filter/')
         gl_path = data_path + '/germline/'
         experimental_path = data_path + '/experimental/'
-        meta_path = data_path + '/meta.csv'
+        meta_path = data_path + '/meta_dummy.csv'
         out_path = data_path + '/gl_out/'
 
         runner = CliRunner()
