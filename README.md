@@ -19,7 +19,7 @@ chr1 631391 . C T 72.28 . AC=2;AF=1.00;AN=2;DP=2;ExcessHet=3.0103;FS=0.000;MLEAC
 Note that only a single VCF record is displayed here.
 A sequencing run can generate on the order of 10<sup>8</sup> unique VCF records. 
 Only a small portion of these VCF records are likely to be relevant to the researcher.
-Thus drawing conclusions from VCF files remains a substantial challange.
+Thus drawing conclusions from VCF files remains a substantial challenge.
 
 
 `cerebra` provides a fast and intuitive framework for summarizing VCF records across samples.
@@ -48,8 +48,7 @@ Another is [GATK VariantsToTable](https://software.broadinstitute.org/gatk/docum
      1        20  rs10    99      10
 
 This table contains only genomic (_i.e._ DNA-level) coordinates. 
-Often the next questions are: what gene is each variant associated with, and what are the peptide-level effects of each variant? 
-
+Often the next questions are: what are the genes associated with these variants, and what are the peptide-level effects of these variants?
 `cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene and probable peptide-level level variant.
 `cerebra` produces the following outfile: 
 
@@ -88,7 +87,7 @@ $ python
 Here _CCN1_ is a gene name while _A16_B000563_, _A1_B001546_, _A1_B002531,_... are RNA-seq sample IDs.
 `cerebra` reports variants to every gene in the genome, for every sample in a given experiment. 
 The _ENSP*_ numbers refer to [Ensembl](https://www.ensembl.org/index.html) translation IDs -- unique identifiers that correspond to exactly one polypeptide in the Ensembl database. 
-The strings enclosed in parentheses refer to the amino-acid level variants reported in that particular sample. 
+The strings enclosed in parenthesis refer to the amino-acid level variants reported in that particular sample. 
 For example the string `Arg209Trp` indicates that position 209 of this particular polypeptide should contain an _Arg_, but the experimental sample instead contains a _Trp_. 
 `cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting amino-acid variants.
 
@@ -99,29 +98,19 @@ Features
 If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
 This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
 The user provides a very simple metadata file that indicates which experimental samples correspond to which control samples.
-For example:
-
-```
-experimental_sample_id,germline_sample_id
-sample1,gl_sample1
-sample2,gl_sample1
-sample3,gl_sample2
-sample4,gl_sample2
-sample5,gl_sample2
-```
 The output of `germline-filter` is a set of trimmed-down VCFs. 
 
 ### `count-variants`
 This module reports the raw variant counts for every gene across every sample.
 The output is a CSV file that contains counts for each sample versus every gene in the genome. 
+If working with cancer variants, the user has the option of limiting the search space to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
 
 ### `find-peptide-variants`
 The `find-peptide-variants` module reports the peptide-level consequence of genomic variants.
 VCF records are converted to peptide-level variants, and then [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
-
-For advanced usage information, see [FEATURES.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/FEATURES.md). 
+The user again has the option of limiting the search space to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
 
 Installation
 ------------
@@ -175,14 +164,12 @@ sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblz
 ```
 
 As of present `cerebra` is not installable on Windows. 
-`cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library -- or rather, `pysam` is a dependency-of-a-dependency -- and currently this library is only available on Unix-like systems. 
+`cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library (or rather, `pysam` is a dependency-of-a-dependency) and currently this library is only available on Unix-like systems. 
 
 
-Usage
+(Quickstart) Usage
 -----
-
-`cerebra` should now be installed as a commandline executable. 
-`$ cerebra` should return help information
+`$ cerebra` should return usage information
 
 ```
 Usage: cerebra  <command>
@@ -212,6 +199,7 @@ An example workflow might look like this:
 **Step 3:**          
 `cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --annotation /path/to/genome/annotation --genomefa /path/to/genome/fasta --report_coverage 1 --output /path/to/output/file /path/to/filtered/vcfs/*`
 
+For advanced usage information, see [FEATURES.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/FEATURES.md). 
 
 Authors
 --------
