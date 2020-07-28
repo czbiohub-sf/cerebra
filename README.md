@@ -49,7 +49,7 @@ Another is [GATK VariantsToTable](https://software.broadinstitute.org/gatk/docum
 
 This table contains only genomic (_i.e._ DNA-level) coordinates. 
 Often the next questions are: what are the genes associated with these variants, and what are the peptide-level effects of these variants?
-`cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene and probable peptide-level level variant.
+`cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene, and its probable peptide-level variant.
 `cerebra` produces the following outfile: 
 
 ```
@@ -106,7 +106,7 @@ The output is a CSV file that contains counts for each sample versus every gene 
 If working with cancer variants, the user has the option of limiting the search space to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
 
 ### `find-peptide-variants`
-The `find-peptide-variants` module reports the peptide-level consequence of genomic variants.
+This module reports the peptide-level consequence of genomic variants.
 VCF records are converted to peptide-level variants, and then [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
