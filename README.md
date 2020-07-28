@@ -15,7 +15,7 @@ This tool allows you to quickly extract meaningful variant information from a DN
 chr1 631391 . C T 72.28 . AC=2;AF=1.00;AN=2;DP=2;ExcessHet=3.0103;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=NaN;QD=25.36;SOR=2.303 GT:AD:DP:GQ:PL 1/1:0,2:2:6:84,6,0
 ```
 Note that only a single VCF record is displayed here.
-A sequencing run can generate on the order of 10^8 unique VCF records, only a small portion of which contain meaningful biological signal. Thus drawing conclusions from VCF files remains a substantial challange. `cerebra` provides a fast and intuitive framework for summarizing VCF records across samples. It is comprised of three modules that do the following:      
+A sequencing run can generate on the order of 10<sup>8</sup> unique VCF records, only a small portion of which contain meaningful biological signal. Thus drawing conclusions from VCF files remains a substantial challange. `cerebra` provides a fast and intuitive framework for summarizing VCF records across samples. It is comprised of three modules that do the following:      
 
         1) remove germline variants from samples of interest        
         2) count the total number of variants in a given sample, on a per-gene basis           
@@ -26,8 +26,6 @@ A sequencing run can generate on the order of 10^8 unique VCF records, only a sm
 If you're working with tumor data, it might be a good idea to limit the variant search space to only known cancer variants. Therefore `cerebra` implements an optional method for restricting to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database.  
 
 This tool was developed for, but is certainly not limited to, single-cell RNA sequencing data. 
-
--   Free software: MIT license
 
 
 What makes `cerebra` different from traditional VCF parsers? 
@@ -183,6 +181,21 @@ pip install cerebra
 pip install --user cerebra
 ```
 
+`cerebra` depends on some (fairly standard) packages and libraries. If youre having trouble installing, it might be a good idea to make sure you have all of the requisite dependendices installed first (_note:_ if installing with Docker you can skip this step). 
+
+For MacOS:
+```
+sudo pip install setuptools
+brew update
+brew install openssl
+brew install zlib
+```
+
+For Linux:
+```
+sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev
+```
+
 As of present `cerebra` is not installable on Windows. `cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library -- or rather, `pysam` is a dependency-of-a-dependency -- and currently this library is only available on Unix-like systems. 
 
 
@@ -233,3 +246,5 @@ We welcome any bug reports, feature requests or other contributions. Please subm
 See [CONTRIBUTING.md](https://github.com/czbiohub/cerebra/blob/master/CONTRIBUTING.md) for additional details. 
 
 You can find official releases [here](https://github.com/czbiohub/cerebra/releases). 
+
+Free software: MIT license
