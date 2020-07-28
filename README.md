@@ -199,7 +199,7 @@ An example workflow might look like this:
 **Step 3:**          
 `cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --annotation /path/to/genome/annotation --genomefa /path/to/genome/fasta --report_coverage 1 --output /path/to/output/file /path/to/filtered/vcfs/*`
 
-For advanced usage information, see [FEATURES.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/FEATURES.md). 
+For advanced usage information, see [USAGE.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/USAGE.md). 
 
 Authors
 --------
