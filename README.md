@@ -7,7 +7,9 @@ cerebra
 
 What is `cerebra`?
 -------------------------------------
-This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. If you're interested in learning what variants are present in your DNA/RNA samples, variant callers like GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate variant calling format (VCF) files following a sequencing experiment. A VCF file looks like this:
+This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. 
+If you're interested in learning what variants are present in your DNA/RNA samples, variant callers such as GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate [variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf) (VCF) files following a sequencing experiment.
+A VCF file looks like this:
 
 ```##fileformat=VCFv4.2
 ##source=HaplotypeCaller
@@ -15,7 +17,13 @@ This tool allows you to quickly extract meaningful variant information from a DN
 chr1 631391 . C T 72.28 . AC=2;AF=1.00;AN=2;DP=2;ExcessHet=3.0103;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=NaN;QD=25.36;SOR=2.303 GT:AD:DP:GQ:PL 1/1:0,2:2:6:84,6,0
 ```
 Note that only a single VCF record is displayed here.
-A sequencing run can generate on the order of 10<sup>8</sup> unique VCF records, only a small portion of which contain meaningful biological signal. Thus drawing conclusions from VCF files remains a substantial challange. `cerebra` provides a fast and intuitive framework for summarizing VCF records across samples. It is comprised of three modules that do the following:      
+A sequencing run can generate on the order of 10<sup>8</sup> unique VCF records. 
+Only a small portion of these VCF records are likely to be relevant to the researcher.
+Thus drawing conclusions from VCF files remains a substantial challange.
+
+
+`cerebra` provides a fast and intuitive framework for summarizing VCF records across samples.
+It is comprised of three modules that do the following:      
 
         1) remove germline variants from samples of interest        
         2) count the total number of variants in a given sample, on a per-gene basis           
@@ -23,9 +31,11 @@ A sequencing run can generate on the order of 10<sup>8</sup> unique VCF records,
         
 `cerebra` gets its name from the eponymous X-men [character](https://en.wikipedia.org/wiki/Cerebra), who had the ability to detect mutant individuals among the general public. 
 
-If you're working with tumor data, it might be a good idea to limit the variant search space to only known cancer variants. Therefore `cerebra` implements an optional method for restricting to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database.  
+If you're working with tumor data, it might be a good idea to limit the variant search space to only known cancer variants. 
+Therefore `cerebra` implements an optional method for restricting to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database.  
 
-This tool was developed for, but is certainly not limited to, single-cell RNA sequencing data. `cerebra` is free software available under the MIT license.
+This tool was developed for, but is certainly not limited to, single-cell RNA sequencing data. 
+`cerebra` is free software available under the MIT license.
 
 
 What makes `cerebra` different from traditional VCF parsers? 
@@ -40,7 +50,8 @@ Another is [GATK VariantsToTable](https://software.broadinstitute.org/gatk/docum
 This table contains only genomic (_i.e._ DNA-level) coordinates. 
 Often the next questions are: what gene is each variant associated with, and what are the peptide-level effects of each variant? 
 
-`cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene and probable peptide-level level variant. `cerebra` produces the following outfile: 
+`cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene and probable peptide-level level variant.
+`cerebra` produces the following outfile: 
 
 ```
 $ python
@@ -74,7 +85,12 @@ $ python
 }
 ```
 
-Here _CCN1_ is a gene name while _A16_B000563_, _A1_B001546_, _A1_B002531,_... are RNA-seq sample IDs. `cerebra` reports variants to every gene in the genome, for every sample in a given experiment. The _ENSP*_ numbers refer to [Ensembl](https://www.ensembl.org/index.html) translation IDs -- unique identifiers that correspond to exactly one polypeptide in the Ensembl database. The strings enclosed in parentheses refer to the amino-acid level variants reported in that particular sample. For example the string `Arg209Trp` indicates that position 209 of this particular polypeptide should contain an _Arg_, but the experimental sample instead contains a _Trp_. `cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting amino-acid variants.
+Here _CCN1_ is a gene name while _A16_B000563_, _A1_B001546_, _A1_B002531,_... are RNA-seq sample IDs.
+`cerebra` reports variants to every gene in the genome, for every sample in a given experiment. 
+The _ENSP*_ numbers refer to [Ensembl](https://www.ensembl.org/index.html) translation IDs -- unique identifiers that correspond to exactly one polypeptide in the Ensembl database. 
+The strings enclosed in parentheses refer to the amino-acid level variants reported in that particular sample. 
+For example the string `Arg209Trp` indicates that position 209 of this particular polypeptide should contain an _Arg_, but the experimental sample instead contains a _Trp_. 
+`cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting amino-acid variants.
 
 Features
 --------
@@ -82,7 +98,8 @@ Features
 
 If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
 This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
-The user provides a very simple metadata file that indicates which experimental samples correspond to which control samples. For example:
+The user provides a very simple metadata file that indicates which experimental samples correspond to which control samples.
+For example:
 
 ```
 experimental_sample_id,germline_sample_id
@@ -108,7 +125,7 @@ For advanced usage information, see [FEATURES.md](https://github.com/czbiohub/ce
 
 Installation
 ------------
-There are four different methods available to install `cerebra`. Choose one. 
+There are four different methods available to install `cerebra`.
 
 __With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)__                
 ```
@@ -141,7 +158,8 @@ pip install cerebra
 pip install --user cerebra
 ```
 
-`cerebra` depends on some (fairly standard) packages and libraries. If youre having trouble installing, it might be a good idea to make sure you have all of the requisite dependendices installed first (_note:_ if installing with Docker you can skip this step). 
+`cerebra` depends on some (fairly standard) packages and libraries. 
+If youre having trouble installing, it might be a good idea to make sure you have all of the requisite dependendices installed first (_note:_ if installing with Docker you can skip this step). 
 
 For MacOS:
 ```
@@ -156,7 +174,8 @@ For Linux:
 sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev
 ```
 
-As of present `cerebra` is not installable on Windows. `cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library -- or rather, `pysam` is a dependency-of-a-dependency -- and currently this library is only available on Unix-like systems. 
+As of present `cerebra` is not installable on Windows. 
+`cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library -- or rather, `pysam` is a dependency-of-a-dependency -- and currently this library is only available on Unix-like systems. 
 
 
 Usage
@@ -196,12 +215,15 @@ An example workflow might look like this:
 
 Authors
 --------
-This work was produced by [Lincoln Harris](https://github.com/lincoln-harris), [Rohan Vanheusden](https://github.com/rvanheusden), [Olga Botvinnik](https://github.com/olgabot) and [Spyros Darmanis](https://spyrosdarmanis.wixsite.com/mylab) of the Chan Zuckerberg Biohub. For questions please contact ljharris018@gmail.com
+This work was produced by [Lincoln Harris](https://github.com/lincoln-harris), [Rohan Vanheusden](https://github.com/rvanheusden), [Olga Botvinnik](https://github.com/olgabot) and [Spyros Darmanis](https://spyrosdarmanis.wixsite.com/mylab) of the Chan Zuckerberg Biohub. 
+For questions please contact ljharris018@gmail.com
 
 
 Contributing
 --------
-We welcome any bug reports, feature requests or other contributions. Please submit a well documented report on our [issue tracker](https://github.com/czbiohub/cerebra/issues). For substantial changes please fork this repo and submit a pull request for review. 
+We welcome any bug reports, feature requests or other contributions. 
+Please submit a well documented report on our [issue tracker](https://github.com/czbiohub/cerebra/issues). 
+For substantial changes please fork this repo and submit a pull request for review. 
 
 See [CONTRIBUTING.md](https://github.com/czbiohub/cerebra/blob/master/CONTRIBUTING.md) for additional details. 
 
