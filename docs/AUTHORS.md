@@ -4,9 +4,10 @@ Credits
 Development Lead
 ----------------
 
--   Lincoln Harris &lt;lincoln.harris@czbiohub.org&gt;
+-   Lincoln Harris &lt;ljharris018@gmail.com&gt;
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+-   Olga Botvinnik <[@olgabot](https://github.com/olgabot)>
+-   Rohan Vanheusden <[@rvanheusden](https://github.com/rvanheusden)>
