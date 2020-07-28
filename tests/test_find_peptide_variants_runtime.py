@@ -14,12 +14,16 @@ def test_basic():
 	data_path = os.path.abspath(__file__ + '/../' +
 								'data/test_find_peptide_variants/')
 	vcf_path = data_path + '/vcf/A1.vcf'
-	genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
 	cosmicdb_path = data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
+
+	genomefa_gz_path = data_path + '/GRCh38_limited_chr7.fa.gz'
+	genomefa_path = data_path + '/GRCh38_limited_chr7.fa'
+	cmd = 'gunzip -c ' + genomefa_gz_path + ' > ' + genomefa_path
+	os.system(cmd)
 
 	runner = CliRunner()
 	result = runner.invoke(find_peptide_variants, [
-							"--processes", 1,
+							"--processes", 2,
 							"--annotation", data_path + "/gencode_min.gtf",
 							"--cosmicdb", cosmicdb_path,
 							"--report_coverage", 0,
@@ -41,7 +45,7 @@ def test_gtf():
 	data_path = os.path.abspath(__file__ + '/../' +
 								'data/test_find_peptide_variants/')
 	vcf_path = data_path + '/vcf/A1.vcf'
-	genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
+	genomefa_path = data_path + '/GRCh38_limited_chr7.fa'
 	cosmicdb_path = data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
 
 	runner = CliRunner()
@@ -71,7 +75,7 @@ def test_basic_cmp():
 
 	data_path = os.path.abspath(__file__ + '/../' +
 									'data/test_find_peptide_variants/')
-	genomefa_path = data_path + '/GRCh38_limited_chr7.fa.gz'
+	genomefa_path = data_path + '/GRCh38_limited_chr7.fa'
 
 	annotation_path = data_path + '/gencode_min.gtf'
 	cov_bool = 0
