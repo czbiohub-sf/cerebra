@@ -150,7 +150,7 @@ pip install --user cerebra
 `cerebra` depends on some (fairly standard) packages and libraries. 
 If youre having trouble installing, it might be a good idea to make sure you have all of the requisite dependendices installed first (_note:_ if installing with Docker you can skip this step). 
 
-For MacOS:
+__MacOS Dependencies:__
 ```
 sudo pip install setuptools
 brew update
@@ -158,7 +158,7 @@ brew install openssl
 brew install zlib
 ```
 
-For Linux:
+__Linux Dependencies:__
 ```
 sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev
 ```
