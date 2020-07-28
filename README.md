@@ -27,21 +27,27 @@ If you're working with tumor data, it might be a good idea to limit the variant 
 
 This tool was developed for, but is certainly not limited to, single-cell RNA sequencing data. 
 
+Free software: MIT license
+
 
 What makes `cerebra` different from traditional VCF parsers? 
 -------------------------------------
-Python libraries exist (_i.e._ [PyVCF](https://pyvcf.readthedocs.io/en/latest/) and [vcfpy](https://vcfpy.readthedocs.io/en/stable/index.html)) for extracting information from VCF files, and GATK has its own tool for the [task](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_variantutils_VariantsToTable.php). In fact we integrate vcfpy into our tool. What makes `cerebra` different is that it reports the RNA transcript and amino acid change associated with each variant. GATK _VariantsToTable_ produces a file that looks like: 
+Python libraries exist (_i.e._ [PyVCF](https://pyvcf.readthedocs.io/en/latest/) and [vcfpy](https://vcfpy.readthedocs.io/en/stable/index.html)) for extracting information from VCF files.
+Another is [GATK VariantsToTable](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_variantutils_VariantsToTable.php), which produces a file that looks like this:
  
     CHROM    POS ID      QUAL    AC
      1        10  .       50      1
      1        20  rs10    99      10
 
-Such a table contains only genomic (_i.e._ DNA-level) coordinates. Often the next question is what specific gene and peptide-level variants is each variant associated with? `cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene, probable transcript and probable peptide-level level variants. `cerebra` produces the following outfile: 
+This table contains only genomic (_i.e._ DNA-level) coordinates. 
+Often the next questions are: what gene is each variant associated with, and what are the peptide-level effects of each variant? 
+
+`cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene and probable peptide-level level variant. `cerebra` produces the following outfile: 
 
 ```
 $ python
 > import json
-> f = open(/pth/to/cerebra/output.json)
+> f = open(/path/to/cerebra/output.json)
 > data = json.load(f)
 > print(json.dumps(data, indent=4))
 
@@ -66,11 +72,11 @@ $ python
         "A3_B002531": [
             "ENSP00000398736.2:p.(Pro217Ser)"
         ]
-    },...
+    }
 }
 ```
 
-Here _CCN1_ is a gene name while _A16_B000563_, _A1_B001546_, _A1_B002531,_... are RNA-seq sample IDs. `cerebra` reports variants to every gene in the genome, for every sample in a given experiment. The _ENSP****_ numbers refer to [Ensembl](https://www.ensembl.org/index.html) translation IDs -- unique identifiers that correspond to exactly one polypeptide in the Ensembl database. The strings enclosed in parentheses refer to the amino-acid level variant reported in that particular sample. For example the string `Arg209Trp` indicates that position 209 of this particular polypeptide should contain an _Arg_, but the experimental sample instead contains a _Trp_. `cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting amino-acid variants.
+Here _CCN1_ is a gene name while _A16_B000563_, _A1_B001546_, _A1_B002531,_... are RNA-seq sample IDs. `cerebra` reports variants to every gene in the genome, for every sample in a given experiment. The _ENSP*_ numbers refer to [Ensembl](https://www.ensembl.org/index.html) translation IDs -- unique identifiers that correspond to exactly one polypeptide in the Ensembl database. The strings enclosed in parentheses refer to the amino-acid level variants reported in that particular sample. For example the string `Arg209Trp` indicates that position 209 of this particular polypeptide should contain an _Arg_, but the experimental sample instead contains a _Trp_. `cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting amino-acid variants.
 
 Features
 --------
@@ -88,39 +94,19 @@ sample3,gl_sample2
 sample4,gl_sample2
 sample5,gl_sample2
 ```
-
-There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases. 
-This option is designed to give the user a higher degree of confidence in the pathogenic nature of each variant -- if independent experiments have reported a given variant in human tissue, there is a higher likilihood that it is pathogenic. 
-The output of `germline-filter` is a set of trimmed-down VCF files. 
-
-If you have access to "control" tissue and your experimental question is concerned with differences between tumor/pathogenic tissue and control tissue, then `germline-filter` is the right place to start.
-`germline-filter` will produce a new set of VCFs, which you'll use for the next two steps.
-If you do not have access to "control" tissue, then proceed directly to `count-variants` or `find-peptide-variants`.
+The output of `germline-filter` is a set of trimmed-down VCFs. 
 
 ### `count-variants`
-The `count-variants` module reports the raw variant counts for every gene across every sample.
+This module reports the raw variant counts for every gene across every sample.
 The output is a CSV file that contains counts for each sample versus every gene in the genome. 
 
 ### `find-peptide-variants`
-The `find-peptide-variants` module reports the peptide-level consequence of variants in the genome.
-If working  with cancer samples, the user has the option to filter out all variants that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore unlikely to be pathogenic.
+The `find-peptide-variants` module reports the peptide-level consequence of genomic variants.
 VCF records are converted to peptide-level variants, and then [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
 
-Variant callers are known to produce a great deal of false positives; the `--report-coverage` option is designed to give the user a greater degree of confidence in individual variant calls. If indicated this option will report raw counts for variant
-and wildtype reads at each variant loci. We reason that variants with a high degree of read
-support are less likely to be false positives. 
-
-We should stress that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely*
-set of peptide variants. 
-Definitively reporting protein variants requires knowledge of alternate splicing -- this represents an open problem in scRNA-seq.
-For example, if a read picks up a variant in exon 2 of _geneA_, we can report each of the potential spliceforms of _geneA_ that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample. 
-Thus we report all possible spliceforms; determining the spliceform landscape of an individual cell from scRNA-seq is outside the scope of this project. 
-
-
-Note that all three modules take advantage of multiprocessing.
-Thus `cerebra` should scale better to high-memory machines with more cores, though it has been designed to run on everyday hardware. 
+For advanced usage information, see [FEATURES.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/FEATURES.md). 
 
 Installation
 ------------
@@ -222,5 +208,3 @@ We welcome any bug reports, feature requests or other contributions. Please subm
 See [CONTRIBUTING.md](https://github.com/czbiohub/cerebra/blob/master/CONTRIBUTING.md) for additional details. 
 
 You can find official releases [here](https://github.com/czbiohub/cerebra/releases). 
-
-Free software: MIT license
