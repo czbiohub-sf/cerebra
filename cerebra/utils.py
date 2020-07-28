@@ -217,9 +217,8 @@ class GenomeIntervalTree():
         _, record_ids = tree.all_overlaps_both(*qparams)
 
         if any(map(lambda r: r >= len(self.records), record_ids)):
-            print("uh oh i dont like this")
-            print(len(self.records))
-            print(record_ids)
+            print("some VCF records may be malformed")
+            print("continuing...")
 
         return [self.records[record_id] for record_id in record_ids]
 
