@@ -191,13 +191,19 @@ Note that the `-h` command will display usage information for each of the three 
 An example workflow might look like this:   
 
 **Step 1:**     
-`cerebra germline-filter --processes 2 --control_path /path/to/control/vcfs --experimental_path /path/to/experimental/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs`   
+```
+cerebra germline-filter --processes 2 --control_path /path/to/control/vcfs --experimental_path /path/to/experimental/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs
+```
 
 **Step 2:**     
-`cerebra count-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --refgenome /path/to/genome/annotation --outfile /path/to/output/file /path/to/filtered/vcfs/*` 
+```
+cerebra count-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --refgenome /path/to/genome/annotation --outfile /path/to/output/file /path/to/filtered/vcfs/*
+```
 
 **Step 3:**          
-`cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --annotation /path/to/genome/annotation --genomefa /path/to/genome/fasta --report_coverage 1 --output /path/to/output/file /path/to/filtered/vcfs/*`
+```
+cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --annotation /path/to/genome/annotation --genomefa /path/to/genome/fasta --report_coverage 1 --output /path/to/output/file /path/to/filtered/vcfs/*
+```
 
 For advanced usage information, see [USAGE.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/USAGE.md). 
 
