@@ -46,7 +46,7 @@ def test_gtf():
 								'data/test_find_peptide_variants/')
 	vcf_path = data_path + '/vcf/A1.vcf'
 	genomefa_path = data_path + '/GRCh38_limited_chr7.fa'
-	cosmicdb_path = data_path + '/CosmicGenomeScreensMutantExport.min.tsv'
+	cosmicdb_path = None
 
 	runner = CliRunner()
 	result = runner.invoke(find_peptide_variants, [
