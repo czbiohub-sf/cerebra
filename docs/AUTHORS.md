@@ -4,7 +4,7 @@ Credits
 Development Lead
 ----------------
 
--   Lincoln Harris &lt;ljharris018@gmail.com&gt;
+-   Lincoln Harris <[@lincoln-harris](https://github.com/lincoln-harris)> &lt;ljharris018@gmail.com&gt;
 
 Contributors
 ------------
