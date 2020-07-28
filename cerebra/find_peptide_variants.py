@@ -125,17 +125,31 @@ class AminoAcidMutationFinder():
             """ extracts coverage info from the INFO field of a vcf entry """
             call = record_.calls[0]
             curr_AD = call.data.get('AD')
+            
+            if len(curr_AD) == 2:   # most common case
+                wt_count = curr_AD[0]
+                v_count = curr_AD[1]
+                ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
+            
+            elif len(curr_AD) == 1 :   # this isnt really a variant
+                wt_count = curr_AD[0]  #  in theory we shouldnt see any 
+                v_count = 0            #  of these
+                ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
 
-            if len(curr_AD) != 1:
+            elif len(curr_AD) > 2:  # hella exception case
+                i = 1
+                looping = True
                 wt_count = curr_AD[0]
-                v_count = curr_AD[1]  # need to account for > 1 alt allele
-            else:
-                # TODO: test here
-                wt_count = curr_AD[0]
-                v_count = 0
-            ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
+                ratio_str = str(wt_count) + ']'
+                while i < len(curr_AD):
+                    curr_v_count = curr_AD[i]
+                    ratio_str = str(curr_v_count) + ':' + ratio_str
+                    i += 1
+                ratio_str = '[' + ratio_str
+
             return (ratio_str)
-            """ end function definition """
+
+            """ end sub-function definition """
 
         vcf_reader = vcfpy.Reader.from_stream(
             stream) if stream is not None else vcfpy.Reader.from_path(path)
@@ -276,7 +290,9 @@ def find_peptide_variants(num_processes, cosmicdb_path, annotation_path,
         cosmic_df = None
 
     print("Loading genome annotation...")
-    annotation_df = pd.read_csv(annotation_path, sep='\t', skiprows=5)
+
+    annotation_df = pd.read_csv(annotation_path, delimiter='\t', \
+                                        comment='#', header=None)
 
     print("Loading genome sequences...")
     genome_faidx = Fasta(genomefa_path)

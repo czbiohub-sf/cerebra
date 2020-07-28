@@ -74,9 +74,11 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 
 		A1_gps = ['7:55191822-55191822', '7:55191822-55191822']
 		A2_gps = ['1:631862-631862', '1:633561-633561', '1:634112-634112',
-					 '1:634229-634229', '1:914949-914949']
+					 '1:634229-634229', '1:914949-914949',
+					 '7:55191822-55191822']
 		A3_gps = ['1:629906-629906', '1:634112-634112', '1:634229-634229',
-					'1:634244-634244', '1:1013541-1013541']
+					'1:634244-634244', '1:1013541-1013541', 'M:577-577',
+					'M:1-760', 'M:648-648']
 		A4_gps = ['1:1010878-1010878', '1:1010892-1010892',
 					'1:1010895-1010895', '1:1010904-1010904',
 					'1:1010905-1010905']
@@ -94,15 +96,15 @@ class FindAAMutationsTesterMod(unittest.TestCase):
 				curr_gps.append(str(record_pos))
 
 			if curr_vcf == 'A1':
-				assert curr_gps == A1_gps
+				assert set(curr_gps) == set(A1_gps)
 			elif curr_vcf == 'A2':
-				assert curr_gps == A2_gps
+				assert set(curr_gps) == set(A2_gps)
 			elif curr_vcf == 'A3':
-				assert curr_gps == A3_gps
+				assert set(curr_gps) == set(A3_gps)
 			elif curr_vcf == 'A4':
-				assert curr_gps == A4_gps
+				assert set(curr_gps) == set(A4_gps)
 			elif curr_vcf == 'A5':
-				assert curr_gps == A5_gps
+				assert set(curr_gps) == set(A5_gps)
 
 
 if __name__ == "__main__":

@@ -31,6 +31,7 @@ class GermlineFilterTestCase(unittest.TestCase):
         for filtered_cell_vcf_path in filtered_cell_vcf_paths:
             cell_name = filtered_cell_vcf_path.stem.replace("GF_", '')
             cell_vcf_path = self.vcf_path / (cell_name + ".vcf")
+
             germline_vcf_paths = self.germ_path.glob(cell_name + "_GL*.vcf")
 
             # Create germline genome tree
@@ -76,6 +77,30 @@ class GermlineFilterTestCase(unittest.TestCase):
 
         runner = CliRunner()
         result = runner.invoke(germline_filter, ["--processes", 1,
+                                            "--control_path", gl_path,
+                                            "--experimental_path", experimental_path,
+                                            "--metadata", meta_path,
+                                            "--outdir", out_path])
+
+        assert result.exit_code == 0
+        assert os.path.isfile(out_path + "A1.vcf")
+
+        os.remove(out_path + 'A1.vcf')
+
+
+    def test_failure_multi(self):
+        ''' does germline-filter return w/o error? '''
+        from cerebra.germline_filter import germline_filter
+
+        data_path = os.path.abspath(__file__ + '/../' +
+                                    'data/test_germline_filter/')
+        gl_path = data_path + '/germline/'
+        experimental_path = data_path + '/experimental/'
+        meta_path = data_path + '/meta_dummy.csv'
+        out_path = data_path + '/gl_out/'
+
+        runner = CliRunner()
+        result = runner.invoke(germline_filter, ["--processes", 2,
                                             "--control_path", gl_path,
                                             "--experimental_path", experimental_path,
                                             "--metadata", meta_path,

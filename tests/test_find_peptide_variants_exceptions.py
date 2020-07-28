@@ -135,6 +135,15 @@ class FindPeptideVariantsTester(unittest.TestCase):
 				ve = vl[0]
 				vc = ve.split(',')[1] 
 				assert vc == '[2:0]'
+
+			elif 'A2' in curr_vcf:
+				k = list(gene_aa_mutations)
+				v = gene_aa_mutations.get('EGFR')
+				vl = list(v)
+				ve = vl[0]
+				vc = ve.split(',')[1]
+				assert vc == '[0:2]' or vc == '[3:2:1]'
+
 			else:
 				k = list(gene_aa_mutations)
 				assert not k
