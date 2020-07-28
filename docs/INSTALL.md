@@ -1,6 +1,6 @@
 Installation
 ------------
-There are four different methods available to install `cerebra`. Choose one. 
+There are four different methods available to install `cerebra`.
 
 __With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)__                
 ```
