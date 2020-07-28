@@ -66,35 +66,11 @@ $ python
         "A3_B002531": [
             "ENSP00000398736.2:p.(Pro217Ser)"
         ]
-    },
-    "GOLGB1": {
-        "A16_B000563": [],
-        "A1_B001546": [
-            "ENSP00000484083.1:p.?",
-            "ENSP00000377275.3:p.(Ala1826Val)",
-            "ENSP00000484083.1:p.(Gly1690Asp)",
-            "ENSP00000484083.1:p.(Ala1746Val)",
-            "ENSP00000377275.3:p.(Gly1770Asp)",
-            "ENSP00000341848.5:p.(Thr911Ser)",
-            "ENSP00000417767.1:p.(Thr782Ser)",
-        ],
-        "A1_B002531": [],
-        "A1_B002570": [],
-        "A2_B002558": [],
-        "A3_B000561": [],
-        "A3_B000568": [],
-        "A3_B001544": [
-            "ENSP00000377275.3:p.?",
-            "ENSP00000341848.5:p.?",
-            "ENSP00000484083.1:p.?"
-        ],
-        "A3_B002090": [],
-        "A3_B002531": []
-    }
+    },...
 }
 ```
 
-Here _CCN1_ and _GOLGB1_ are gene names while _A16_B000563_, _A1_B001546_, _A1_B002531,_... are RNA-seq sample IDs. `cerebra` reports variants to every gene in the genome, for every sample in a given experiment. The _ENSP****_ numbers refer to [Ensembl](https://www.ensembl.org/index.html) translation IDs -- unique identifiers that correspond to exactly one polypeptide in the Ensembl database. The strings enclosed in parentheses refer to the amino-acid level variant reported in that particular sample. For example the string `Arg209Trp` indicates that position 209 of this particular polypeptide should contain an _Arg_, but the experimental sample instead contains a _Trp_. `cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting amino-acid variants.
+Here _CCN1_ is a gene name while _A16_B000563_, _A1_B001546_, _A1_B002531,_... are RNA-seq sample IDs. `cerebra` reports variants to every gene in the genome, for every sample in a given experiment. The _ENSP****_ numbers refer to [Ensembl](https://www.ensembl.org/index.html) translation IDs -- unique identifiers that correspond to exactly one polypeptide in the Ensembl database. The strings enclosed in parentheses refer to the amino-acid level variant reported in that particular sample. For example the string `Arg209Trp` indicates that position 209 of this particular polypeptide should contain an _Arg_, but the experimental sample instead contains a _Trp_. `cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting amino-acid variants.
 
 Features
 --------
