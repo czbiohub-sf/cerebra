@@ -86,7 +86,7 @@ We construct a genome interval tree from a genome annotation (.gtf) and a refere
 
 If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
 This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
-The user provides a very simple metadata file (see [README.md](https://github.com/czbiohub/cerebra/blob/master/README.md)) that indicates which experimental samples correspond to which control samples.
+The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/USAGE.md)) that indicates which experimental samples correspond to which control samples.
 Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
 These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
 
