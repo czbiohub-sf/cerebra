@@ -119,7 +119,9 @@ There are four different methods available to install `cerebra`.
 __With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)__                
 ```
 docker pull lincolnharris/cerebra
-```                 
+docker run -it lincolnharris/cerebra
+```      
+_warning: this image will take up ~1Gb of space._               
 
 __With traditional git clone and the python standard library [venv](https://docs.python.org/3/library/venv.html) module__
 ```
