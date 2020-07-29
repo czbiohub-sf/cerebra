@@ -125,11 +125,11 @@ This option is designed to give the user more confidence in individual variant c
 
 We should emphasize that `find-peptide-variants` does not *definitively* report peptide-level variants but rather the *likely* set of peptide variants. 
 Definitively reporting protein variants from RNA-seq requires knowledge of alternate splicing -- this represents an open problem in the field [@Huang:2017]. 
-For example, if a read picks up a variant in exon 2 of a given gene, we can report each of the potential spliceforms of that gene that contain exon 2, but we **cannot** infer which of those particular spliceforms are actually present in our sample (see \autoref{splice}). 
+For example, if a read picks up a variant in exon 2 of a given gene, we can report each of the potential isoforms of that gene that contain exon 2, but we **cannot** infer which of those particular isoforms are actually present in our sample (see \autoref{splice}). 
 For the example shown in \autoref{splice} we would translate and report _t1_ and _t3_ as both of these contain exon 2. 
-It is possible the sample does not actually express both of these spliceforms, however, determining the spliceform landscape of a sample from RNA-seq is outside the scope of this project. 
+It is possible the sample does not actually express both of these isoforms, however, determining the isoform landscape of a sample from RNA-seq is outside the scope of this project. 
 
-![For a given mutational event, `cerebra` reports ALL potentially affected spliceforms.\label{splice}](fig2.jpg)
+![For a given mutational event, `cerebra` reports ALL potentially affected isoforms.\label{splice}](fig2.jpg)
 
 To assess performance of `find-peptide-variants` we obtained VCFs from a single-cell RNA-seq study conducted on lung adenocarcinoma patient samples [@Maynard:2019]. 
 These VCFs were produced with STAR (alignment) and GATK HaplotypeCaller (variant calling), and are on the order of megabytes, typical of a single-cell RNA-seq experiment. 
