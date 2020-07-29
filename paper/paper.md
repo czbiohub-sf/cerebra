@@ -91,7 +91,7 @@ These steps are performed by a [subprocess pool](https://pypi.org/project/pathos
 
 If working with cancer samples, the user has the option to limit the reported variants to those also found in Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) database [@ncbi; @cosmic]. 
 While certainly not exhaustive, this database contains an extensive list of known human variants. 
-This option is designed to limit the search space to known and potentially clinically actionable targets. 
+This option is designed to limit the search space to known and potentially actionable targets. 
 
 The output of `germline-filter` is a set of trimmed-down VCF files, which will be used for the next two steps. 
 If you do not have access to "control" tissue then proceed directly to `count-variants` or `find-peptide-variants`. 
@@ -150,7 +150,7 @@ As sequencing costs continue to drop, large-scale variant calling will become ac
 Our tool offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON).
 
 `cerebra` is already enabling research, see [@Maynard:2019], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. 
-Understanding the mutational landscape of individual tumors was essential to this study, and given the sheer volume of VCF records would not have been possible without `cerebra`. 
+Understanding the mutational landscape of individual tumors was essential to this study, and given the sheer volume of VCF records, would not have been possible without `cerebra`. 
 We hope that `cerebra` can provide an easy-to-use framework for future studies in the same vein. 
 
 ## Acknowledgments
