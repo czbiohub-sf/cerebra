@@ -50,7 +50,7 @@ chr1	631391	.	C	T	72.28	.	AC=2;AF=1.00;AN=2;DP=2;
         QD=25.36;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
 ```
 
-Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate as many as <img src="https://render.githubusercontent.com/render/math?math=10^{8}"> unique VCF records.
+Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate as many as $10^{8}$ unique VCF records.
 Only a small portion of these VCF records are likely to be relevant to the researcher.
 In addition, variant callers report only the genomic location and not the likely effect the variant has on the translated protein sequence.
 To address the unmet need for high-throughput VCF summary tools, we introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
