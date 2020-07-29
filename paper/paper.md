@@ -167,7 +167,7 @@ Please contact `ljharris018@gmail.com`
 
 `cerebra` is written in Python 3. 
 Code and detailed installation instructions can be found at https://github.com/czbiohub/cerebra. 
-In addition `cerebra` can be found on [PyPi](https://pypi.org/project/cerebra/).
+In addition `cerebra` can be found on [PyPi](https://pypi.org/project/cerebra/) and [Dockerhub](https://hub.docker.com/r/lincolnharris/cerebra).
 
 ## References
 
