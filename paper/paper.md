@@ -90,8 +90,8 @@ Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify s
 These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
 
 If working with cancer samples, the user has the option to limit the reported variants to those also found in Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) database [@ncbi; @cosmic]. 
-While certainly not exhaustive, this databases contains an extensive list of known human variants. 
-This option is designed to limit the search space to known human variants and (potentially) clinically actionable targets.
+While certainly not exhaustive, this database contains an extensive list of known human variants. 
+This option is designed to limit the search space to known and potentially clinically actionable targets. 
 
 The output of `germline-filter` is a set of trimmed-down VCF files, which will be used for the next two steps. 
 If you do not have access to "control" tissue then proceed directly to `count-variants` or `find-peptide-variants`. 
@@ -101,7 +101,7 @@ If you do not have access to "control" tissue then proceed directly to `count-va
 The `count-variants` module reports the raw variant counts for every gene across every sample.
 We first create a _genome interval tree_ from the reference GTF, then read in a VCF file and convert it to a [vcfpy](https://pypi.org/project/vcfpy/) object, then processes VCF records in [parallel](https://en.wikipedia.org/wiki/Multiprocessing). 
 Each variant is matched to its corresponding gene, and gene-wise counts are stored in [shared memory](https://en.wikipedia.org/wiki/Shared_memory).
-Again the user has the option of filtering for variants found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
+Again the user has the option of limiting the search space to variants found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
 `count-variants` produces two output files, one containing raw variant counts and one containing COSMIC filtered variant counts for every gene in the genome. 
 
 ## `find-peptide-variants`
