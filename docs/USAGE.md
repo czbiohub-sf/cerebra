@@ -4,7 +4,7 @@ Usage (advanced)
 ## General Note
 
 If working with extraordinarily large VCF files (>= 1Mb), the following processing steps are likely to be very slow. 
-It might be a good idea to filter/trim down VCF files to only the region/chromosome of interest, using something like [bcftools](http://samtools.github.io/bcftools/bcftools-man.html#view). 
+Before starting it might be a good idea to trim down your VCF files to only the region/chromosome of interest, using something like [bcftools](http://samtools.github.io/bcftools/bcftools-man.html#view). 
 
 ## Filtering germline variants
 
