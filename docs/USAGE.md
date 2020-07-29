@@ -42,3 +42,14 @@ cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/
 ```
 
 The `report_coverage` option will report counts for both variant and wildtype reads at all variant loci. If indicated this option will report counts for both variant and wildtype reads at all variant loci. We reasoned that variants with a high degree of read support are less likely to be false positives. This option is designed to give the user more confidence in individual variant calls.
+
+## Testing
+
+First install the packages specified in [test_requirements.txt](https://github.com/czbiohub/cerebra/blob/messing-w-docs/test_requirements.txt). 
+Now you should be able to run:
+
+` make test `
+
+If you've installed `cerebra` in a virtual environment make sure the environment is active. 
+Confirm that all tests have passed.
+If otherwise, feel free to submit an [issue report](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/CONTRIBUTING.md). 
