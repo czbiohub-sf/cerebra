@@ -52,14 +52,14 @@ chr1	631391	.	C	T	72.28	.	AC=2;AF=1.00;AN=2;DP=2;
 
 Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate as many as $10^{8}$ unique VCF records.
 Only a small portion of these VCF records are likely to be relevant to the researcher.
-In addition, variant callers report only the genomic location and not the likely effect the variant has on the translated protein sequence.
+In addition, variant callers report only the genomic location of the variant, and not the effect the variant has on the translated protein sequence.
 To address the unmet need for high-throughput VCF summary tools, we introduce `cerebra`, a python package that provides fast and accurate protein variant summarizing of VCF files.
 
 
 ## Functionality
 
 `cerebra` comprises three modules: i) `germline-filter` removes variants that are common between control/germline samples 
-and samples of interest, ii) `count-variants` reports total number of variants in each sample, and iii) `find-peptide-variants` reports likely protein variants in each sample. 
+and samples of interest, ii) `count-variants` reports total number of variants in each sample, and iii) `find-peptide-variants` reports the likely protein variants in each sample. 
 Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and short insertions/deletions. 
 `cerebra` is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements.
 
