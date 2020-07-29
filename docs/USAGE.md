@@ -48,7 +48,7 @@ The `report_coverage` option will report counts for both variant and wildtype re
 First install the packages specified in [test_requirements.txt](https://github.com/czbiohub/cerebra/blob/messing-w-docs/test_requirements.txt). 
 Now you should be able to run:
 
-` make test `
+` $ make test `
 
 If you've installed `cerebra` in a virtual environment make sure the environment is active. 
 Confirm that all tests have passed.
