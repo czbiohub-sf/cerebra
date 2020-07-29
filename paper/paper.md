@@ -30,7 +30,7 @@ bibliography: paper.bib
 
 A single "typo" in the genome can have profound consequences on an organism's biology.
 Identifying the protein changes that accompany these genomic typos is a fundamental challenge in bioinformatics. 
-Tools exist for identifying genomic variants and predicting their associated peptide-level changes, however, wrangling genomic variant calls and peptide-level predictions across thousands of samples remains an substantial challenge. 
+Tools exist for identifying genomic variants and predicting their associated peptide-level changes, however, wrangling genomic variant calls and peptide-level predictions across thousands of samples remains a substantial challenge. 
 `cerebra` addresses this need by offering a fast and accurate framework for summarizing genomic variant calls and peptide-level predictions across many samples. 
 
 To find variants in the genome, researchers often begin with a [DNA-sequencing](https://en.wikipedia.org/wiki/DNA_sequencing) (DNA-seq) or [RNA-sequencing](https://en.wikipedia.org/wiki/RNA-Seq) (RNA-seq) experiment on their samples of interest.
@@ -113,12 +113,12 @@ We then create a _genome interval tree_ that will be used to quickly match genom
 The user again has the option to limit the search space to variants found in the COSMIC database. 
 VCF records are read in simultaneously; individual records are converted to _GenomePosition_ objects to keep track of their genomic intervals and observed DNA bases.
 _GenomePositions_ are then queried against the _genome interval tree_. 
-If an overlapping interval is found we retrieve the peptide-level variant from this node of the _genome interval tree_. 
+If an overlapping interval is found, we retrieve the peptide-level variant from this node of the _genome interval tree_. 
 Peptide-level variants are converted to [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, in accordance with the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature [@ensembl; @hgvs].
 The output is a hierarchically ordered text file (CSV or JSON) that reports the the ENSEMBL protein ID and the gene associated with each variant, for each experimental sample.    
 
 Variant callers are known to produce a great deal of false positives, especially when applied to single-cell RNA-seq data [@Enge:2017].
-To address this concern we have included the `--report_coverage` option. 
+To address this concern, we have included the `--report_coverage` option. 
 If indicated this option will report counts for both variant and wildtype reads at all variant loci. 
 We reasoned that variants with a high degree of read support are less likely to be false positives.
 This option is designed to give the user more confidence in individual variant calls.        
