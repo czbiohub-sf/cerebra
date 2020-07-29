@@ -29,16 +29,15 @@ bibliography: paper.bib
 ## Motivation
 
 A single "typo" in the genome can have profound consequences on an organism's biology.
-Identifying the functional consequences of genomic typos (termed "variants") is a fundamental challenge in bioinformatics. 
-Tools exist for identifying variants and predicting their functional consequences, however, wrangling variant calls and functional predictions across thousands of samples remains an unsolved problem. 
-`cerebra` addresses this need by offering a fast and accurate framework for summarizing variant calls and functional predictions across many samples. 
+Identifying the protein changes that accompany these genomic typos is a fundamental challenge in bioinformatics. 
+Tools exist for identifying genomic variants and predicting their associated peptide-level changes, however, wrangling genomic variant calls and peptide-level predictions across thousands of samples remains an substantial challenge. 
+`cerebra` addresses this need by offering a fast and accurate framework for summarizing genomic variant calls and peptide-level predictions across many samples. 
 
 To find variants in the genome, researchers often begin with a [DNA-sequencing](https://en.wikipedia.org/wiki/DNA_sequencing) (DNA-seq) or [RNA-sequencing](https://en.wikipedia.org/wiki/RNA-Seq) (RNA-seq) experiment on their samples of interest.
 Sequencing is followed by alignment of reads to the reference genome with tools like [STAR](https://github.com/alexdobin/STAR) or [BWA](http://bio-bwa.sourceforge.net/), followed by variant calling with tools like [GATK HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) 
 or [freebayes](https://github.com/ekg/freebayes) [@star; @bwa; @haplocaller; @freebayes]. 
 Variant callers produce tab delimited text files in the [variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf) (VCF) for each processed sample.
-VCF files encode: i) the genomic position, ii) reference vs. observed DNA sequence, and iii) quality
-associated with each observed variant. 
+VCF files encode: i) the genomic position, ii) reference vs. observed DNA sequence, and iii) quality associated with each observed variant. 
 Shown below are the first 4 lines of a sample VCF file. 
 Note that only a single record is displayed, and that the record line has been artificially wrapped.
 
@@ -51,10 +50,9 @@ chr1	631391	.	C	T	72.28	.	AC=2;AF=1.00;AN=2;DP=2;
         QD=25.36;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:84,6,0
 ```
 
-Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate as many as 10^8 unique VCF records.
+Current methods for variant calling are incredibly powerful and robust, however, a single sequencing run can generate as many as 10<sup>8</sup> unique VCF records.
 Only a small portion of these VCF records are likely to be relevant to the researcher.
-In addition, variant callers report only the genomic location and not the _functional_ consequences of the variant, _i.e._ the effect the variant has on the translated protein sequence.
-We refer to these functional variants as "peptide-level variants." 
+In addition, variant callers report only the genomic location and not the likely effect the variant has on the translated protein sequence.
 To address the unmet need for high-throughput VCF summary tools, we introduce `cerebra`, a python package that provides fast and accurate peptide-level summarizing of VCF files.
 
 ## Functionality
@@ -90,9 +88,11 @@ This module removes germline variants that are common between the control and th
 The user provides a very simple metadata file (see [README.md](https://github.com/czbiohub/cerebra/blob/master/README.md)) that indicates which experimental samples correspond to which control samples.
 Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
 These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
-There is also the option to limit the reported variants to those found in NCBI's [dbSNP](https://www.ncbi.nlm.nih.gov/books/NBK21088/) and the Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) databases [@ncbi; @cosmic].
-This option is designed to give the user a higher degree of confidence in the pathogenicity of each variant.
-If independent experiments have reported a given variant in pathogenic human tissue, it is less likely to be an artifact.
+
+If working with cancer samples, the user has the option to limit the reported variants to those also found in Wellcome Sanger Institute's [COSMIC](https://cancer.sanger.ac.uk/cosmic) database [@ncbi; @cosmic]. 
+While certainly not exhaustive, this databases contains an extensive list of known human variants. 
+This option is designed to limit the search space to known human variants and (potentially) clinically actionable targets.
+
 The output of `germline-filter` is a set of trimmed-down VCF files, which will be used for the next two steps. 
 If you do not have access to "control" tissue then proceed directly to `count-variants` or `find-peptide-variants`. 
 
@@ -100,8 +100,8 @@ If you do not have access to "control" tissue then proceed directly to `count-va
 
 The `count-variants` module reports the raw variant counts for every gene across every sample.
 We first create a _genome interval tree_ from the reference GTF, then read in a VCF file and convert it to a [vcfpy](https://pypi.org/project/vcfpy/) object, then processes VCF records in [parallel](https://en.wikipedia.org/wiki/Multiprocessing). 
-Each variant is matched to its corresponding gene, and gene-wise counts are stored in [shared memory](https://en.wikipedia.org/wiki/Shared_memory). 
-If working  with cancer samples, the user has the option to filter out all variants that are not found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database and are therefore less likely to be pathogenic.
+Each variant is matched to its corresponding gene, and gene-wise counts are stored in [shared memory](https://en.wikipedia.org/wiki/Shared_memory).
+Again the user has the option of filtering for variants found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
 `count-variants` produces two output files, one containing raw variant counts and one containing COSMIC filtered variant counts for every gene in the genome. 
 
 ## `find-peptide-variants`
@@ -109,7 +109,7 @@ If working  with cancer samples, the user has the option to filter out all varia
 The `find-peptide-variants` module reports the peptide-level consequence of genomic variants.
 First we load the reference GTF, then construct an index (.fai) of the genome fasta file with [pyfaidx](https://pypi.org/project/pyfaidx/) to enable fast random memory access [@pyfaidx].
 We then create a _genome interval tree_ that will be used to quickly match genomic coordinates from VCF records to peptide-level variants. 
-The user again has the option to filter out variants not found in the COSMIC database. 
+The user again has the option to limit the search space to variants found in the COSMIC database. 
 VCF records are read in simultaneously; individual records are converted to _GenomePosition_ objects to keep track of their genomic intervals and observed DNA bases.
 _GenomePositions_ are then queried against the _genome interval tree_. 
 If an overlapping interval is found we retrieve the peptide-level variant from this node of the _genome interval tree_. 
