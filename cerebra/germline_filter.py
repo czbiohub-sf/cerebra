@@ -53,7 +53,7 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
         for germline_record in germline_records:
             if (
                 germline_record.POS != record.POS or
-                germline_record.REF != record.REF):
+                    germline_record.REF != record.REF):
                 continue
 
             unique_alts -= set(germline_record.ALT)
@@ -71,9 +71,11 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
 @click.option("--processes", default=1,
               prompt="number of processes to use for computation", type=int)
 @click.option("--control_path", "control_path",
-              prompt="path to control/germline samples vcf files directory", required=True)
+              prompt="path to control/germline samples vcf files directory",
+              required=True)
 @click.option("--experimental_path", "experimental_path",
-              prompt="path to experimental samples vcf files directory", required=True)
+              prompt="path to experimental samples vcf files directory",
+              required=True)
 @click.option("--metadata", "metadata_path",
               prompt="path to metadata csv file", required=True)
 @click.option("--outdir", "out_path",
@@ -99,13 +101,13 @@ def germline_filter(processes, control_path, experimental_path, metadata_path,
 
         # Fetch all cell IDs associated with the patient ID.
         experimental_sample_ids = metadata_df.loc[
-                                metadata_df["germline_sample_id"] == 
+                                metadata_df["germline_sample_id"] ==
                                 germline_sample_id]["experimental_sample_id"]
 
         # Use the cell IDs to create a list of all single-cell VCF files
         # for the patient.
-        cell_vcf_paths = [(experimental_path / experimental_sample_id). \
-                            with_suffix(".vcf") for experimental_sample_id 
+        cell_vcf_paths = [(experimental_path / experimental_sample_id).
+                            with_suffix(".vcf") for experimental_sample_id
                             in experimental_sample_ids]
 
         # Create a genome interval tree for the patient's germline bulk VCF
@@ -140,6 +142,7 @@ def germline_filter(processes, control_path, experimental_path, metadata_path,
             list(tqdm(pool.imap(process_patient, all_germline_sample_ids),
                       total=len(all_germline_sample_ids), smoothing=0.01))
     else:
-        list(map(process_patient, tqdm(all_germline_sample_ids, smoothing=0.1)))
+        list(map(process_patient, tqdm(all_germline_sample_ids,
+                        smoothing=0.1)))
 
     print("Done!")

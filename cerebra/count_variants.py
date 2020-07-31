@@ -13,7 +13,7 @@ from .utils import GenomePosition, GenomeIntervalTree
 
 class MutationCounter():
     def __init__(self, cosmic_df, hg38_df):
-        #filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
+        # filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
         filtered_cosmic_df = cosmic_df
 
         self._cosmic_genome_tree = GenomeIntervalTree(
@@ -168,8 +168,8 @@ def count_variants(processes, cosmicdb, refgenome, outfile, files):
     cosmic_df = pd.read_csv(cosmicdb, delimiter='\t')
     print("Loading reference genome...")
 
-    refgenome_df = pd.read_csv(refgenome, delimiter='\t', \
-                                        comment='#', header=None)
+    refgenome_df = pd.read_csv(refgenome, delimiter='\t',
+                                    comment='#', header=None)
 
     print("Building genome trees...")
     mutation_counter = MutationCounter(cosmic_df, refgenome_df)

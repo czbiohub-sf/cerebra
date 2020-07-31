@@ -1,8 +1,6 @@
 import re
 from collections import defaultdict
 from pathlib import Path
-import multiprocessing
-from os import system 
 
 import click
 import hgvs.parser
@@ -22,8 +20,7 @@ class AminoAcidMutationFinder():
     def __init__(self, cosmic_df, annotation_df, genome_faidx, cov_bool):
 
         if cosmic_df is not None:
-            filtered_cosmic_df = cosmic_df # dont want to limit to lung
-            #filtered_cosmic_df = self._make_filtered_cosmic_df(cosmic_df)
+            filtered_cosmic_df = cosmic_df
 
             self._cosmic_genome_tree = GenomeIntervalTree(
                 lambda row: GenomePosition.from_str(
@@ -64,7 +61,7 @@ class AminoAcidMutationFinder():
                 break
         else:
             # record not found in cosmic database
-            # i dont think we need to explicitly do anything to handle 
+            # i dont think we need to explicitly do anything to handle
             #      this exception
             return None
 
@@ -125,20 +122,19 @@ class AminoAcidMutationFinder():
             """ extracts coverage info from the INFO field of a vcf entry """
             call = record_.calls[0]
             curr_AD = call.data.get('AD')
-            
+
             if len(curr_AD) == 2:   # most common case
                 wt_count = curr_AD[0]
                 v_count = curr_AD[1]
                 ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
-            
-            elif len(curr_AD) == 1 :   # this isnt really a variant
-                wt_count = curr_AD[0]  #  in theory we shouldnt see any 
-                v_count = 0            #  of these
+
+            elif len(curr_AD) == 1:   # this isnt really a variant
+                wt_count = curr_AD[0]  # in theory we shouldnt see any
+                v_count = 0            # of these
                 ratio_str = '[' + str(v_count) + ':' + str(wt_count) + ']'
 
             elif len(curr_AD) > 2:  # hella exception case
                 i = 1
-                looping = True
                 wt_count = curr_AD[0]
                 ratio_str = str(wt_count) + ']'
                 while i < len(curr_AD):
@@ -290,7 +286,7 @@ def find_peptide_variants(num_processes, cosmicdb_path, annotation_path,
 
     print("Loading genome annotation...")
 
-    annotation_df = pd.read_csv(annotation_path, delimiter='\t', \
+    annotation_df = pd.read_csv(annotation_path, delimiter='\t',
                                         comment='#', header=None)
 
     print("Loading genome sequences...")
