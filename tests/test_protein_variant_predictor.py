@@ -94,7 +94,9 @@ class ProteinVariantPredictorTester(unittest.TestCase):
 
 
 	def test_mito(self):
-		''' TODO: description here '''
+		''' testing how we're handling chrM
+			this was a big problem before, but seems to be working
+			aces now '''
 
 		annotation_path = self.data_path + '/gencode_min_chr7.gtf'
 		genomefa_path = self.data_path + '/GRCh38_chr7_chrM.fa.gz'

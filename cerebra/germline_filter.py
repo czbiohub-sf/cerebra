@@ -35,6 +35,9 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
         # software did not find an ID for it in the associated database,
         # typically dbSNP. This is represented as an empty array (`[]`)
         # in VCFPy.
+        #
+        # thinking is that if its in dbSNP it is a common, population-level
+        #   germline variant
 
         if record.ID:   # This record is in dbSNP; skip it.
             continue

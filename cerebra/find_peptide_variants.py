@@ -183,7 +183,6 @@ class AminoAcidMutationFinder():
                     variant for variant in target_variants if variant
                 ]
 
-                # TODO: test here
                 if not target_variants:
                     continue
 

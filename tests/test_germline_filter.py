@@ -26,6 +26,10 @@ class GermlineFilterTestCase(unittest.TestCase):
 
 
     def test_germline_filter(self):
+        ''' all-encompassing test -- run through most of the germline_filt
+            module, then make sure the expected GL filtered files match
+            the expected, for two very small test VCFs '''
+
         filtered_cell_vcf_paths = self.filt_path.glob("GF_*.vcf")
 
         for filtered_cell_vcf_path in filtered_cell_vcf_paths:

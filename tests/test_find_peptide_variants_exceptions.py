@@ -1,4 +1,5 @@
-''' todo: add description '''
+''' test cases for some of the exception handling in 
+	find_peptide_variants.py '''
 
 import os
 import pandas as pd
@@ -46,7 +47,8 @@ class FindPeptideVariantsTester(unittest.TestCase):
 
 
 	def test_target_variant_string(self):
-		''' todo: add description '''
+		''' make sure that target_variants string in 
+			find_peptide_variants.py is doing what its supposed to  '''
 
 		for vcf_path in self.input_paths:
 			curr_vcf = vcf_path.strip(self.input_path)
@@ -78,7 +80,11 @@ class FindPeptideVariantsTester(unittest.TestCase):
 
 
 	def test_exception_handling(self):
-		''' todo: add description '''
+		''' this case SHOULD trigger an exception in 
+			find_peptide_variants.find_cell_gene_aa_mutations(). 
+			explicitly feeding this function a record that we know is 
+			not contained in the genome interval tree -- testing
+			exception handling case '''
 
 		for index, row in self.cosmic_df.iterrows():
 			cosmic_record = self.cosmic_df.loc[index]
@@ -100,8 +106,9 @@ class FindPeptideVariantsTester(unittest.TestCase):
 				assert gene_name != 'EGFR' and gene_name != 'BRAF'
 
 
-	def test_find_cell_gene_aa_mutations(self):
-		''' todo: add description '''
+	def test_extract_coverage(self):
+		''' testing the extract_coverage() subroutine within
+		  	find_peptide_variants.find_cell_gene_aa_mutations() '''
 
 		def init_process(curr_aa_mutation_finder):
 			global current_process_aa_mutation_finder
