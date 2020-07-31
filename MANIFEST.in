@@ -1,9 +1,13 @@
+include docs/AUTHORS.md
+include docs/CONTRIBUTING.md
+include docs/HISTORY.md
 include LICENSE
 include README.md
 include requirements.txt
+include test_requirements.txt
 
 recursive-include cerebra/tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
-recursive-include docs Makefile
+recursive-include docs *.md Makefile

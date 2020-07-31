@@ -1,6 +1,12 @@
 History
 =======
 
+v1.1.2 (2020-07-31)
+---------------------
+
+_improved release_          
+the majority of reviewer comments have now been addressed.
+
 v1.1.1 (2020-07-20)
 ---------------------
 
