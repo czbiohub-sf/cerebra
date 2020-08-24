@@ -58,8 +58,7 @@ To address the unmet need for high-throughput VCF summary tools, we introduce `c
 
 ## Functionality
 
-`cerebra` comprises three modules: i) `germline-filter` removes variants that are common between control/germline samples 
-and samples of interest, ii) `count-variants` reports total number of variants in each sample, and iii) `find-peptide-variants` reports the likely protein variants in each sample. 
+`cerebra` comprises three modules: i) `germline-filter` removes variants that are common between tumor and normal samples, ii) `count-variants` reports total number of variants in each sample, and iii) `find-peptide-variants` reports the likely protein variants in each sample. 
 Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and short insertions/deletions. 
 `cerebra` is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements.
 
@@ -84,14 +83,14 @@ We construct a genome interval tree from a genome annotation (.gtf) and a refere
 
 ## `germline-filter`
 
-If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
-This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
-The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/USAGE.md)) that indicates which experimental samples correspond to which control samples.
-Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
+If the research project is centered around a "tumor vs. normal" question, then `germline-filter` is the proper starting point. 
+This module removes germline variants that are common between the tumor and the normal samples so as to not bias the results by including variants unlikely to be pathogenic for this particular disease.  
+The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/USAGE.md)) that indicates which tumor samples correspond to which normal samples.
+Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across tumor/normal matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
 These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
 
 The output of `germline-filter` is a set of trimmed-down VCF files, which will be used for the next two steps. 
-If you do not have access to "control" tissue then proceed directly to `count-variants` or `find-peptide-variants`. 
+If you do not have access to "normal" samples then proceed directly to `count-variants` or `find-peptide-variants`. 
 
 ## `count-variants`
 
