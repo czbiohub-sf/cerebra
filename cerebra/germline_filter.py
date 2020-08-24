@@ -82,7 +82,7 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
               help="path to output vcf files directory", required=True)
 def germline_filter(processes, normal_path, tumor_path, metadata_path,
                     out_path):
-    """ filter out common SNPs/indels between normal and tumor samples """
+    """ filter out common SNPs/indels between tumor and normal samples """
     normal_path = Path(normal_path)
     tumor_path = Path(tumor_path)
     metadata_path = Path(metadata_path)
