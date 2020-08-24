@@ -54,7 +54,8 @@ This is a BOOLEAN option that reports counts for both variant and wildtype reads
 We reasoned that variants with a high degree of read support are less likely to be false positives. 
 This option is designed to give the user more confidence in individual variant calls.
 
-For example, when run on the test VCF set (cerebra/tests/data/test_find_peptide_variants), `cerebra find-peptide-variants --report_coverage 1` should yield the following (partial) entry:
+For example, when run on the test VCF set (_cerebra/tests/data/test_find_peptide_variants_), 
+`cerebra find-peptide-variants --report_coverage 1` should yield the following (partial) entry:
 
 ```
 A1,['ENSP00000395243.3:p.(Leu813delinsArgTrp),[2:0]', 'ENSP00000415559.1:p.(Leu813delinsArgTrp),[2:0]'],
@@ -62,9 +63,9 @@ A1,['ENSP00000395243.3:p.(Leu813delinsArgTrp),[2:0]', 'ENSP00000415559.1:p.(Leu8
 This tells us that the sample _A1_ contains likely variants in the Ensembl peptide IDs _ENSP00000395243.3_ and _ENSP00000415559.1_. 
 Both variants are insertions of _ArgTrp_ in place of _Leu_ at the 813th amino acid.
 
-The [x:y] string represents the absolute number of variant to wildtype reads at that loci. 
+The [_x_:_y_] string represents the absolute number of variant to wildtype reads at that loci. 
 Thus [2:0] means 2 variant reads and 0 wildtype reads were found at each of these loci. 
-A coverage string in the format of [x:y:z] would indicate there are two variants at a given loci, x and y, in addition to wildtype, z. 
+A coverage string in the format of [_x_:_y_:_z_] would indicate there are two variants at a given loci, _x_ and _y_, in addition to wildtype, _z_. 
 
 ## Testing
 
