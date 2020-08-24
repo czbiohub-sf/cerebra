@@ -152,7 +152,7 @@ git clone https://github.com/czbiohub/cerebra.git
 cd cerebra
 python3 -m venv cerebra-dev
 source cerebra-dev/bin/activate
-pip3 install -e . 
+pip3 install [--user] . 
 ```
 
 __With traditional git clone and [conda](https://docs.conda.io/en/latest/)__
@@ -161,7 +161,7 @@ git clone https://github.com/czbiohub/cerebra.git
 cd cerebra
 conda create -n cerebra python=3.7
 conda activate cerebra
-pip3 install -e . 
+pip3 install [--user] . 
 ```
 
 __From [PyPi](https://pypi.org/project/cerebra/) (system-wide installation)__              
@@ -186,7 +186,7 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
-  germline-filter    filter out common SNPs/indels between control/germline samples and samples of interest
+  germline-filter    filter out common SNPs/indels between tumor and normal samples
   count-variants    count total number of variants in each sample, and report on a per-gene basis
   find-peptide-variants  report peptide-level SNPs and indels in each sample, and associated coverage
 ```
@@ -197,7 +197,7 @@ An example workflow might look like this:
 
 **Step 1:**     
 ```
-cerebra germline-filter --processes 2 --control_path /path/to/control/vcfs --experimental_path /path/to/experimental/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs
+cerebra germline-filter --processes 2 --normal_path /path/to/normal/vcfs --tumor_path /path/to/tumor/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs
 ```
 
 **Step 2:**     
