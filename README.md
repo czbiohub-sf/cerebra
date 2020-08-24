@@ -130,6 +130,9 @@ __Linux Dependencies:__
 sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev
 ```
 
+As of present `cerebra` is not installable on Windows. 
+`cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library (or rather, `pysam` is a dependency-of-a-dependency) and currently this library is only available on Unix-like systems. 
+
 There are four different methods available to install `cerebra`.
 Choose one of the following:
 
@@ -165,10 +168,6 @@ pip install cerebra
 # OR, if you dont have root privileges
 pip install --user cerebra
 ```
-
-As of present `cerebra` is not installable on Windows. 
-`cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library (or rather, `pysam` is a dependency-of-a-dependency) and currently this library is only available on Unix-like systems. 
-
 
 (Quickstart) Usage
 -----
