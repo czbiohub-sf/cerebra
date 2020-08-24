@@ -113,7 +113,7 @@ VCF records are converted to peptide-level variants, and then [ENSEMBL](https://
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
 The user again has the option of limiting the search space to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
-This module also has an option to report the number of variant vs wildtype reads found at each loci. 
+This module also has an option to report the number of variant vs. wildtype reads found at each loci. 
 
 Installation
 ------------
