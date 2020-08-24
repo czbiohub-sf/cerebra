@@ -95,10 +95,12 @@ Features
 --------
 ### `germline-filter`
 
-If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
-This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
-The user provides a very simple metadata file that indicates which experimental samples correspond to which control samples.
-The output of `germline-filter` is a set of trimmed-down VCFs. 
+Variant calling is often applied to the study of cancer. 
+If the research project is centered around a “tumor vs. normal” question, then germline-filter is the proper starting point. 
+This module removes germline variants that are common between tumor and normal samples, and thus excludes variants unlikely to be pathogenic for the cancer under study.
+The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/master/docs/USAGE.md)) that indicates which tumor samples correspond to which normal samples.
+The output of germline-filter is a set of trimmed-down VCF files, which will be used for the next two steps.
+If you do not have access to “normal” samples then proceed directly to `count-variants` or `find-peptide-variants`.
 
 ### `count-variants`
 This module reports the raw variant counts for every gene across every sample.
@@ -106,11 +108,12 @@ The output is a CSV file that contains counts for each sample versus every gene 
 If working with cancer variants, the user has the option of limiting the search space to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
 
 ### `find-peptide-variants`
-This module reports the peptide-level consequence of genomic variants.
+This module reports the peptide-level variations associated with each genomic variant.
 VCF records are converted to peptide-level variants, and then [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
 in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
 The user again has the option of limiting the search space to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
+This module also has an option to report the number of variant vs wildtype reads found at each loci. 
 
 Installation
 ------------
