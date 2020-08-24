@@ -208,7 +208,7 @@ cerebra count-variants --processes 2 --cosmicdb /optional/path/to/cosmic/databas
 cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --annotation /path/to/genome/annotation --genomefa /path/to/genome/fasta --report_coverage 1 --output /path/to/output/file /path/to/filtered/vcfs/*
 ```
 
-For advanced usage information, see [USAGE.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/USAGE.md). 
+For advanced usage information, see [USAGE.md](https://github.com/czbiohub/cerebra/blob/master/docs/USAGE.md). 
 
 Authors
 --------
