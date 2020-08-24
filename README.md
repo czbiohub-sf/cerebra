@@ -96,7 +96,7 @@ Features
 ### `germline-filter`
 
 Variant calling is often applied to the study of cancer. 
-If the research project is centered around a “tumor vs. normal” question, then germline-filter is the proper starting point. 
+If the research project is centered around a “tumor vs. normal” question, then `germline-filter` is the proper starting point. 
 This module removes germline variants that are common between tumor and normal samples, and thus excludes variants unlikely to be pathogenic for the cancer under study.
 The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/master/docs/USAGE.md)) that indicates which tumor samples correspond to which normal samples.
 The output of germline-filter is a set of trimmed-down VCF files, which will be used for the next two steps.
