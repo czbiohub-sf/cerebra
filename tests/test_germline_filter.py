@@ -18,11 +18,11 @@ class GermlineFilterTestCase(unittest.TestCase):
             __file__).parent / "data" / "test_germline_filter"
 
         self.vcf_path = Path(
-            __file__).parent / "data" / "test_germline_filter" / "experimental"
+            __file__).parent / "data" / "test_germline_filter" / "tumor"
         self.filt_path = Path(
             __file__).parent / "data" / "test_germline_filter" / "gl_out"
         self.germ_path = Path(
-            __file__).parent / "data" / "test_germline_filter" / "germline"
+            __file__).parent / "data" / "test_germline_filter" / "normal"
 
 
     def test_germline_filter(self):
@@ -74,15 +74,15 @@ class GermlineFilterTestCase(unittest.TestCase):
 
         data_path = os.path.abspath(__file__ + '/../' +
                                     'data/test_germline_filter/')
-        gl_path = data_path + '/germline/'
-        experimental_path = data_path + '/experimental/'
+        gl_path = data_path + '/normal/'
+        experimental_path = data_path + '/tumor/'
         meta_path = data_path + '/meta.csv'
         out_path = data_path + '/gl_out/'
 
         runner = CliRunner()
         result = runner.invoke(germline_filter, ["--processes", 1,
-                                            "--control_path", gl_path,
-                                            "--experimental_path", experimental_path,
+                                            "--normal_path", gl_path,
+                                            "--tumor_path", experimental_path,
                                             "--metadata", meta_path,
                                             "--outdir", out_path])
 
@@ -98,15 +98,15 @@ class GermlineFilterTestCase(unittest.TestCase):
 
         data_path = os.path.abspath(__file__ + '/../' +
                                     'data/test_germline_filter/')
-        gl_path = data_path + '/germline/'
-        experimental_path = data_path + '/experimental/'
+        gl_path = data_path + '/normal/'
+        experimental_path = data_path + '/tumor/'
         meta_path = data_path + '/meta_dummy.csv'
         out_path = data_path + '/gl_out/'
 
         runner = CliRunner()
         result = runner.invoke(germline_filter, ["--processes", 2,
-                                            "--control_path", gl_path,
-                                            "--experimental_path", experimental_path,
+                                            "--normal_path", gl_path,
+                                            "--tumor_path", experimental_path,
                                             "--metadata", meta_path,
                                             "--outdir", out_path])
 

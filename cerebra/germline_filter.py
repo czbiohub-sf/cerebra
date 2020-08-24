@@ -69,46 +69,45 @@ def write_filtered_vcf(cell_vcf_stream, germline_tree, out_stream):
 
 @click.command()
 @click.option("--processes", default=1,
-              prompt="number of processes to use for computation", type=int)
-@click.option("--control_path", "control_path",
-              prompt="path to control/germline samples vcf files directory",
+              help="number of processes to use for computation", type=int)
+@click.option("--normal_path", "normal_path",
+              help="path to 'normal' samples vcf files directory",
               required=True)
-@click.option("--experimental_path", "experimental_path",
-              prompt="path to experimental samples vcf files directory",
+@click.option("--tumor_path", "tumor_path",
+              help="path to tumor samples vcf files directory",
               required=True)
 @click.option("--metadata", "metadata_path",
-              prompt="path to metadata csv file", required=True)
+              help="path to metadata csv file", required=True)
 @click.option("--outdir", "out_path",
-              prompt="path to output vcf files directory", required=True)
-def germline_filter(processes, control_path, experimental_path, metadata_path,
+              help="path to output vcf files directory", required=True)
+def germline_filter(processes, normal_path, tumor_path, metadata_path,
                     out_path):
-    """ filter out common SNPs/indels between control/germline samples and samples
-        of interest """
-    control_path = Path(control_path)
-    experimental_path = Path(experimental_path)
+    """ filter out common SNPs/indels between normal and tumor samples """
+    normal_path = Path(normal_path)
+    tumor_path = Path(tumor_path)
     metadata_path = Path(metadata_path)
     out_path = Path(out_path)
 
     metadata_df = pd.read_csv(metadata_path)
 
     # Create a set of all patient IDs from the metadata file.
-    all_germline_sample_ids = set(metadata_df["germline_sample_id"])
+    all_germline_sample_ids = set(metadata_df["normal_sample_id"])
 
     def process_patient(germline_sample_id):
         # Find all non-tumor bulk VCF files for the patient ID.
         germline_wb_vcf_paths = list(
-            control_path.glob(germline_sample_id + "_*_*.vcf"))
+            normal_path.glob(germline_sample_id + "_*_*.vcf"))
 
         # Fetch all cell IDs associated with the patient ID.
-        experimental_sample_ids = metadata_df.loc[
-                                metadata_df["germline_sample_id"] ==
-                                germline_sample_id]["experimental_sample_id"]
+        tumor_sample_ids = metadata_df.loc[
+                                metadata_df["normal_sample_id"] ==
+                                germline_sample_id]["tumor_sample_id"]
 
         # Use the cell IDs to create a list of all single-cell VCF files
         # for the patient.
-        cell_vcf_paths = [(experimental_path / experimental_sample_id).
-                            with_suffix(".vcf") for experimental_sample_id
-                            in experimental_sample_ids]
+        cell_vcf_paths = [(tumor_path / tumor_sample_id).
+                            with_suffix(".vcf") for tumor_sample_id
+                            in tumor_sample_ids]
 
         # Create a genome interval tree for the patient's germline bulk VCF
         # data. Only selects one germline VCF to avoid over-filtering for
