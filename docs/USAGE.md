@@ -63,7 +63,7 @@ A1,['ENSP00000395243.3:p.(Leu813delinsArgTrp),[2:0]', 'ENSP00000415559.1:p.(Leu8
 This tells us that the sample _A1_ contains likely variants in the Ensembl peptide IDs _ENSP00000395243.3_ and _ENSP00000415559.1_. 
 Both variants are insertions of _ArgTrp_ in place of _Leu_ at the 813th amino acid.
 
-The [_x_:_y_] string represents the absolute number of variant to wildtype reads at that loci. 
+The [_x_:_y_] string represents the absolute number of variant and wildtype reads at that loci. 
 Thus [2:0] means 2 variant reads and 0 wildtype reads were found at each of these loci. 
 A coverage string in the format of [_x_:_y_:_z_] would indicate there are two variants at a given loci, _x_ and _y_, in addition to wildtype, _z_. 
 
