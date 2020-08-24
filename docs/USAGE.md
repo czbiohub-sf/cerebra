@@ -54,7 +54,7 @@ This is a BOOLEAN option that reports counts for both variant and wildtype reads
 We reasoned that variants with a high degree of read support are less likely to be false positives. 
 This option is designed to give the user more confidence in individual variant calls.
 
-For example, when run on the test VCF set (_cerebra/tests/data/test_find_peptide_variants_),    
+For example, when run on the test VCF set (_cerebra/tests/data/test_find_peptide_variants/vcf_),    
 `cerebra find-peptide-variants --report_coverage 1` should yield the following (partial) entry:
 
 ```
