@@ -65,4 +65,4 @@ Now you should be able to run:
 
 If you've installed `cerebra` in a virtual environment make sure the environment is active. 
 Confirm that all tests have passed.
-If otherwise, feel free to submit an [issue report](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/CONTRIBUTING.md). 
+If otherwise, feel free to submit an [issue report](https://github.com/czbiohub/cerebra/blob/master/docs/CONTRIBUTING.md). 
