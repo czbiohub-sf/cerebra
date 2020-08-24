@@ -83,9 +83,10 @@ We construct a genome interval tree from a genome annotation (.gtf) and a refere
 
 ## `germline-filter`
 
+Variant calling is often applied to the study of cancer. 
 If the research project is centered around a "tumor vs. normal" question, then `germline-filter` is the proper starting point. 
-This module removes germline variants that are common between the tumor and the normal samples so as to not bias the results by including variants unlikely to be pathogenic for this particular disease.  
-The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/USAGE.md)) that indicates which tumor samples correspond to which normal samples.
+This module removes germline variants that are common between tumor and normal samples, and thus excludes variants unlikely to be pathogenic for the cancer under study.
+The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/master/docs/USAGE.md)) that indicates which tumor samples correspond to which normal samples.
 Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across tumor/normal matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
 These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
 
