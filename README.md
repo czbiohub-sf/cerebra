@@ -114,7 +114,24 @@ The user again has the option of limiting the search space to variants also foun
 
 Installation
 ------------
+`cerebra` depends on some (fairly standard) packages and libraries. 
+Before installing it might be a good idea to make sure all of the requisite packages are installed on your system (_note:_ if installing with Docker you can skip this step). 
+
+__MacOS Dependencies:__
+```
+sudo pip install setuptools
+brew update
+brew install openssl
+brew install zlib
+```
+
+__Linux Dependencies:__
+```
+sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev
+```
+
 There are four different methods available to install `cerebra`.
+Choose one of the following:
 
 __With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)__                
 ```
@@ -147,22 +164,6 @@ pip install cerebra
 
 # OR, if you dont have root privileges
 pip install --user cerebra
-```
-
-`cerebra` depends on some (fairly standard) packages and libraries. 
-If youre having trouble installing, it might be a good idea to make sure you have all of the requisite dependendices installed first (_note:_ if installing with Docker you can skip this step). 
-
-__MacOS Dependencies:__
-```
-sudo pip install setuptools
-brew update
-brew install openssl
-brew install zlib
-```
-
-__Linux Dependencies:__
-```
-sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev
 ```
 
 As of present `cerebra` is not installable on Windows. 
