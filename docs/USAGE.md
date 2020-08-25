@@ -12,7 +12,7 @@ If you have access to control tissue, then `germline-filter` is a good place to 
 All you have to do is provide a simple metadata file that links each experimental sample to its corresponding control sample. 
 For example: 
 ```
-experimental_sample_id,germline_sample_id
+tumor_sample_id,normal_sample_id
 sample1,gl_sample1
 sample2,gl_sample1
 sample3,gl_sample2
