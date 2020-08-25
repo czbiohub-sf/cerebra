@@ -8,8 +8,8 @@ Before starting it might be a good idea to trim down your VCF files to only the 
 
 ## Filtering germline variants
 
-If you have access to control tissue, then `germline-filter` is a good place to start. 
-All you have to do is provide a simple metadata file that links each experimental sample to its corresponding control sample. 
+If you have access to germline or "normal" tissue, then `germline-filter` is a good place to start. 
+All you have to do is provide a simple metadata file that links each tumor sample to its corresponding normal sample. 
 For example: 
 ```
 tumor_sample_id,normal_sample_id
@@ -22,7 +22,7 @@ sample5,gl_sample2
 Once you have made this metadata file you're ready to run `germline-filter.` 
 An example command line:   
 ```
-cerebra germline-filter --processes 2 --control_path /path/to/control/vcfs --experimental_path /path/to/experimental/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs
+cerebra germline-filter --processes 2 --normal_path /path/to/normal/vcfs --tumor_path /path/to/tumor/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs
 ```
 
 This will create a new directory (`/path/to/filtered/vcfs/`) that contains a set of entirely new VCFs. 
@@ -30,7 +30,7 @@ This will create a new directory (`/path/to/filtered/vcfs/`) that contains a set
 ## Counting variants 
 
 The module `count-variants` module can be run after `germline-filter`, on the new vcfs contained in `/path/to/filtered/vcfs/`.
-However, `germline-filter` is entirely optional -- if you dont have access to germline or control samples, `count-variants` is the place to start. 
+However, `germline-filter` is entirely optional -- if you dont have access to germline or "normal" samples, `count-variants` is the place to start. 
 An example command line:   
 ```
 cerebra count-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --refgenome /path/to/genome/annotation --outfile /path/to/output/file /path/to/filtered/vcfs/*
@@ -48,9 +48,8 @@ An example command line:
 cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --annotation /path/to/genome/annotation --genomefa /path/to/genome/fasta --report_coverage 1 --output /path/to/output/file /path/to/filtered/vcfs/*
 ```
 
-The `report_coverage` option will report counts for both variant and wildtype reads at all variant loci.
-This is a BOOLEAN option that reports counts for both variant and wildtype reads at all variant loci
-(`--report_coverage 1` turns this option on, while `--report_coverage 0` turns it off). 
+`report_coverage` is a BOOLEAN option will report counts for both variant and wildtype reads at all variant loci.
+`--report_coverage 1` turns this option on, while `--report_coverage 0` turns it off.
 We reasoned that variants with a high degree of read support are less likely to be false positives. 
 This option is designed to give the user more confidence in individual variant calls.
 
@@ -65,7 +64,7 @@ Both variants are insertions of _ArgTrp_ in place of _Leu_ at the 813th amino ac
 
 The [_x_:_y_] string represents the absolute number of variant and wildtype reads at that loci. 
 Thus [2:0] means 2 variant reads and 0 wildtype reads were found at each of these loci. 
-A coverage string in the format of [_x_:_y_:_z_] would indicate there are two variants at a given loci, _x_ and _y_, in addition to wildtype, _z_. 
+A coverage string in the format of [_x_:_y_:_z_] would indicate there are two variant alleles at a given loci, _x_ and _y_, in addition to wildtype, _z_. 
 
 ## Testing
 
