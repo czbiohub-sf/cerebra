@@ -183,7 +183,7 @@ pip install --user cerebra
 Installation (for developers)
 ------------
 Here's how to set up cerebra for local development. 
-After installing the requisite dependencies:
+After installing the requisite [dependencies](https://github.com/czbiohub/cerebra/blob/joss-review-redux/README.md#dependencies):
 
 1.  Fork the `cerebra` repo on GitHub: https://github.com/czbiohub/cerebra
 2.  Clone your fork locally:
