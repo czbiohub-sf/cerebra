@@ -1,6 +1,4 @@
----
-name: Bug report
-about: Create a report to help us improve
+How to submit a bug report
 ---
 
 **Describe the bug**
