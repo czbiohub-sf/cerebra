@@ -171,7 +171,9 @@ conda activate cerebra
 pip3 install [--user] . 
 ```
 
-__From [PyPi](https://pypi.org/project/cerebra/) (system-wide installation, not recommended)__              
+__From [PyPi](https://pypi.org/project/cerebra/) (system-wide installation, NOT RECOMMENDED)__    
+For novice users, its generally a better idea to install packages within virtual environments. 
+However, `cerebra` can be installed system-wide, if you so choose. 
 ```
 pip install cerebra
 
