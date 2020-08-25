@@ -216,6 +216,7 @@ After installing the requisite [dependencies](https://github.com/czbiohub/cerebr
         $ git push origin name-of-your-bugfix-or-feature
 
 7.  Submit a pull request through the GitHub website.
+See [CONTRIBUTING.md](https://github.com/czbiohub/cerebra/blob/joss-review-redux/docs/CONTRIBUTING.md) for more. 
 
 
 (Quickstart) Usage
