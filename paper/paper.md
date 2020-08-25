@@ -150,7 +150,7 @@ We present a tool that can be used to quickly summarize the variant calls contai
 As sequencing costs continue to drop, large-scale variant calling will become accessible to more members of the community, and summary tools like `cerebra` will become increasingly important. 
 Our tool offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON).
 
-`cerebra` is already enabling research, see [@Maynard:2019], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. 
+`cerebra` is already enabling research, see [@Maynard:2020], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. 
 Understanding the mutational landscape of individual tumors was essential to this study, and given the sheer volume of VCF records, would not have been possible without `cerebra`. 
 We hope that `cerebra` can provide an easy-to-use framework for future studies in the same vein. 
 
