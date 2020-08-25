@@ -53,7 +53,7 @@ cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/
 We reasoned that variants with a high degree of read support are less likely to be false positives. 
 This option is designed to give the user more confidence in individual variant calls.
 
-For example, when run on the test VCF set (_cerebra/tests/data/test_find_peptide_variants/vcf_),    
+For example, when run on the pre-packaged test VCF set (_cerebra/tests/data/test_find_peptide_variants/vcf_),    
 `cerebra find-peptide-variants --report_coverage 1` should yield the following (partial) entry:
 
 ```
