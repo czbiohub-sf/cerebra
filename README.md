@@ -135,6 +135,7 @@ sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblz
 
 As of present `cerebra` is not installable on Windows. 
 `cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library (or rather, `pysam` is a dependency-of-a-dependency) and currently this library is only available on Unix-like systems. 
+Windows solutions like [WSL](https://docs.microsoft.com/en-us/windows/wsl/) exist for overcoming precisely this challange, however, `cerebra` has not been tested on WSL or any other Unix-like subsystem for Windows.          
 
 There are four different methods available to install `cerebra`.
 Choose one of the following:
