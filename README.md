@@ -139,7 +139,7 @@ As of present `cerebra` is not installable on Windows.
 There are four different methods available to install `cerebra`.
 Choose one of the following:
 
-__With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)__                
+__With [Docker](https://hub.docker.com/r/lincolnharris/cerebra) (recommended)__          
 ```
 docker pull lincolnharris/cerebra
 docker run -it lincolnharris/cerebra
