@@ -153,7 +153,7 @@ docker run -it lincolnharris/cerebra
 ```      
 _warning: this image will take up ~1Gb of space._               
 
-__With traditional git clone and the python standard library [venv](https://docs.python.org/3/library/venv.html) module__
+__With traditional git clone and the python standard library [`venv`](https://docs.python.org/3/library/venv.html) module__
 ```
 git clone https://github.com/czbiohub/cerebra.git
 cd cerebra
