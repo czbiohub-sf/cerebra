@@ -5,6 +5,7 @@ cerebra
 [![Build Status](https://travis-ci.org/czbiohub/cerebra.svg?branch=master)](https://travis-ci.org/czbiohub/cerebra) 
 [![codecov](https://codecov.io/gh/czbiohub/cerebra/branch/master/graph/badge.svg)](https://codecov.io/gh/czbiohub/cerebra)
 
+
 What is `cerebra`?
 -------------------------------------
 This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. 
@@ -91,6 +92,7 @@ The strings enclosed in parenthesis refer to the amino-acid level variants repor
 For example the string `Arg209Trp` indicates that position 209 of this particular polypeptide should contain an _Arg_, but the experimental sample instead contains a _Trp_. 
 `cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting amino-acid variants.
 
+
 Features
 --------
 ### `germline-filter`
@@ -115,7 +117,8 @@ The output is a heirarchically ordered text file (CSV or JSON) that reports the 
 The user again has the option of limiting the search space to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
 This module also has an option to report the number of variant vs. wildtype reads found at each loci. 
 
-Installation
+
+Dependencies
 ------------
 `cerebra` depends on some (fairly standard) packages and libraries. 
 Before installing it might be a good idea to make sure all of the requisite packages are installed on your system (_note:_ if installing with Docker you can skip this step). 
@@ -135,8 +138,11 @@ sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblz
 
 As of present `cerebra` is not installable on Windows. 
 `cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library (or rather, `pysam` is a dependency-of-a-dependency) and currently this library is only available on Unix-like systems. 
-Windows solutions like [WSL](https://docs.microsoft.com/en-us/windows/wsl/) exist for overcoming precisely this challange, however, `cerebra` has not been tested on WSL or any other Unix-like subsystem for Windows.          
+Windows solutions like [WSL](https://docs.microsoft.com/en-us/windows/wsl/) exist for overcoming precisely this challange, however, `cerebra` has not been tested on WSL or any other Unix-like subsystem for Windows.    
 
+
+Installation (for users)
+------------
 There are four different methods available to install `cerebra`.
 Choose one of the following:
 
@@ -172,6 +178,45 @@ pip install cerebra
 # OR, if you dont have root privileges
 pip install --user cerebra
 ```
+
+
+Installation (for developers)
+------------
+Here's how to set up cerebra for local development. 
+After installing the requisite dependencies:
+
+1.  Fork the `cerebra` repo on GitHub: https://github.com/czbiohub/cerebra
+2.  Clone your fork locally:
+
+        $ git clone https://github.com/your-name/cerebra.git
+
+3.  Install your local copy into a virtualenv. Using the standard library [`venv`](https://docs.python.org/3/library/venv.html) module: 
+
+        $ cd cerebra
+        $ python3 -m venv cerebra-dev
+        $ source cerebra-dev/bin/activate
+        $ pip3 install -e . 
+
+4.  Create a branch for local development:
+
+        $ git checkout -b name-of-your-bugfix-or-feature
+
+    Now you can make your changes locally.
+
+5.  When you're done making changes, check that your changes pass flake8 and the tests:
+
+        $ make test
+        $ make coverage
+        $ make lint
+
+6.  Commit your changes and push your branch to GitHub:
+
+        $ git add .
+        $ git commit -m "Your detailed description of your changes."
+        $ git push origin name-of-your-bugfix-or-feature
+
+7.  Submit a pull request through the GitHub website.
+
 
 (Quickstart) Usage
 -----
@@ -212,6 +257,7 @@ cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/
 ```
 
 For advanced usage information, see [USAGE.md](https://github.com/czbiohub/cerebra/blob/master/docs/USAGE.md). 
+
 
 Authors
 --------
