@@ -28,8 +28,8 @@ Look through the GitHub issues for features. Anything tagged with "feature" is o
 
 ### Write Documentation
 
-cerebra could always use more documentation, whether as
-part of the official cerebra docs, in docstrings, or
+`cerebra` could always use more documentation, whether as
+part of the official `cerebra` docs, in docstrings, or
 even on the web in blog posts, articles, and such.
 
 ### Submit Feedback
@@ -45,10 +45,10 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up cerebra for
+Ready to contribute? Here's how to set up `cerebra` for
 local development.
 
-1.  Fork the cerebra repo on GitHub: https://github.com/czbiohub/cerebra
+1.  Fork the `cerebra` repo on GitHub: https://github.com/czbiohub/cerebra
 2.  Clone your fork locally:
 
         $ git clone https://github.com/your-name/cerebra.git
