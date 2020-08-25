@@ -131,9 +131,9 @@ matrix:
 
 script:
     - make test
-    - make coverage
-    - make lint
+#    - make coverage
+#    - make lint
 
-after_script:
-    - pip3 install codecov
-    - codecov
+#after_script:
+#    - pip3 install codecov
+#    - codecov
