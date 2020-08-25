@@ -15,8 +15,10 @@ Report bugs at https://github.com/czbiohub/cerebra/issues.
 If you are reporting a bug, please include:
 
 -   Your operating system name and version.
--   Any details about your local setup that might be helpful in troubleshooting.
+-   The python version you are using. 
+-   Any other details about your local setup that might be helpful in troubleshooting.
 -   Detailed steps to reproduce the bug.
+-   Screenshots or code snippets, when applicable. 
 
 ### Fix Bugs
 
@@ -24,13 +26,15 @@ Look through the GitHub issues for bugs. Anything tagged with "bug" is open to w
 
 ### Implement Features
 
-Look through the GitHub issues for features. Anything tagged with "feature" is open to whoever wants to implement it.
+Look through the GitHub issues for features/enhancement requests. Anything tagged with "enhancement" is open to whoever wants to implement it.
 
 ### Write Documentation
 
 `cerebra` could always use more documentation, whether as
 part of the official `cerebra` docs, in docstrings, or
 even on the web in blog posts, articles, and such.
+
+If there is a function/module that you think could use additional documentation, or is simply unclear to you, please let us know. 
 
 ### Submit Feedback
 
@@ -47,7 +51,7 @@ Pull Request Guidelines
 
 Before you submit a pull request, check that it meets these guidelines:
 
-1.  The pull request should include tests.
+1.  The pull request should include tests, ideally with >60% code coverage. 
 2.  Functionality should be encapsulated within a function(s) that includes a docstring. 
 3.  The pull request should work for Python 3.6, 3.7 and potentially 3.8. Check
     https://travis-ci.org/github/czbiohub/cerebra/pull_requests and make sure that the tests pass
