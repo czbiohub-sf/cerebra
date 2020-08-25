@@ -80,7 +80,7 @@ After installing the requisite [dependencies](https://github.com/czbiohub/cerebr
         $ cd cerebra
         $ python3 -m venv cerebra-dev
         $ source cerebra-dev/bin/activate
-        $ pip3 install -e . 
+        $ pip install -r requirements.txt -r test_requirements.txt -e . 
 
 4.  Create a branch for local development:
 
