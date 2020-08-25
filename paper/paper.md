@@ -131,7 +131,7 @@ It is possible the sample does not actually express both of these isoforms, howe
 
 ![For a given mutational event, `cerebra` reports ALL potentially affected isoforms.\label{splice}](fig2.jpg)
 
-To assess performance of `find-peptide-variants` we obtained VCFs from a single-cell RNA-seq study conducted on lung adenocarcinoma patient samples [@Maynard:2019]. 
+To assess performance of `find-peptide-variants` we obtained VCFs from a single-cell RNA-seq study conducted on lung adenocarcinoma patient samples [@Maynard:2020]. 
 These VCFs were produced with STAR (alignment) and GATK HaplotypeCaller (variant calling), and are on the order of megabytes, typical of a single-cell RNA-seq experiment. 
 `cerebra` was run on standard hardware (MacBook Pro, 2.5GHz quad-core processor, 16 GB RAM).
 As show in \autoref{runtime} `cerebra` processed a set of 100 VCF files in approximately 34 minutes. 
