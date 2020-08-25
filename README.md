@@ -205,7 +205,7 @@ After installing the requisite [dependencies](https://github.com/czbiohub/cerebr
 
     Now you can make your changes locally.
 
-5.  When you're done making changes, check that your changes pass flake8 and the tests:
+5.  When you're done making changes, check that your changes pass `flake8` and the `pytest`:
 
         $ make test
         $ make coverage
