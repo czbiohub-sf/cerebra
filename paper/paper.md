@@ -88,7 +88,7 @@ If the research project is centered around a "tumor vs. normal" question, then `
 This module removes germline variants that are common between tumor and normal samples, and thus excludes variants unlikely to be pathogenic for the cancer under study.
 The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/master/docs/USAGE.md)) that indicates which tumor samples correspond to which normal samples.
 Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across tumor/normal matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
-These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
+These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discrete chunks of input at the same time. 
 
 The output of `germline-filter` is a set of trimmed-down VCF files, which will be used for the next two steps. 
 If you do not have access to "normal" samples then proceed directly to `count-variants` or `find-peptide-variants`. 
@@ -147,7 +147,7 @@ Also of note is that `cerebra`'s search operations take advantage of multiproces
 
 RNA/DNA sequencing paired with fast and accurate summarizing of variants is often crucial to understanding the biology of an experimental system. 
 We present a tool that can be used to quickly summarize the variant calls contained within a large set of VCF files.
-As sequencing costs continue to drop, large-scale variant calling will become more accessible, and summary tools like `cerebra` will become essential for drawing meaningful conclusions in a reasonable timeframe. 
+As sequencing costs continue to drop, large-scale variant calling will become more accessible, and summary tools like `cerebra` will become essential for drawing meaningful conclusions in a reasonable time frame. 
 Our tool offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON).
 
 `cerebra` is already enabling research, see [@Maynard:2020], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. 
@@ -167,7 +167,7 @@ Please contact `ljharris018@gmail.com`
 
 `cerebra` is written in Python 3. 
 Code and detailed installation instructions can be found at https://github.com/czbiohub/cerebra. 
-In addition `cerebra` can be found on [PyPi](https://pypi.org/project/cerebra/) and [Dockerhub](https://hub.docker.com/r/lincolnharris/cerebra).
+In addition, `cerebra` can be found on [PyPi](https://pypi.org/project/cerebra/) and [Dockerhub](https://hub.docker.com/r/lincolnharris/cerebra).
 
 ## References
 
