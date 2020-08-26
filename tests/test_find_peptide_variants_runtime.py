@@ -26,7 +26,6 @@ def test_basic():
 							"--processes", 2,
 							"--annotation", data_path + "/gencode_min.gtf",
 							"--cosmicdb", cosmicdb_path,
-							"--report_coverage", 0,
 							"--genomefa", genomefa_path,
 							"--output_path", data_path + "/test_out.csv",
 							vcf_path])
@@ -53,7 +52,6 @@ def test_gtf():
 							"--processes", 2,
 							"--annotation", data_path + "/hg38-plus.min.gtf",
 							"--cosmicdb", cosmicdb_path,
-							"--report_coverage", 0,
 							"--genomefa", genomefa_path,
 							"--output_path", data_path + "/test_out.csv",
 							vcf_path])
@@ -78,7 +76,7 @@ def test_basic_cmp():
 	genomefa_path = data_path + '/GRCh38_limited_chr7.fa'
 
 	annotation_path = data_path + '/gencode_min.gtf'
-	cov_bool = 0
+	coverage = 0
 	num_processes = 1   # want to include that multiprocessing module
 	outpath = data_path + '/test_out.csv'
 
@@ -89,7 +87,7 @@ def test_basic_cmp():
 	annotation_df = pd.read_csv(annotation_path, sep='\t', skiprows=5)
 	genome_faidx = Fasta(genomefa_path)
 	aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df,
-												genome_faidx, cov_bool)
+												genome_faidx, coverage)
 
 	results_df = aa_mutation_finder.find_transcript_mutations(
 									paths=input_paths,

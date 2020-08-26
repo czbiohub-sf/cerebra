@@ -20,7 +20,7 @@ class FindAAMutationsTester(unittest.TestCase):
 		self.annotation_path = self.data_path + '/hg38-plus.min.gtf'
 
 		self.genomefa_path = self.data_path + '/GRCh38_limited_chr7.fa.gz'
-		self.cov_bool = 1
+		self.coverage = 1
 		self.num_processes = 2  # this is wierd 
 		self.outpath = self.data_path + '/test_out.csv'
 
@@ -34,7 +34,7 @@ class FindAAMutationsTester(unittest.TestCase):
 		genome_faidx = Fasta(self.genomefa_path)
 
 		self.aa_mutation_finder = AminoAcidMutationFinder(cosmic_df,
-									annotation_df, genome_faidx, self.cov_bool)
+									annotation_df, genome_faidx, self.coverage)
 
 
 	def test_out(self):

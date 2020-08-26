@@ -43,7 +43,7 @@ class FindPeptideVariantsTester(unittest.TestCase):
 								self.annotation_genome_tree, self.genome_faidx)
 
 		self.aa_mutation_finder = AminoAcidMutationFinder(self.cosmic_df,
-									self.annotation_df, self.genome_faidx, cov_bool=1)
+									self.annotation_df, self.genome_faidx, coverage=1)
 
 
 	def test_target_variant_string(self):
@@ -124,7 +124,7 @@ class FindPeptideVariantsTester(unittest.TestCase):
 		cosmicdb_path = self.data_path + '/cosmic_min.tsv'
 		cosmic_df = pd.read_csv(cosmicdb_path, sep='\t')
 		curr_aa_mutation_finder = AminoAcidMutationFinder(cosmic_df,
-									self.annotation_df, self.genome_faidx, cov_bool=1)
+									self.annotation_df, self.genome_faidx, coverage=1)
 
 		for vcf_path in self.input_paths:
 			curr_vcf = vcf_path.strip(self.input_path)

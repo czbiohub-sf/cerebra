@@ -17,7 +17,7 @@ from .utils import GenomePosition, GenomeIntervalTree, GFFFeature, \
 
 
 class AminoAcidMutationFinder():
-    def __init__(self, cosmic_df, annotation_df, genome_faidx, cov_bool):
+    def __init__(self, cosmic_df, annotation_df, genome_faidx, coverage):
 
         if cosmic_df is not None:
             filtered_cosmic_df = cosmic_df
@@ -36,7 +36,7 @@ class AminoAcidMutationFinder():
         self._protein_variant_predictor = ProteinVariantPredictor(
             self._annotation_genome_tree, genome_faidx)
 
-        self._coverage_bool = cov_bool
+        self._coverage_bool = coverage
 
     @classmethod
     def _make_filtered_cosmic_df(cls, cosmic_df):
@@ -262,17 +262,15 @@ class AminoAcidMutationFinder():
               "genomefa_path",
               help="path to full genome sequences (.fasta)",
               required=True)
-@click.option("--report_coverage",
-              "cov_bool",
-              help="do you want to report coverage information?",
-              required=True, type=int)
+@click.option('--coverage', is_flag=True, 
+			  help="do you want to report coverage information?")
 @click.option("--output_path",
               "output_path",
               help="path to output file",
               required=True)
 @click.argument("input_files", required=True, nargs=-1)
 def find_peptide_variants(num_processes, cosmicdb_path, annotation_path,
-                      genomefa_path, cov_bool, output_path, input_files):
+                      genomefa_path, coverage, output_path, input_files):
     """ report peptide-level SNPs and indels in each sample, and
         associated coverage """
 
@@ -294,7 +292,7 @@ def find_peptide_variants(num_processes, cosmicdb_path, annotation_path,
 
     print("Building genome trees...")
     aa_mutation_finder = AminoAcidMutationFinder(cosmic_df, annotation_df,
-                                                genome_faidx, cov_bool)
+                                                genome_faidx, coverage)
 
     print("Setup complete.")
     print("Finding mutations...")
