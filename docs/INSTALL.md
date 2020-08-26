@@ -68,7 +68,7 @@ pip install --user cerebra
 Installation (for developers)
 ------------
 Here's how to set up cerebra for local development. 
-After installing the requisite [dependencies](https://github.com/czbiohub/cerebra/blob/joss-review-redux/docs/INSTALL.md#dependencies):
+After installing the requisite [dependencies](https://github.com/czbiohub/cerebra/blob/master/docs/INSTALL.md#dependencies):
 
 1.  Fork the `cerebra` repo on GitHub: https://github.com/czbiohub/cerebra
 2.  Clone your fork locally:
@@ -101,4 +101,4 @@ After installing the requisite [dependencies](https://github.com/czbiohub/cerebr
         $ git push origin name-of-your-bugfix-or-feature
 
 7.  Submit a pull request through the GitHub website.
-See [CONTRIBUTING.md](https://github.com/czbiohub/cerebra/blob/joss-review-redux/docs/CONTRIBUTING.md) for more. 
+See [CONTRIBUTING.md](https://github.com/czbiohub/cerebra/blob/master/docs/CONTRIBUTING.md) for more. 
