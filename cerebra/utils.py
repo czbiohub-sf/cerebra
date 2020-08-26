@@ -373,7 +373,7 @@ def sequence_variants_are_equivalent(seqvar_a,
     edit_a, edit_b = posedit_a.edit, posedit_b.edit
 
     if not type(edit_a) is type(edit_b):
-        print(type(edit_a), type(edit_b))
+        #print(type(edit_a), type(edit_b))  # for debugging purposes
         return False
 
     _seqs_cmp = lambda a, b: _seqs_are_equal(

@@ -58,8 +58,7 @@ To address the unmet need for high-throughput VCF summary tools, we introduce `c
 
 ## Functionality
 
-`cerebra` comprises three modules: i) `germline-filter` removes variants that are common between control/germline samples 
-and samples of interest, ii) `count-variants` reports total number of variants in each sample, and iii) `find-peptide-variants` reports the likely protein variants in each sample. 
+`cerebra` comprises three modules: i) `germline-filter` is intended for working with cancer data and removes variants that are common between tumor and normal samples, ii) `count-variants` reports total number of variants in each sample, and iii) `find-peptide-variants` reports the likely protein variants in each sample. 
 Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and short insertions/deletions. 
 `cerebra` is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements.
 
@@ -84,14 +83,15 @@ We construct a genome interval tree from a genome annotation (.gtf) and a refere
 
 ## `germline-filter`
 
-If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
-This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
-The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/USAGE.md)) that indicates which experimental samples correspond to which control samples.
-Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across control/experimental matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
-These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discreet chunks of input at the same time. 
+Variant calling is often applied to the study of cancer. 
+If the research project is centered around a "tumor vs. normal" question, then `germline-filter` is the proper starting point. 
+This module removes germline variants that are common between tumor and normal samples, and thus excludes variants unlikely to be pathogenic for the cancer under study.
+The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/master/docs/USAGE.md)) that indicates which tumor samples correspond to which normal samples.
+Using the [vcfpy](https://pypi.org/project/vcfpy/) library we quickly identify shared variants across tumor/normal matched VCF files, then write new VCFs that contain only the unique variants [@vcfpy].
+These steps are performed by a [subprocess pool](https://pypi.org/project/pathos/) so that we can process multiple discrete chunks of input at the same time. 
 
 The output of `germline-filter` is a set of trimmed-down VCF files, which will be used for the next two steps. 
-If you do not have access to "control" tissue then proceed directly to `count-variants` or `find-peptide-variants`. 
+If you do not have access to "normal" samples then proceed directly to `count-variants` or `find-peptide-variants`. 
 
 ## `count-variants`
 
@@ -118,7 +118,7 @@ Protein variants are converted to [ENSEMBL](https://uswest.ensembl.org/index.htm
 The output is a hierarchically ordered text file (CSV or JSON) that reports the the ENSEMBL protein ID and the gene associated with each variant, for each experimental sample.    
 
 Variant callers are known to produce a great deal of false positives, especially when applied to single-cell RNA-seq data [@Enge:2017].
-To address this concern, we have included the `--report_coverage` option. 
+To address this concern, we have included the `coverage` option. 
 If indicated this option will report counts for both variant and wildtype reads at all variant loci. 
 We reasoned that variants with a high degree of read support are less likely to be false positives.
 This option is designed to give the user more confidence in individual variant calls.        
@@ -131,7 +131,7 @@ It is possible the sample does not actually express both of these isoforms, howe
 
 ![For a given mutational event, `cerebra` reports ALL potentially affected isoforms.\label{splice}](fig2.jpg)
 
-To assess performance of `find-peptide-variants` we obtained VCFs from a single-cell RNA-seq study conducted on lung adenocarcinoma patient samples [@Maynard:2019]. 
+To assess performance of `find-peptide-variants` we obtained VCFs from a single-cell RNA-seq study conducted on lung adenocarcinoma patient samples [@Maynard:2020]. 
 These VCFs were produced with STAR (alignment) and GATK HaplotypeCaller (variant calling), and are on the order of megabytes, typical of a single-cell RNA-seq experiment. 
 `cerebra` was run on standard hardware (MacBook Pro, 2.5GHz quad-core processor, 16 GB RAM).
 As show in \autoref{runtime} `cerebra` processed a set of 100 VCF files in approximately 34 minutes. 
@@ -147,10 +147,10 @@ Also of note is that `cerebra`'s search operations take advantage of multiproces
 
 RNA/DNA sequencing paired with fast and accurate summarizing of variants is often crucial to understanding the biology of an experimental system. 
 We present a tool that can be used to quickly summarize the variant calls contained within a large set of VCF files.
-As sequencing costs continue to drop, large-scale variant calling will become accessible to more members of the community, and summary tools like `cerebra` will become increasingly important. 
+As sequencing costs continue to drop, large-scale variant calling will become more accessible, and summary tools like `cerebra` will become essential for drawing meaningful conclusions in a reasonable time frame. 
 Our tool offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON).
 
-`cerebra` is already enabling research, see [@Maynard:2019], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. 
+`cerebra` is already enabling research, see [@Maynard:2020], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. 
 Understanding the mutational landscape of individual tumors was essential to this study, and given the sheer volume of VCF records, would not have been possible without `cerebra`. 
 We hope that `cerebra` can provide an easy-to-use framework for future studies in the same vein. 
 
@@ -167,7 +167,7 @@ Please contact `ljharris018@gmail.com`
 
 `cerebra` is written in Python 3. 
 Code and detailed installation instructions can be found at https://github.com/czbiohub/cerebra. 
-In addition `cerebra` can be found on [PyPi](https://pypi.org/project/cerebra/) and [Dockerhub](https://hub.docker.com/r/lincolnharris/cerebra).
+In addition, `cerebra` can be found on [PyPi](https://pypi.org/project/cerebra/) and [Dockerhub](https://hub.docker.com/r/lincolnharris/cerebra).
 
 ## References
 

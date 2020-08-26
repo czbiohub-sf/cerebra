@@ -21,7 +21,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='cerebra',
-    version='1.1.1',
+    version='1.1.2',
     description="finds mutants in your scRNA-seq experiment",
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -42,7 +42,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         "Intended Audience :: Science/Research",
-        "Intended Audience :: Information Technology",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         "Operating System :: Unix",

@@ -1,6 +1,5 @@
 from collections import defaultdict, namedtuple
 from itertools import tee
-import re 
 
 from Bio import Alphabet
 from Bio.Seq import Seq  # need to clean this up
@@ -165,7 +164,7 @@ class ProteinVariantPredictor():
 
         ref = vcf_record.REF
         for alt in vcf_record.ALT:
- 
+
             # Create a GenomePosition representing the range affected by the
             # ALT sequence.
             affected_pos = record_pos.shifted_by(

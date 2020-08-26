@@ -5,10 +5,13 @@ cerebra
 [![Build Status](https://travis-ci.org/czbiohub/cerebra.svg?branch=master)](https://travis-ci.org/czbiohub/cerebra) 
 [![codecov](https://codecov.io/gh/czbiohub/cerebra/branch/master/graph/badge.svg)](https://codecov.io/gh/czbiohub/cerebra)
 
+
 What is `cerebra`?
 -------------------------------------
-This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. 
-If you're interested in learning what variants are present in your DNA/RNA samples, variant callers such as GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate [variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf) (VCF) files following a sequencing experiment.
+This tool allows you to quickly summarize and interpret VCF files.      
+
+If you're interested in learning the full complement of genomic variants present in your DNA/RNA samples, a typical workflow might involve sequencing, followed by variant calling with a tool such as GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php), which generates [variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf) (VCF) files.       
+
 A VCF file looks like this:
 
 ```##fileformat=VCFv4.2
@@ -23,15 +26,15 @@ Thus drawing conclusions from VCF files remains a substantial challenge.
 
 
 `cerebra` provides a fast and intuitive framework for summarizing VCF records across samples.
-It is comprised of three modules that do the following:      
+It comprises three modules that do the following:      
 
         1) remove germline variants from samples of interest        
         2) count the total number of variants in a given sample, on a per-gene basis           
-        3) report peptide-level variants for each sample                 
+        3) report protein variants for each sample                 
         
 `cerebra` gets its name from the eponymous X-men [character](https://en.wikipedia.org/wiki/Cerebra), who had the ability to detect mutant individuals among the general public. 
 
-If you're working with tumor data, it might be a good idea to limit the variant search space to only known cancer variants. 
+If you're working with tumor data, it might be a good idea to limit the variant search space to only known, and potentially actionable, cancer variants. 
 Therefore `cerebra` implements an optional method for restricting to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database.  
 
 This tool was developed for, but is certainly not limited to, single-cell RNA sequencing data. 
@@ -49,7 +52,7 @@ Another is [GATK VariantsToTable](https://software.broadinstitute.org/gatk/docum
 
 This table contains only genomic (_i.e._ DNA-level) coordinates. 
 Often the next questions are: what are the genes associated with these variants, and what are the peptide-level effects of these variants?
-`cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene, and its probable peptide-level variant.
+`cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene, and its probable protein variant.
 `cerebra` produces the following outfile: 
 
 ```
@@ -87,18 +90,21 @@ $ python
 Here _CCN1_ is a gene name while _A16_B000563_, _A1_B001546_, _A1_B002531,_... are RNA-seq sample IDs.
 `cerebra` reports variants to every gene in the genome, for every sample in a given experiment. 
 The _ENSP*_ numbers refer to [Ensembl](https://www.ensembl.org/index.html) translation IDs -- unique identifiers that correspond to exactly one polypeptide in the Ensembl database. 
-The strings enclosed in parenthesis refer to the amino-acid level variants reported in that particular sample. 
+The strings enclosed in parentheses refer to the amino-acid level variants reported in that particular sample. 
 For example the string `Arg209Trp` indicates that position 209 of this particular polypeptide should contain an _Arg_, but the experimental sample instead contains a _Trp_. 
 `cerebra` adheres to HGVS sequence variant [nomenclature](https://varnomen.hgvs.org/) in reporting amino-acid variants.
+
 
 Features
 --------
 ### `germline-filter`
 
-If the research project is centered around a "tumor/pathogenic vs control" question, then `germline-filter` is the proper starting point. 
-This module removes germline variants that are common between the control and the experimental tissue so as to not bias the results by including non-pathogenic variants. 
-The user provides a very simple metadata file that indicates which experimental samples correspond to which control samples.
-The output of `germline-filter` is a set of trimmed-down VCFs. 
+Variant calling is often applied to the study of cancer. 
+If the research project is centered around a “tumor vs. normal” question, then `germline-filter` is the proper starting point. 
+This module removes germline variants that are common between tumor and normal samples, and thus excludes variants unlikely to be pathogenic for the cancer under study.
+The user provides a very simple metadata file (see [USAGE.md](https://github.com/czbiohub/cerebra/blob/master/docs/USAGE.md)) that indicates which tumor samples correspond to which normal samples.
+The output of germline-filter is a set of trimmed-down VCF files, which will be used for the next two steps.
+If you do not have access to “normal” samples then proceed directly to `count-variants` or `find-peptide-variants`.
 
 ### `count-variants`
 This module reports the raw variant counts for every gene across every sample.
@@ -106,51 +112,18 @@ The output is a CSV file that contains counts for each sample versus every gene 
 If working with cancer variants, the user has the option of limiting the search space to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
 
 ### `find-peptide-variants`
-This module reports the peptide-level consequence of genomic variants.
+This module reports the protein variations associated with each genomic variant.
 VCF records are converted to peptide-level variants, and then [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
-in acordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
-The output is a heirarchically ordered text file (CSV or JSON) that reports the the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
+in accordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
+The output is a hierarchically ordered text file (CSV or JSON) that reports the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
 The user again has the option of limiting the search space to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
+This module also has an option to report the number of variant vs. wildtype reads found at each locus. 
 
-Installation
+
+Dependencies
 ------------
-There are four different methods available to install `cerebra`.
-
-__With [Docker](https://hub.docker.com/r/lincolnharris/cerebra)__                
-```
-docker pull lincolnharris/cerebra
-docker run -it lincolnharris/cerebra
-```      
-_warning: this image will take up ~1Gb of space._               
-
-__With traditional git clone and the python standard library [venv](https://docs.python.org/3/library/venv.html) module__
-```
-git clone https://github.com/czbiohub/cerebra.git
-cd cerebra
-python3 -m venv cerebra-dev
-source cerebra-dev/bin/activate
-pip3 install -e . 
-```
-
-__With traditional git clone and [conda](https://docs.conda.io/en/latest/)__
-``` 
-git clone https://github.com/czbiohub/cerebra.git
-cd cerebra
-conda create -n cerebra python=3.7
-conda activate cerebra
-pip3 install -e . 
-```
-
-__From [PyPi](https://pypi.org/project/cerebra/) (system-wide installation)__              
-```
-pip install cerebra
-
-# OR, if you dont have root privileges
-pip install --user cerebra
-```
-
 `cerebra` depends on some (fairly standard) packages and libraries. 
-If youre having trouble installing, it might be a good idea to make sure you have all of the requisite dependendices installed first (_note:_ if installing with Docker you can skip this step). 
+Before installing, it might be a good idea to make sure all of the requisite packages are installed on your system (_note:_ if installing with Docker you can skip this step). 
 
 __MacOS Dependencies:__
 ```
@@ -167,6 +140,87 @@ sudo apt-get install autoconf automake make gcc perl zlib1g-dev libbz2-dev liblz
 
 As of present `cerebra` is not installable on Windows. 
 `cerebra` depends on the [`pysam`](https://pysam.readthedocs.io/en/latest/index.html) library (or rather, `pysam` is a dependency-of-a-dependency) and currently this library is only available on Unix-like systems. 
+Windows solutions like [WSL](https://docs.microsoft.com/en-us/windows/wsl/) exist for overcoming precisely this challenge, however, `cerebra` has not been tested on WSL or any other Unix-like subsystem for Windows.    
+
+
+Installation (for users)
+------------
+There are four different methods available to install `cerebra`.
+Choose one of the following:
+
+__With [Docker](https://hub.docker.com/r/lincolnharris/cerebra) (recommended)__          
+```
+docker pull lincolnharris/cerebra
+docker run -it lincolnharris/cerebra
+```      
+_warning: this image will take up ~1Gb of space._               
+
+__With traditional git clone and the python standard library [`venv`](https://docs.python.org/3/library/venv.html) module__
+```
+git clone https://github.com/czbiohub/cerebra.git
+cd cerebra
+python3 -m venv cerebra-dev
+source cerebra-dev/bin/activate
+pip3 install [--user] . 
+```
+
+__With traditional git clone and [conda](https://docs.conda.io/en/latest/)__
+``` 
+git clone https://github.com/czbiohub/cerebra.git
+cd cerebra
+conda create -n cerebra python=3.7
+conda activate cerebra
+pip3 install [--user] . 
+```
+
+__From [PyPi](https://pypi.org/project/cerebra/) (system-wide installation, NOT RECOMMENDED)__    
+For novice users, it's generally a better idea to install packages within virtual environments. 
+However, `cerebra` can be installed system-wide, if you so choose. 
+```
+pip install cerebra
+
+# OR, if you dont have root privileges
+pip install --user cerebra
+```
+
+
+Installation (for developers)
+------------
+Here's how to set up cerebra for local development. 
+After installing the requisite [dependencies](https://github.com/czbiohub/cerebra/blob/joss-review-redux/README.md#dependencies):
+
+1.  Fork the `cerebra` repo on GitHub: https://github.com/czbiohub/cerebra
+2.  Clone your fork locally:
+
+        $ git clone https://github.com/your-name/cerebra.git
+
+3.  Install your local copy into a virtualenv. Using the standard library [`venv`](https://docs.python.org/3/library/venv.html) module: 
+
+        $ cd cerebra
+        $ python3 -m venv cerebra-dev
+        $ source cerebra-dev/bin/activate
+        $ pip install -r requirements.txt -r test_requirements.txt -e .
+
+4.  Create a branch for local development:
+
+        $ git checkout -b name-of-your-bugfix-or-feature
+
+    Now you can make your changes locally.
+
+5.  When you're done making changes, check that your changes pass `flake8` and `pytest`:
+
+        $ make test
+        $ make coverage
+        $ make lint
+
+6.  Commit your changes and push your branch to GitHub:
+
+        $ git add .
+        $ git commit -m "Your detailed description of your changes."
+        $ git push origin name-of-your-bugfix-or-feature
+
+7.  Submit a pull request through the GitHub website.
+See [CONTRIBUTING.md](https://github.com/czbiohub/cerebra/blob/joss-review-redux/docs/CONTRIBUTING.md) for more. 
 
 
 (Quickstart) Usage
@@ -183,7 +237,7 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
-  germline-filter    filter out common SNPs/indels between control/germline samples and samples of interest
+  germline-filter    filter out common SNPs/indels between tumor and normal samples
   count-variants    count total number of variants in each sample, and report on a per-gene basis
   find-peptide-variants  report peptide-level SNPs and indels in each sample, and associated coverage
 ```
@@ -194,7 +248,7 @@ An example workflow might look like this:
 
 **Step 1:**     
 ```
-cerebra germline-filter --processes 2 --control_path /path/to/control/vcfs --experimental_path /path/to/experimental/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs
+cerebra germline-filter --processes 2 --normal_path /path/to/normal/vcfs --tumor_path /path/to/tumor/vcfs --metadata /path/to/metadata/file --outdir /path/to/filtered/vcfs
 ```
 
 **Step 2:**     
@@ -207,7 +261,8 @@ cerebra count-variants --processes 2 --cosmicdb /optional/path/to/cosmic/databas
 cerebra find-peptide-variants --processes 2 --cosmicdb /optional/path/to/cosmic/database --annotation /path/to/genome/annotation --genomefa /path/to/genome/fasta --report_coverage 1 --output /path/to/output/file /path/to/filtered/vcfs/*
 ```
 
-For advanced usage information, see [USAGE.md](https://github.com/czbiohub/cerebra/blob/messing-w-docs/docs/USAGE.md). 
+For advanced usage information, see [USAGE.md](https://github.com/czbiohub/cerebra/blob/master/docs/USAGE.md). 
+
 
 Authors
 --------

@@ -1,4 +1,4 @@
-experimental_sample_id,germline_sample_id
+tumor_sample_id,normal_sample_id
 A1,A1_GL1
 A1,A1_GL2
 foobar,A1_GL3

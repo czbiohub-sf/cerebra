@@ -152,12 +152,12 @@ class MutationCounter():
 
 @click.command()
 @click.option("--processes", default=1,
-              prompt="number of processes to use for computation", type=int)
-@click.option("--cosmicdb", prompt="path to cosmic db file (.tsv)",
+              help="number of processes to use for computation", type=int)
+@click.option("--cosmicdb", help="path to cosmic db file (.tsv)",
               required=True)
-@click.option("--refgenome", prompt="path to reference genome (.gtf)",
+@click.option("--refgenome", help="path to reference genome (.gtf)",
               required=True)
-@click.option("--outfile", prompt="path to output file (.csv)", required=True)
+@click.option("--outfile", help="path to output file (.csv)", required=True)
 @click.argument("files", required=True, nargs=-1)
 def count_variants(processes, cosmicdb, refgenome, outfile, files):
     """ count total number of variants in each sample, and report

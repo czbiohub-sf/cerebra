@@ -303,9 +303,12 @@ def find_peptide_variants(num_processes, cosmicdb_path, annotation_path,
     print("Writing file...")
 
     csv_path = Path(output_path)
-    result_df.to_csv(csv_path)
+    if '.csv' in output_path or 'CSV' in output_path:
+        result_df.to_csv(csv_path)
+    else:
+        result_df.to_csv(str(csv_path) + '.csv')
 
-    json_path = str(csv_path).strip('.csv') + '.json'
+    json_path = str(csv_path).strip('.csv').strip('.CSV') + '.json'
     result_df.to_json(json_path)
 
     print("Done!")
