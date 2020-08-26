@@ -262,8 +262,8 @@ class AminoAcidMutationFinder():
               "genomefa_path",
               help="path to full genome sequences (.fasta)",
               required=True)
-@click.option('--coverage', is_flag=True, 
-			  help="do you want to report coverage information?")
+@click.option('--coverage', is_flag=True,
+                help="do you want to report coverage information?")
 @click.option("--output_path",
               "output_path",
               help="path to output file",
