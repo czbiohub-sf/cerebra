@@ -68,7 +68,7 @@ A coverage string in the format of [_x_:_y_:_z_] would indicate there are two va
 
 ## Testing
 
-First install the packages specified in [test_requirements.txt](https://github.com/czbiohub/cerebra/blob/messing-w-docs/test_requirements.txt). 
+First install the packages specified in [test_requirements.txt](https://github.com/czbiohub/cerebra/blob/master/test_requirements.txt). 
 Now you should be able to run:
 
 ` $ make test `
