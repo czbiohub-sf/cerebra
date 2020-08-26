@@ -58,7 +58,7 @@ To address the unmet need for high-throughput VCF summary tools, we introduce `c
 
 ## Functionality
 
-`cerebra` comprises three modules: i) `germline-filter` removes variants that are common between tumor and normal samples, ii) `count-variants` reports total number of variants in each sample, and iii) `find-peptide-variants` reports the likely protein variants in each sample. 
+`cerebra` comprises three modules: i) `germline-filter` is intended for working with cancer data and removes variants that are common between tumor and normal samples, ii) `count-variants` reports total number of variants in each sample, and iii) `find-peptide-variants` reports the likely protein variants in each sample. 
 Here we use _variant_ to refer to single nucleotide polymorphisms (SNPs) and short insertions/deletions. 
 `cerebra` is not capable of reporting larger structural variants such as copy number variations and chromosomal rearrangements.
 
@@ -118,7 +118,7 @@ Protein variants are converted to [ENSEMBL](https://uswest.ensembl.org/index.htm
 The output is a hierarchically ordered text file (CSV or JSON) that reports the the ENSEMBL protein ID and the gene associated with each variant, for each experimental sample.    
 
 Variant callers are known to produce a great deal of false positives, especially when applied to single-cell RNA-seq data [@Enge:2017].
-To address this concern, we have included the `--report_coverage` option. 
+To address this concern, we have included the `coverage` option. 
 If indicated this option will report counts for both variant and wildtype reads at all variant loci. 
 We reasoned that variants with a high degree of read support are less likely to be false positives.
 This option is designed to give the user more confidence in individual variant calls.        
@@ -147,7 +147,7 @@ Also of note is that `cerebra`'s search operations take advantage of multiproces
 
 RNA/DNA sequencing paired with fast and accurate summarizing of variants is often crucial to understanding the biology of an experimental system. 
 We present a tool that can be used to quickly summarize the variant calls contained within a large set of VCF files.
-As sequencing costs continue to drop, large-scale variant calling will become accessible to more members of the community, and summary tools like `cerebra` will become increasingly important. 
+As sequencing costs continue to drop, large-scale variant calling will become more accessible, and summary tools like `cerebra` will become essential for drawing meaningful conclusions in a reasonable timeframe. 
 Our tool offers the advantages of parallel processing and a single, easy-to-interpret output file (CSV or JSON).
 
 `cerebra` is already enabling research, see [@Maynard:2020], a study that examines the tumor microenvironment of late-stage drug-resistant carcinomas with single-cell RNA-sequencing. 
