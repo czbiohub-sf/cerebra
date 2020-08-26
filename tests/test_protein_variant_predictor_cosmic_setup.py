@@ -38,7 +38,7 @@ class ProteinVariantPredictorTesterCos(unittest.TestCase):
 									self.annotation_genome_tree, genome_faidx)
 
 		self.aa_mutation_finder = AminoAcidMutationFinder(cosmic_df,
-										annotation_df, genome_faidx, cov_bool=0)
+										annotation_df, genome_faidx, coverage=0)
 
 
 	def test_predict_for_vcf_record(self):
