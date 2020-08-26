@@ -9,7 +9,7 @@ cerebra
 What is `cerebra`?
 -------------------------------------
 This tool allows you to quickly extract meaningful variant information from a DNA or RNA sequencing experiment. 
-If you're interested in learning what variants are present in your DNA/RNA samples, variant callers such as GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate [variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf) (VCF) files following a sequencing experiment.
+If you're interested in learning what variants are present in your DNA/RNA samples, variant callers such as GATK [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) can be used to generate [variant calling format](https://samtools.github.io/hts-specs/VCFv4.2.pdf) (VCF) files, following a sequencing experiment.
 A VCF file looks like this:
 
 ```##fileformat=VCFv4.2
@@ -28,11 +28,11 @@ It comprises three modules that do the following:
 
         1) remove germline variants from samples of interest        
         2) count the total number of variants in a given sample, on a per-gene basis           
-        3) report peptide-level variants for each sample                 
+        3) report protein variants for each sample                 
         
 `cerebra` gets its name from the eponymous X-men [character](https://en.wikipedia.org/wiki/Cerebra), who had the ability to detect mutant individuals among the general public. 
 
-If you're working with tumor data, it might be a good idea to limit the variant search space to only known cancer variants. 
+If you're working with tumor data, it might be a good idea to limit the variant search space to only known, and potentially actionable, cancer variants. 
 Therefore `cerebra` implements an optional method for restricting to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database.  
 
 This tool was developed for, but is certainly not limited to, single-cell RNA sequencing data. 
@@ -50,7 +50,7 @@ Another is [GATK VariantsToTable](https://software.broadinstitute.org/gatk/docum
 
 This table contains only genomic (_i.e._ DNA-level) coordinates. 
 Often the next questions are: what are the genes associated with these variants, and what are the peptide-level effects of these variants?
-`cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene, and its probable peptide-level variant.
+`cerebra` queries a reference genome (.fa) and annotation (.gtf) to match each DNA-level variant with its associated gene, and its probable protein variant.
 `cerebra` produces the following outfile: 
 
 ```
@@ -110,7 +110,7 @@ The output is a CSV file that contains counts for each sample versus every gene 
 If working with cancer variants, the user has the option of limiting the search space to variants also found in the [COSMIC](https://cancer.sanger.ac.uk/cosmic) database. 
 
 ### `find-peptide-variants`
-This module reports the peptide-level variations associated with each genomic variant.
+This module reports the protein variations associated with each genomic variant.
 VCF records are converted to peptide-level variants, and then [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, 
 in accordance to the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature. 
 The output is a hierarchically ordered text file (CSV or JSON) that reports the Ensemble protein ID and the gene associated with each variant, for each experimental sample. 
@@ -205,7 +205,7 @@ After installing the requisite [dependencies](https://github.com/czbiohub/cerebr
 
     Now you can make your changes locally.
 
-5.  When you're done making changes, check that your changes pass `flake8` and the `pytest`:
+5.  When you're done making changes, check that your changes pass `flake8` and `pytest`:
 
         $ make test
         $ make coverage
