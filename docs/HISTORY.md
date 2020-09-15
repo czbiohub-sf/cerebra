@@ -3,7 +3,7 @@ History
 
 v1.1.3 (2020-09-15)
 ---------------------
-some pkg requirement versions pinned -- should work better with PyPi now.
+some pkg requirement versions pinned -- should work better with PyPi now.   
 various updates to READMEs and instruction files.
 
 
@@ -18,13 +18,14 @@ added docker support, updated requirement files, added multi-platform CI testing
 
 v1.1.0 (2020-07-13)
 ---------------------       
-starting to address JOSS reviewer comments. A lot of work still to be done.
+starting to address JOSS reviewer comments.     
+A lot of work still to be done.
 
 
 v1.0.0 (2020-01-31)
 ---------------------
 
-_initial release_           
+_initial release_             
 basic functionality achieved.
 
 
