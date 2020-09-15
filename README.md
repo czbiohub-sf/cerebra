@@ -166,17 +166,17 @@ __With [conda](https://docs.conda.io/en/latest/)__
 ``` 
 conda create -n cerebra python=3.7
 conda activate cerebra
-pip install cerebra
+pip3 install cerebra
 ```
 
 __From [PyPi](https://pypi.org/project/cerebra/) (system-wide installation, NOT RECOMMENDED)__    
 For novice users, it's generally a better idea to install packages within virtual environments. 
 However, `cerebra` can be installed system-wide, if you so choose. 
 ```
-pip install cerebra
+pip3 install cerebra
 
 # OR, if you dont have root privileges
-pip install --user cerebra
+pip3 install --user cerebra
 ```
 
 
@@ -195,7 +195,7 @@ After installing the requisite [dependencies](https://github.com/czbiohub/cerebr
         $ cd cerebra
         $ python3 -m venv cerebra-dev
         $ source cerebra-dev/bin/activate
-        $ pip install -r requirements.txt -r test_requirements.txt -e .
+        $ pip3 install -r requirements.txt -r test_requirements.txt -e .
 
 4.  Create a branch for local development:
 
