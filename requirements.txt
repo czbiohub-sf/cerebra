@@ -1,4 +1,4 @@
-biopython
+biopython==1.77
 click
 cython==0.29.13
 hgvs
