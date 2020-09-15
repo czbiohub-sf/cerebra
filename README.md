@@ -155,22 +155,18 @@ docker run -it lincolnharris/cerebra
 ```      
 _warning: this image will take up ~1Gb of space._               
 
-__With traditional git clone and the python standard library [`venv`](https://docs.python.org/3/library/venv.html) module__
+__With the python standard library [`venv`](https://docs.python.org/3/library/venv.html) module__
 ```
-git clone https://github.com/czbiohub/cerebra.git
-cd cerebra
 python3 -m venv cerebra-dev
 source cerebra-dev/bin/activate
 pip3 install [--user] . 
 ```
 
-__With traditional git clone and [conda](https://docs.conda.io/en/latest/)__
+__With [conda](https://docs.conda.io/en/latest/)__
 ``` 
-git clone https://github.com/czbiohub/cerebra.git
-cd cerebra
 conda create -n cerebra python=3.7
 conda activate cerebra
-pip3 install [--user] . 
+pip install cerebra
 ```
 
 __From [PyPi](https://pypi.org/project/cerebra/) (system-wide installation, NOT RECOMMENDED)__    
