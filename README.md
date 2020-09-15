@@ -157,9 +157,9 @@ _warning: this image will take up ~1Gb of space._
 
 __With the python standard library [`venv`](https://docs.python.org/3/library/venv.html) module__
 ```
-python3 -m venv cerebra-dev
-source cerebra-dev/bin/activate
-pip3 install [--user] . 
+python3 -m venv cerebra
+source cerebra/bin/activate
+pip3 install cerebra 
 ```
 
 __With [conda](https://docs.conda.io/en/latest/)__
