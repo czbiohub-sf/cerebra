@@ -3,8 +3,8 @@ cerebra
 <a href="https://pypi.org/project/cerebra/"><img alt="PyPI" src="https://badge.fury.io/py/cerebra.svg"></a>
 [![Docker Build](https://img.shields.io/docker/cloud/build/lincolnharris/cerebra)](https://hub.docker.com/r/lincolnharris/cerebra)    
 [![Build Status](https://travis-ci.org/czbiohub/cerebra.svg?branch=master)](https://travis-ci.org/czbiohub/cerebra) 
-[![codecov](https://codecov.io/gh/czbiohub/cerebra/branch/master/graph/badge.svg)](https://codecov.io/gh/czbiohub/cerebra)
-
+[![codecov](https://codecov.io/gh/czbiohub/cerebra/branch/master/graph/badge.svg)](https://codecov.io/gh/czbiohub/cerebra)              
+[![DOI](https://zenodo.org/badge/180649463.svg)](https://zenodo.org/badge/latestdoi/180649463)
 
 What is `cerebra`?
 -------------------------------------
