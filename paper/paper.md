@@ -20,7 +20,7 @@ authors:
    orcid: 0000-0003-4002-8158
    affiliation: 1 
 affiliations: 
-- name: Chan Zuckerberg Biohub, San Francisco, CA
+- name: Chan Zuckerberg Biohub, San Francisco, CA, United States
   index: 1
 date: 20, August, 2020 
 bibliography: paper.bib
