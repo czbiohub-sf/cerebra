@@ -5,6 +5,7 @@ cerebra
 [![Build Status](https://travis-ci.org/czbiohub/cerebra.svg?branch=master)](https://travis-ci.org/czbiohub/cerebra) 
 [![codecov](https://codecov.io/gh/czbiohub/cerebra/branch/master/graph/badge.svg)](https://codecov.io/gh/czbiohub/cerebra)              
 [![DOI](https://zenodo.org/badge/180649463.svg)](https://zenodo.org/badge/latestdoi/180649463)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.02432/status.svg)](https://doi.org/10.21105/joss.02432)
 
 What is `cerebra`?
 -------------------------------------
