@@ -114,7 +114,7 @@ The user again has the option to limit the search space to variants found in the
 VCF records are read in simultaneously; individual records are converted to _GenomePosition_ objects to keep track of their genomic intervals and observed DNA bases.
 _GenomePositions_ are then queried against the _genome interval tree_. 
 If an overlapping interval is found, we retrieve the protein variant from this node of the _genome interval tree_. 
-Protein variants are converted to [ENSEMBL](https://uswest.ensembl.org/index.html) protein IDs, in accordance with the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature [@ensembl; @hgvs].
+Protein variants are converted to [ENSEMBL](https://www.ensembl.org/index.html) protein IDs, in accordance with the [HGVS](https://varnomen.hgvs.org/) sequence variant nomenclature [@ensembl; @hgvs].
 The output is a hierarchically ordered text file (CSV or JSON) that reports the the ENSEMBL protein ID and the gene associated with each variant, for each experimental sample.    
 
 Variant callers are known to produce a great deal of false positives, especially when applied to single-cell RNA-seq data [@Enge:2017].
