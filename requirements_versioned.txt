@@ -3,7 +3,7 @@ click==7.0
 cython==0.29.13
 hgvs==1.4.0
 ncls==0.0.51
-numpy==1.18.1
+numpy==1.22.0
 pandas==0.25.3
 pathos==0.2.5
 pyfaidx==0.5.6
