@@ -7,6 +7,6 @@ numpy==1.18.1
 pandas==0.25.3
 pathos==0.2.5
 pyfaidx==0.5.6
-setuptools==47.3.1
+setuptools==65.5.1
 tqdm==4.42.0
 vcfpy==0.12.1
